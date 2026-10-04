@@ -1,7 +1,7 @@
 # Progress
 
 ## Current status
-- **Current phase:** Phase 9 — optional BYOK configuration and AI gate in progress.
+- **Current phase:** Phase 10 — launcher, hardening, operator guide and acceptance in progress.
 - **Current task:** implement Phases 2–10 in order, as newly authorized; no approval pauses.
 - **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
@@ -19,7 +19,7 @@
 | 6 | Exports and review | Cloud milestone complete | 269 total tests; four CSV goldens, numeric Excel, review atomicity/staleness and gates |
 | 7 | Merge, categories and OFX | Cloud milestone complete | 278 tests; twelve-month workbook, exact gaps, account identity, category precedence, OFX goldens/parse |
 | 8 | Delivery, retention and metrics | Cloud milestone complete | 284 tests; full delivery/close, versioned spot-checks, tamper refusal, partial deletion/retry and anonymous stats |
-| 9 | Optional BYOK AI | Not started | — |
+| 9 | Optional BYOK AI | Cloud implementation verified with fakes | 302 tests; gate/no-network, private keys, capabilities/Max, chat/responses adapters, invalid/rejected output and budget binding |
 | 10 | Windows/field readiness | Not started | — |
 
 ## Phase 1 result
@@ -85,3 +85,6 @@ Twelve monthly sheets plus All Transactions/Summary/Issues; exact Decimal contin
 
 ## Phase 8 milestone
 Delivery validates export hashes and statement revision, then archives outputs and factual template disclosures. Pipeline pauses for review/spot-check instead of bypassing them. Spot checks are versioned. Close confines paths, refuses symlinks, inventories hashes, preserves retryable partial failures, re-scans before certification and scrubs all client fields. Anonymous typed ledger writes are atomic/idempotent; stats/quote medians use measured timings. Full gate: 284 passed, no skips; selftest passes. Tests confirm closed folder contains only order.json, no sample alias/description/file names/amounts in retained manifest/ledger, and a partial deletion issues no certificate.
+
+## Phase 9 milestone
+Private OpenAI-compatible provider setup, hidden keys, discovery/manual model entry, model-specific capability references, picker defaults to highest supported effort (Max only when documented), and explicit schema/effort/token/route adapters implemented. Processing requires activation, consent/note, terms, model/key and budget; requests/retries consume persisted pages before network access. Provider/model/effort changes require explicit renewed consent. Only minimized/masked table cells are sent; invalid JSON is bounded/rejected; AI output remains source-review-gated and financially revalidated. Source confirmation is distinct from changing amounts, so fix counts are not fabricated. Full gate: 302 passed, no skips; selftest passes. All provider tests use fakes/MockTransport; no real model connection or paid API call was made. Actual provider terms/model capabilities must be confirmed on the owner device.

@@ -114,6 +114,6 @@ def configure_logging(workspace: Path, level: str) -> logging.Logger:
         MANAGED_HANDLERS.append(handler)
         root.addHandler(handler)
     root.setLevel(level)
-    for name in ["docling", "rapidocr", "RapidOCR", "pdfminer"]:
+    for name in ["docling", "rapidocr", "RapidOCR", "pdfminer", "httpx", "httpcore"]:
         logging.getLogger(name).setLevel(logging.WARNING)
     return logging.getLogger("stmtconv")

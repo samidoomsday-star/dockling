@@ -18,8 +18,8 @@ def register(app: typer.Typer) -> None:
             Console().print(str(path), markup=False)
 
     @app.command("apply-review")
-    def apply_review(ctx: typer.Context, order_id: str) -> None:
-        report(call(lambda: service.apply(ctx.obj.settings, order_id)))
+    def apply_review(ctx: typer.Context, order_id: str, confirm_ai_source: bool = False) -> None:
+        report(call(lambda: service.apply(ctx.obj.settings, order_id, confirm_ai_source)))
 
     @app.command("spotcheck")
     def spotcheck(ctx: typer.Context, order_id: str) -> None:

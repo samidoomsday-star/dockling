@@ -53,7 +53,7 @@ def route(
     allowance_days: int,
     mode: str = "text",
     docling: Extractor | None = None,
-    ai: Callable[[Statement], ExtractionResult] | None = None,
+    ai: Callable[[Statement, ExtractionResult], ExtractionResult] | None = None,
     mismatch_ratio: float = 0.05,
 ) -> Statement:
     from stmtconv.errors import StmtconvError
@@ -66,6 +66,7 @@ def route(
         statement_id, text, pages, profile, date_order, tolerance, allowance_days
     )
     candidate.timings["text"] = perf_counter() - start
+    selected_raw = text
     reason = "text candidate"
     failed = candidate.verdict == "NEEDS_REVIEW"
     ratio = sum(t.check.status == "MISMATCH" for t in candidate.transactions) / max(
@@ -90,6 +91,7 @@ def route(
                     row.flags.append("SOURCE_CHECK_REQUIRED")
             if mode == "docling" or score(other) < score(candidate):
                 candidate = other
+                selected_raw = result
                 reason = (
                     "scanned primary"
                     if pages.scanned
@@ -102,10 +104,12 @@ def route(
                 raise
             reason = "OCR fallback failed: " + exc.code
     if candidate.verdict == "NEEDS_REVIEW" and ai is not None:
-        result = ai(candidate)
+        result = ai(candidate, selected_raw)
         other = normalized(
             statement_id, result, pages, profile, date_order, tolerance, allowance_days
         )
+        for row in other.transactions:
+            row.flags.append("SOURCE_CHECK_REQUIRED")
         if score(other) < score(candidate):
             candidate = other
             reason = "AI fallback improves whole-statement validation"

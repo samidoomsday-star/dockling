@@ -99,6 +99,7 @@ class Order(Record):
     export_hashes: dict[str, str] = Field(default_factory=dict)
     export_revision: str | None = None
     ai_pages_used: int = 0
+    ai_provider_binding: str | None = None
     deletion_pending: bool = False
     deletion_inventory: list[dict[str, str]] = Field(default_factory=list)
     metrics: dict[str, object] = Field(default_factory=dict)

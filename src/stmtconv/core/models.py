@@ -49,6 +49,7 @@ class Transaction(Domain):
     raw_text: str
     fixed_by: Literal["review", "ai"] | None = None
     date_inherited: bool = False
+    source_reviewed: bool = False
     flags: list[str] = Field(default_factory=list)
     check: RowCheck = Field(default_factory=RowCheck)
     category: str | None = None

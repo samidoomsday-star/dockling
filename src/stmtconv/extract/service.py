@@ -68,8 +68,6 @@ def extract(
         store.require(order, {"intake_done", "extracted", "needs_review", "reviewed"})
         if not order.files:
             raise StmtconvError("EXTRACT_EMPTY", "Complete intake first.")
-        if ai:
-            raise StmtconvError("AI_NOT_READY", "Optional BYOK routing comes in Phase 9.")
         from stmtconv.extract.docling_engine import DoclingExtractor
 
         docling = DoclingExtractor(settings.artifacts_path, settings.num_threads)
@@ -84,6 +82,9 @@ def extract(
             profile = detect(text, profiles, profile_id)
             for group in page_groups(pages, len(file.pages)):
                 statement_id = f"s{len(statements) + 1:04d}"
+                from stmtconv.ai.service import callback
+
+                ai_callback = callback(settings, order, file.name) if ai else None
                 statement = route(
                     statement_id,
                     PageSet(
@@ -98,6 +99,7 @@ def extract(
                     settings.date_out_of_period_days,
                     engine,
                     docling,
+                    ai_callback,
                     mismatch_ratio=settings.fallback_mismatch_ratio,
                 )
                 statement.summary.currency = order.currency

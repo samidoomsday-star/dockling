@@ -132,7 +132,7 @@ def fix_date(value: object) -> date:
     raise ValueError("use an Excel date or YYYY-MM-DD")
 
 
-def apply(settings: Settings, order_id: str) -> list[Statement]:
+def apply(settings: Settings, order_id: str, confirm_ai_source: bool = False) -> list[Statement]:
     started = perf_counter()
     with store.edit(settings.workspace, order_id) as order:
         store.require(order, {"needs_review", "reviewed"})
@@ -274,6 +274,12 @@ def apply(settings: Settings, order_id: str) -> list[Statement]:
                 )
             result.transactions = rows
             result.manual_fixes += local_fixes
+            if confirm_ai_source and "AI_RESULT_UNTRUSTED" in result.flags:
+                result.flags = [f for f in result.flags if f != "AI_RESULT_UNTRUSTED"]
+                for row in result.transactions:
+                    if row.engine == "ai":
+                        row.source_reviewed = True
+                result.review_history.append({"action": "confirm_ai_source"})
             if not any("DATE_ORDER_AMBIGUOUS" in t.flags for t in rows):
                 result.flags = [f for f in result.flags if f != "DATE_ORDER_AMBIGUOUS"]
             changed.append(validate(result, settings.balance_tolerance))
