@@ -111,7 +111,7 @@ After the agreed retention period:
 .venv\Scripts\python.exe -m stmtconv close JOB
 ```
 
-Only the scrubbed manifest/certificate remains, plus an anonymous metrics ledger. This certifies logical removal of the tracked local files, not physical disk erasure, backups, client copies or cloud-sync history. A partial deletion reports an error and issues no success certificate; close Excel/programs holding the files and retry. `order list --overdue` helps identify delivered jobs past the configured retention period; deletion is not automatic.
+The command asks you to confirm removal; answer yes only after saving/sending what you need. Only the scrubbed manifest/certificate remains, plus an anonymous metrics ledger. This certifies logical removal of the tracked local files, not physical disk erasure, backups, client copies or cloud-sync history. A partial deletion reports an error and issues no success certificate; close Excel/programs holding the files and retry. `order list --overdue` helps identify delivered jobs past the configured retention period; deletion is not automatic.
 
 To discard an unfinished/rejected job deliberately:
 
