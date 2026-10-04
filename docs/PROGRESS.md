@@ -1,7 +1,7 @@
 # Progress
 
 ## Current status
-- **Current phase:** Phase 4 — text extraction and profiles in progress.
+- **Current phase:** Phase 5 — OCR and fallback routing in progress.
 - **Current task:** implement Phases 2–10 in order, as newly authorized; no approval pauses.
 - **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
@@ -14,7 +14,7 @@
 | 1 | Foundation | Cloud milestone complete; Windows acceptance pending | 32 tests, strict typing, lint/format, build, model setup and installed-wheel doctor |
 | 2 | Orders, intake and synthetic corpus | Cloud milestone complete | 120 total tests passed, strict typing, lint/format; encrypted intake and scanned quote |
 | 3 | Core normalization and validation | Cloud milestone complete | 250 total tests; Decimal round trips and all 50 corrupted-row positions for asset/liability |
-| 4 | Text engine and profiles | Not started | — |
+| 4 | Text engine and profiles | Cloud milestone complete | 252 total tests; nine exact selftest cases, profile data checks, changed PDF digit flagged |
 | 5 | Docling/OCR and router | Not started | — |
 | 6 | Exports and review | Not started | — |
 | 7 | Merge, categories and OFX | Not started | — |
@@ -70,3 +70,6 @@ Owner authorized remaining phases in sequence. Typed manifests, atomic writes/ex
 
 ## Phase 3 milestone
 Strict Decimal parser covers locales, signs and suffixes; dates retain ambiguity and missing-year flags; wrapped/inherited rows preserve source provenance. Validation checks running balances, printed totals, closing movement, duplicates and page coverage. 250 total tests pass with none skipped, including 100 single-digit corruption positions. Verified verdicts describe financial reconciliation, not source-date/description certainty.
+
+## Phase 4 milestone
+Text extraction uses word geometry and validated YAML profiles; summaries, wrapped rows and page provenance are persisted. CLI extract/validate/profile scaffold/test/selftest work. Nine three-layout statements (including multipage) match every row/date/amount/description; corrupted PDF produces one mismatch. Full gate: 252 passed, none skipped. Unknown layouts need review rather than being claimed supported.

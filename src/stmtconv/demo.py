@@ -23,6 +23,7 @@ def generate(
     month: int = 1,
     year: int = 2026,
     opening: Decimal = Decimal("1000.00"),
+    corrupt_index: int | None = None,
 ) -> tuple[Path, list[dict[str, str]]]:
     folder.mkdir(parents=True, exist_ok=True)
     name = f"{layout}-{year}-{month:02d}-{'scan' if scanned else 'text'}"
@@ -75,6 +76,9 @@ def generate(
             ):
                 canvas.line(x, 675, x, 658 - 38 * len(sequence[offset : offset + rows_per_page]))
         for index, row in enumerate(sequence[offset : offset + rows_per_page]):
+            row = dict(row)
+            if offset + index == corrupt_index:
+                row["debit"] = "9.00"
             y = 640 - index * 38
             canvas.drawString(40, y, row["date"])
             canvas.drawString(130, y, row["description"].removesuffix(" continued detail"))

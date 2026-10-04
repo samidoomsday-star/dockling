@@ -1,0 +1,52 @@
+id: generic
+display_name: Generic English layout
+fingerprints: []
+direction: asset
+header_aliases:
+  date:
+  - Date
+  - Posted
+  - Posting
+  description:
+  - Description
+  - Details
+  - Narrative
+  debit:
+  - Debit
+  - Withdrawal
+  credit:
+  - Credit
+  - Deposit
+  amount:
+  - Amount
+  balance:
+  - Balance
+amount_style: separate_columns
+decimal_separator: .
+thousands_separator: ','
+negative_patterns:
+- parentheses
+- trailing_minus
+- leading_minus
+- CR/DR
+date_formats:
+- '%Y-%m-%d'
+date_order: auto
+year_source: period
+summary_patterns:
+  period_start: Period:\s*(\d{4}-\d{2}-\d{2})
+  period_end: Period:\s*\d{4}-\d{2}-\d{2}\s+to\s+(\d{4}-\d{2}-\d{2})
+  account_mask: Account:\s*([A-Z0-9 -]+)
+  opening: Opening balance:\s*([\d,().+-]+)
+  closing: Closing balance:\s*([\d,().+-]+)
+  total_debits: Total debits:\s*([\d,().+-]+)
+  total_credits: Total credits:\s*([\d,().+-]+)
+noise_patterns:
+- ^Page \d+
+- ^Opening balance
+- ^Closing balance
+- ^Balance (brought|carried) forward
+- '^Period:'
+- '^Account:'
+- '^Total (debits|credits):'
+row_order: auto

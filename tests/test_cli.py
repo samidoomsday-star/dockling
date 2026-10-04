@@ -36,9 +36,7 @@ def test_help_lists_inventory_without_workspace_or_model_import(tmp_path):
 @pytest.mark.parametrize(
     "args",
     [
-        ["extract", "synthetic-id"],
-        ["selftest"],
-        ["profile", "test", "fake", "fake.pdf"],
+        ["deliver", "synthetic-id"],
     ],
 )
 def test_unbuilt_commands_are_explicit_and_nonzero(args, config_dir, tmp_path):

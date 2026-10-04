@@ -30,10 +30,11 @@ packages = ["src/stmtconv"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "config" = "stmtconv/_defaults"
+"profiles" = "stmtconv/_profiles"
 "docs/PHASE0-MODEL-MANIFEST.json" = "stmtconv/_model-manifest.json"
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "config", "pyproject.toml", "README-START-HERE.md", "docs/PHASE0-MODEL-MANIFEST.json"]
+include = ["src", "config", "profiles", "pyproject.toml", "README-START-HERE.md", "docs/PHASE0-MODEL-MANIFEST.json"]
 
 [tool.ruff]
 target-version = "py312"

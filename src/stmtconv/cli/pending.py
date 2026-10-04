@@ -15,8 +15,6 @@ def unavailable(phase: int) -> None:
 
 def register(app: typer.Typer) -> None:
     phases = {
-        "extract": 4,
-        "validate": 4,
         "review": 6,
         "apply-review": 6,
         "spotcheck": 6,
@@ -39,21 +37,6 @@ def register(app: typer.Typer) -> None:
             make_command(phase)
         )
 
-    @app.command(help="Full pipeline test, planned for Phase 4.")
-    def selftest() -> None:
-        unavailable(4)
-
     @app.command(help="Anonymous metrics, planned for Phase 8.")
     def stats() -> None:
         unavailable(8)
-
-    profiles = typer.Typer(help="Layout profiles (Phase 4).", no_args_is_help=True)
-    app.add_typer(profiles, name="profile")
-
-    @profiles.command("scaffold")
-    def profile_scaffold(order_id: str, file: str) -> None:
-        unavailable(4)
-
-    @profiles.command("test")
-    def profile_test(profile: str, pdf: str) -> None:
-        unavailable(4)
