@@ -1,7 +1,7 @@
 # Progress
 
 ## Current status
-- **Current phase:** Phase 3 — pure normalization and validation in progress; Phase 2 cloud checks passed.
+- **Current phase:** Phase 4 — text extraction and profiles in progress.
 - **Current task:** implement Phases 2–10 in order, as newly authorized; no approval pauses.
 - **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
@@ -13,7 +13,7 @@
 | 0 | Import, setup and explore Docling | Complete; owner approved proceeding | Offline experiments and limitations recorded |
 | 1 | Foundation | Cloud milestone complete; Windows acceptance pending | 32 tests, strict typing, lint/format, build, model setup and installed-wheel doctor |
 | 2 | Orders, intake and synthetic corpus | Cloud milestone complete | 120 total tests passed, strict typing, lint/format; encrypted intake and scanned quote |
-| 3 | Core normalization and validation | Not started | — |
+| 3 | Core normalization and validation | Cloud milestone complete | 250 total tests; Decimal round trips and all 50 corrupted-row positions for asset/liability |
 | 4 | Text engine and profiles | Not started | — |
 | 5 | Docling/OCR and router | Not started | — |
 | 6 | Exports and review | Not started | — |
@@ -67,3 +67,6 @@ Review Phase 1. Then Phase 2 implements order records, safe status changes, file
 
 ## Phase 2 milestone
 Owner authorized remaining phases in sequence. Typed manifests, atomic writes/exclusive edits, checked transitions, confined paths, file-content intake, password-safe copies, image combination and YAML quotes implemented. All 81 state pairs tested; 120 total tests passed with none skipped. Three layouts have text/scanned, wrapped and multipage synthetic variants. Combined images use numbered filename order; closed/failed are terminal. Windows execution remains pending.
+
+## Phase 3 milestone
+Strict Decimal parser covers locales, signs and suffixes; dates retain ambiguity and missing-year flags; wrapped/inherited rows preserve source provenance. Validation checks running balances, printed totals, closing movement, duplicates and page coverage. 250 total tests pass with none skipped, including 100 single-digit corruption positions. Verified verdicts describe financial reconciliation, not source-date/description certainty.
