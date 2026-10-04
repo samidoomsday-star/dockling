@@ -38,3 +38,9 @@
 - Phase 1 remains unstarted pending completed exploration and owner review.
 
 - 2026-10-04: pinned CPU dependency pair, generated synthetic research inputs, recorded actual partial results, and prepared reproducible setup. No client data/model binaries/installed dependencies in commits.
+
+## GitHub publication
+- Original uploaded starter pushed to `main` (bootstrap commit 70e1f7b).
+- Codex migration, reproducible research and partial report pushed to `phase-0-exploration`; use that branch for the current work. It has not been merged into main.
+- Automatic draft pull-request creation was attempted but GitHub API/GraphQL access returned Forbidden. Git push access works; no new token is requested. Review the branch directly or create a PR on GitHub. No PR was created by Codex.
+- Environment network/install/start draft saves are confirmed; runtime application/publication is not confirmed. Required model downloads still need the settings action described in EXPLORATION_REPORT.
