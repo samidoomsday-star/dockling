@@ -50,7 +50,8 @@ files = ["src/stmtconv"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["docling.*", "huggingface_hub.*"]
+module = ["docling.*", "huggingface_hub.*", "pypdfium2.*", "reportlab.*"]
+# Upstream packages have incomplete typing; our own boundaries remain typed.
 follow_untyped_imports = false
 ignore_missing_imports = true
 

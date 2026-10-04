@@ -38,7 +38,6 @@ def test_help_lists_inventory_without_workspace_or_model_import(tmp_path):
     [
         ["extract", "synthetic-id"],
         ["selftest"],
-        ["order", "new"],
         ["profile", "test", "fake", "fake.pdf"],
     ],
 )

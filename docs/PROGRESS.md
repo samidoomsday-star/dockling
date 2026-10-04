@@ -1,8 +1,8 @@
 # Progress
 
 ## Current status
-- **Current phase:** Phase 1 — foundation implemented and verified in the cloud; Windows acceptance pending.
-- **Current task:** owner review of the Phase 1 milestone before Phase 2.
+- **Current phase:** Phase 3 — pure normalization and validation in progress; Phase 2 cloud checks passed.
+- **Current task:** implement Phases 2–10 in order, as newly authorized; no approval pauses.
 - **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
 
@@ -12,7 +12,7 @@
 |---|---|---|---|
 | 0 | Import, setup and explore Docling | Complete; owner approved proceeding | Offline experiments and limitations recorded |
 | 1 | Foundation | Cloud milestone complete; Windows acceptance pending | 32 tests, strict typing, lint/format, build, model setup and installed-wheel doctor |
-| 2 | Orders, intake and synthetic corpus | Not started | — |
+| 2 | Orders, intake and synthetic corpus | Cloud milestone complete | 120 total tests passed, strict typing, lint/format; encrypted intake and scanned quote |
 | 3 | Core normalization and validation | Not started | — |
 | 4 | Text engine and profiles | Not started | — |
 | 5 | Docling/OCR and router | Not started | — |
@@ -64,3 +64,6 @@
 ## Next step
 
 Review Phase 1. Then Phase 2 implements order records, safe status changes, file intake/quotes and a broader synthetic test corpus. Continue cloud development while retaining Windows checks for the other device, as agreed. See ENVIRONMENT.md for exact clone/update instructions.
+
+## Phase 2 milestone
+Owner authorized remaining phases in sequence. Typed manifests, atomic writes/exclusive edits, checked transitions, confined paths, file-content intake, password-safe copies, image combination and YAML quotes implemented. All 81 state pairs tested; 120 total tests passed with none skipped. Three layouts have text/scanned, wrapped and multipage synthetic variants. Combined images use numbered filename order; closed/failed are terminal. Windows execution remains pending.

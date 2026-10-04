@@ -13,9 +13,20 @@ def main() -> int:
     )
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    commands = [["ruff", "check", "src", "tests", "scripts", "research/phase0"]]
+    commands = [["ruff", "check", "src", "tests", "scripts", "research/phase0", "tools/synth"]]
     if not args.quick:
-        commands.append(["ruff", "format", "--check", "src", "tests", "scripts", "research/phase0"])
+        commands.append(
+            [
+                "ruff",
+                "format",
+                "--check",
+                "src",
+                "tests",
+                "scripts",
+                "research/phase0",
+                "tools/synth",
+            ]
+        )
     commands += [["mypy"], ["pytest", *(["-m", "not slow"] if args.quick else [])]]
     for command in commands:
         print("Running:", " ".join(command), flush=True)

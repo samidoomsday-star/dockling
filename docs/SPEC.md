@@ -12,7 +12,7 @@ Develop and explore in Codex with synthetic data; save source versions in GitHub
 ## 0. Instructions for the AI coding agent (READ FIRST)
 
 1. **Phase 0 is exploration only:** clone a pinned Docling release into `vendor/docling`, set it up without paid services, and run the statement-relevant feature checks, fill `docs/EXPLORATION_REPORT.md`, then **stop** for the owner's review. No product code and no changes to Docling in Phase 0. Don't start Phase 1 until the owner confirms the plan (it may change after exploration).
-1b. **Build phase by phase** using Section 17. Complete one phase, make it run, pass its acceptance criteria, then stop and summarize before starting the next. Never build all phases in one pass.
+1b. **Owner authorization update:** the owner now asks to complete all remaining phases in sequence without approval pauses. Keep separate implementation/test milestones and report limitations. **Build phase by phase** using Section 17. Complete one phase, make it run, pass its acceptance criteria, then stop and summarize before starting the next. Never build all phases in one pass.
 2. **Architecture rules in Section 3 are non-negotiable.** If a shortcut would violate one, don't take it.
 3. **Accuracy beats coverage.** The product promise is "no silent errors": a wrong number that is *flagged* is acceptable; a wrong number that is *not flagged* is a critical bug. When unsure, flag.
 4. **Money is `decimal.Decimal`, never `float`**, from parsing to export.

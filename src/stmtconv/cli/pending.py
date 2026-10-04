@@ -15,8 +15,6 @@ def unavailable(phase: int) -> None:
 
 def register(app: typer.Typer) -> None:
     phases = {
-        "intake": 2,
-        "quote": 2,
         "extract": 4,
         "validate": 4,
         "review": 6,
@@ -48,21 +46,6 @@ def register(app: typer.Typer) -> None:
     @app.command(help="Anonymous metrics, planned for Phase 8.")
     def stats() -> None:
         unavailable(8)
-
-    orders = typer.Typer(help="Order management (Phase 2).", no_args_is_help=True)
-    app.add_typer(orders, name="order")
-
-    @orders.command("new")
-    def order_new(platform: str = "direct", alias: str = "", package: str = "basic") -> None:
-        unavailable(2)
-
-    @orders.command("list")
-    def order_list() -> None:
-        unavailable(2)
-
-    @orders.command("show")
-    def order_show(order_id: str) -> None:
-        unavailable(2)
 
     profiles = typer.Typer(help="Layout profiles (Phase 4).", no_args_is_help=True)
     app.add_typer(profiles, name="profile")
