@@ -33,7 +33,7 @@ Format: Context → Decision → Alternatives → Consequences. Never delete an 
 - **Consequences:** More code in `core`, heavy unit tests; pandas not needed.
 
 ### ADR-005: Cloud AI only on Gemini paid tier, with per-order consent and masking
-- **Status:** accepted
+- **Status:** superseded by ADR-014 (owner-approved BYOK requirement)
 - **Context:** Gemini free tier content may be used to improve Google products and reviewed by humans (RESEARCH §5). Clients send bank statements.
 - **Decision:** AI engine off by default; requires `--ai`, `ai_consent=granted` with note, API key, and operator confirmation of paid tier; sends masked table text only; page cap.
 - **Alternatives:** Free tier; send images; local LLM now.
@@ -81,3 +81,13 @@ Format: Context → Decision → Alternatives → Consequences. Never delete an 
 - **Context:** Windows PowerShell 5.1 doesn't support `&&`; the owner is a beginner on Windows.
 - **Decision:** One Python script runs lint/format/type/test gates; all documented commands are single `python …` invocations.
 - **Consequences:** Kilo rules reference `python scripts/check.py` and `python scripts/check.py --quick`.
+
+### ADR-013: Codex cloud development and original phase tracking
+- **Status:** accepted by owner, 4 October 2026.
+- **Decision:** import starter into existing Dockling checkout; develop and explore with synthetic data in Codex; preserve original phases 0–10; push reviewable GitHub versions; clone/install on another device for Windows and hardware acceptance. No extra worktree.
+- **Consequences:** preserve Kilo files as reference; active workflow in AGENTS. Phase 0 may add migration/setup/reproducible research files but no application implementation. Cloud results cannot establish laptop speed. Explain owner actions in beginner-friendly steps. Review exploration before Phase 1.
+
+### ADR-014: Optional OpenAI-compatible BYOK and capability-aware model picker
+- **Status:** accepted by owner, 4 October 2026; supersedes ADR-005's Gemini-only provider and paid-tier assumption.
+- **Decision:** guided CLI settings for custom endpoints, hidden key input, connection checks, model discovery/manual IDs, saved selections and supported reasoning effort up to Max. Use a permissively licensed OpenAI-compatible client/adapter; verify exact APIs when implementing Phase 9.
+- **Consequences:** AI remains off by default, consent-gated, masked/minimized and validated. Highest effort is provider/model dependent; never silently downgrade. Credentials/personal settings stay outside Git. Review provider terms rather than assuming any paid tier is suitable. Mock API tests; no paid calls during exploration. Docling local models need no BYOK key.

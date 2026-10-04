@@ -6,3 +6,5 @@
 - `docling_engine.py` imports Docling lazily and builds one converter per run; honour offline mode and thread count.
 - `ai_engine.py` is the only module allowed to use the network, and only after `privacy.ai_gate.check()` passes.
 - No bank-specific logic: everything layout-specific comes from the profile object.
+
+Owner-approved amendment: ADR-014 replaces Gemini-only AI with OpenAI-compatible BYOK and supported model/effort selection. Routine work inside an approved task does not need repeated approval; preserve consent, masking and validation. Active Codex rules are in root AGENTS.md.

@@ -8,7 +8,7 @@
 | Windows | 10 or 11 | Owner laptop: i5-8250U, 12 GB RAM, no usable GPU |
 | Python | 3.12.x (64-bit) | "Add to PATH" during install; `py -3.12 --version` |
 | Git | recent | Git for Windows |
-| VS Code + Kilo Code | recent | Terminal: Windows PowerShell 5.1 is fine (no `&&` needed) |
+| Codex for development; local terminal for runtime | current | Kilo is optional historical tooling; Windows PowerShell commands remain supported |
 | Microsoft Excel or LibreOffice Calc | any | For review workbooks |
 | Disk | ≥ 5 GB free | ~1 GB Docling models + venv + workspace |
 
@@ -60,3 +60,6 @@ No Tesseract, CUDA or Docker required (RapidOCR via Docling's default install).
 - Keep the laptop disk encrypted (BitLocker or Windows Device Encryption) and the workspace out of cloud-sync folders.
 - Test with synthetic statements; real anonymized samples live only in `samples/private/` (ignored) and are used in Phase 10 acceptance.
 - Rotate `GEMINI_API_KEY` if it was ever pasted into a chat, log, or commit.
+
+## Codex cloud development and BYOK migration
+Develop/test with synthetic data in Linux Python 3.12; retain Windows acceptance on the owner device. Phase 0 setup is documented in PHASE0-SETUP.md. GitHub carries sources and setup recipes, not venv/model files. Original Gemini variables above are historical planning entries, superseded by ADR-014; Phase 9 will define and document provider/model/effort settings and secure local keys. Do not request Gemini credentials for exploration.

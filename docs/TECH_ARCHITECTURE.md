@@ -10,7 +10,7 @@ flowchart LR
   O -- CLI --> S[stmtconv on laptop]
   S --> W[(workspace/orders)]
   S --> M[(models/ Docling weights)]
-  S -. only with --ai + consent + paid tier .-> G[Gemini API]
+  S -. only with --ai + consent + suitable terms .-> G[Configured BYOK endpoint]
   S --> X[Excel/CSV/OFX + delivery zip]
   O -- delivers --> C
 ```
@@ -138,3 +138,6 @@ delivery/<order_id>.zip
 - Bottleneck 1: OCR on CPU → batch overnight with `run`; later a machine with a GPU or a paid OCR option (ADR needed).
 - Bottleneck 2: review time → better profiles for repeat banks; categorization rules.
 - Bottleneck 3: many repeat clients → V2 web review UI + SQLite (supersede ADR-007/010).
+
+## Owner-approved migration
+ADR-013/014 supersede Kilo-only development and Gemini-only AI assumptions. Phase 9 adds an OpenAI-compatible provider adapter boundary with provider/model/effort configuration, discovery/manual fallback, and a guided CLI picker. All provider network calls remain behind the AI gate; version-specific APIs and capabilities require verification. See CODEX-PROJECT-PLAN. No provider SDK is needed in Phase 0.

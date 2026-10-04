@@ -1,21 +1,25 @@
-# Statement Converter — Product & Technical Specification (V1.0)
+# Statement Converter — Product & Technical Specification (V1.1 — Codex/BYOK migration)
 
 > **Messy PDFs → verified Excel / QuickBooks / Xero files. Local-first, balance-checked.**
 > **Source of truth:** this SPEC. The owner's roadmap `01-docling-roadmap.md` (25 Sep 2026) is a **reference only**. Phase 0 clones, runs and explores Docling first; Phases 1+ are a **draft plan, confirmed or changed after the owner reviews `docs/EXPLORATION_REPORT.md`**. Research is in `docs/RESEARCH.md` (Appendix A lists where it changed the roadmap).
 
 ---
 
+## Owner-approved migration note (4 October 2026)
+
+Develop and explore in Codex with synthetic data; save source versions in GitHub, then install and validate on another device. Preserve phases 0–10. Explain all owner actions in plain language. Replace Gemini-only AI with custom OpenAI-compatible BYOK providers, model discovery/manual entry, and a model picker with supported reasoning effort up to Max. Provider default or the highest supported level must be labelled honestly; never silently downgrade a rejected effort. See ADR-013/014 and `CODEX-PROJECT-PLAN.md`. Historical research and `.kilo/` remain reference material.
+
 ## 0. Instructions for the AI coding agent (READ FIRST)
 
-1. **Phase 0 is exploration only:** clone Docling into `vendor/docling`, set it up the free way, run and try every feature, fill `docs/EXPLORATION_REPORT.md`, then **stop** for the owner's review. No product code and no changes to Docling in Phase 0. Don't start Phase 1 until the owner confirms the plan (it may change after exploration).
+1. **Phase 0 is exploration only:** clone a pinned Docling release into `vendor/docling`, set it up without paid services, and run the statement-relevant feature checks, fill `docs/EXPLORATION_REPORT.md`, then **stop** for the owner's review. No product code and no changes to Docling in Phase 0. Don't start Phase 1 until the owner confirms the plan (it may change after exploration).
 1b. **Build phase by phase** using Section 17. Complete one phase, make it run, pass its acceptance criteria, then stop and summarize before starting the next. Never build all phases in one pass.
 2. **Architecture rules in Section 3 are non-negotiable.** If a shortcut would violate one, don't take it.
 3. **Accuracy beats coverage.** The product promise is "no silent errors": a wrong number that is *flagged* is acceptable; a wrong number that is *not flagged* is a critical bug. When unsure, flag.
 4. **Money is `decimal.Decimal`, never `float`**, from parsing to export.
-5. **Client data never leaves the laptop** unless an order has explicit AI consent and the paid-tier AI gate passes (Section 11). No other code may open a network connection during order processing.
+5. **Client data never leaves the laptop** unless an order has explicit AI consent and the configured-provider AI gate passes (Section 11). No other code may open a network connection during order processing.
 6. **Never hardcode secrets** (API keys) — they come from `.env` via the typed config module (Section 16).
 7. **Never hardcode bank-specific layouts, category keywords, prices, or delivery text in Python.** They live in YAML/template files under `profiles/`, `config/`, and `templates/` (Section 3.8).
-8. **Everything must run on the owner's laptop:** Windows 10/11, Intel i5-8250U (4 cores/8 threads), 12 GB RAM, no usable GPU, Python 3.12. No CUDA-only dependencies. Commands must work in Windows PowerShell 5.1 (no `&&` chaining in documented commands; use `python scripts/check.py`).
+8. **The finished application must run on the owner's laptop; cloud development is Linux and Windows acceptance remains separate:** Windows 10/11, Intel i5-8250U (4 cores/8 threads), 12 GB RAM, no usable GPU, Python 3.12. No CUDA-only dependencies. Commands must work in Windows PowerShell 5.1 (no `&&` chaining in documented commands; use `python scripts/check.py`).
 9. When this spec is ambiguous, pick the simplest option consistent with Section 3, write the assumption in `docs/ASSUMPTIONS.md`, and continue.
 10. Write automated tests for: amount parsing, date parsing and year inference, multi-line row merging, running-balance validation (bank and credit-card direction), statement verdicts, every export format, deletion, the AI consent gate, and log redaction.
 11. Features marked **V2** or **Future** must NOT be built in V1, but the V1 data model must allow adding them without restructuring (e.g. `document_type` exists even though only statements are built).
@@ -70,7 +74,7 @@ It is **not** a SaaS and has no client-facing UI in V1. The client-facing "produ
 
 ### V1 (build now)
 - Bank statements and credit-card statements (PDF text-based, PDF scanned, JPG/PNG/TIFF photos).
-- Engines: `text`, `docling`, optional `ai` (Gemini, paid tier only, consent-gated).
+- Engines: `text`, `docling`, optional `ai` (OpenAI-compatible BYOK, suitable provider terms, consent-gated).
 - Normalization, running-balance and totals validation, statement verdicts.
 - Review workbook round-trip, spot-check sampler.
 - Exports: client Excel, QuickBooks CSV (3-col and 4-col), Xero CSV, generic CSV, OFX 1.02.
@@ -124,7 +128,7 @@ Client upload portal, monthly-subscription client dashboard, Tally/Sage export f
 | Images | Pillow (EXIF rotation, image→PDF for photos) |
 | Excel | openpyxl |
 | OFX | Hand-written OFX 1.02 SGML writer (no dependency; small, testable) |
-| AI (optional) | `google-genai` SDK, Gemini Flash-class model, JSON-schema output — paid tier only |
+| AI (optional) | OpenAI-compatible BYOK client/adapters, provider/model picker, capability-aware effort and schema output (ADR-014) |
 | Tests | pytest, pytest-cov; synthetic PDFs via reportlab; hypothesis for parsers |
 | Quality | ruff (lint + format), mypy (strict on `core`) |
 | Secrets | `.env` via python-dotenv through pydantic-settings |
@@ -285,17 +289,19 @@ When `merge=true` and statements share an account mask: sort by period; check `c
 ### 11.1 Purpose
 Rescue pages that `text` and `docling` cannot parse (unusual layouts). Off by default. Never used for categorization or anything else in V1.
 
-### 11.2 AI gate (all must pass, else the engine is skipped with reason logged)
-1. Command has `--ai`.
-2. `order.ai_consent == "granted"` with a non-empty `ai_consent_note`.
-3. `GEMINI_API_KEY` set **and** `STMTCONV_AI_PAID_TIER_CONFIRMED=true`. Reason: on the Gemini free tier Google may use submitted content to improve its products and humans may review it; only the paid tier excludes that (research, ADR-005). The tool cannot verify tier status, so the operator must confirm it.
-4. Per-order page cap `ai_max_pages_per_order: 20` (settings).
+### 11.2 AI gate (all must pass)
+1. Operator explicitly activates AI for the command/order.
+2. Order has recorded client consent and a nonempty consent note.
+3. A configured provider/model has usable credentials where required and the operator confirms provider data-handling terms are suitable for sensitive data. Billing status alone is not proof.
+4. The per-order page cap is not exceeded.
 
 ### 11.3 Data minimization
-Send only the transaction-table markdown of the failing page, never the page image, file name, or header block. Before sending, mask: account/card numbers (sequences of ≥ 8 digits → keep last 4), emails, phone numbers, and the account holder name if captured in the summary. Log only page number, token counts, latency, status.
+Send only masked transaction-table text for failing pages, never images, file names, or header blocks. Mask account/card numbers, names when available, emails and phone numbers. Logs contain operational metadata only. Local/self-hosted endpoints still require deliberate activation and clear routing.
 
-### 11.4 Output handling
-Model must return JSON matching the raw-row schema (enforced with a response schema). Rows go through normal normalization and validation; rows are marked `engine=ai`. AI output is never trusted without balance validation; an AI page with MISMATCH stays `NEEDS_REVIEW`.
+### 11.4 Output handling and model settings
+Use a guided CLI menu to add named OpenAI-compatible endpoints, enter keys privately, test connections, discover or manually enter models, and choose reasoning effort. Show Max only when supported; otherwise clearly label the highest supported level or provider default. Refresh capabilities on model changes. Never silently change requested effort/model/provider. Keep keys/personal configuration out of Git.
+
+Provider adapters explicitly handle endpoint routes, effort parameters and schema support. Validate JSON outputs and bounded retries even when native structured output is unavailable. Returned rows use the same normalization and financial checks; failures remain NEEDS_REVIEW. Tests use fake clients and never call paid APIs. See CODEX-PROJECT-PLAN for detailed acceptance cases.
 
 ---
 
@@ -394,10 +400,14 @@ STMTCONV_LOG_LEVEL=INFO
 STMTCONV_NUM_THREADS=4
 STMTCONV_OFFLINE=true
 DOCLING_ARTIFACTS_PATH=
-GEMINI_API_KEY=
-STMTCONV_AI_PAID_TIER_CONFIRMED=false
+STMTCONV_AI_PROVIDER=
 STMTCONV_AI_MODEL=
+STMTCONV_AI_EFFORT=provider_default
+STMTCONV_AI_API_KEY=
+STMTCONV_AI_TERMS_CONFIRMED=false
 ```
+BYOK variables above are planned, not implemented. Provider endpoints and personal model selections will live in ignored local settings; exact names are finalized in Phase 9.
+
 Config files: `config/settings.yaml` (thresholds, defaults, retention, limits), `config/pricing.yaml`, `config/categories.yaml`, `config/exports.yaml`, `profiles/*.yaml`, `templates/*.md`. Details in `docs/ENVIRONMENT.md`.
 
 ---
@@ -407,8 +417,8 @@ Config files: `config/settings.yaml` (thresholds, defaults, retention, limits), 
 Each phase: implement → run `python scripts/check.py` → run `python -m stmtconv selftest` (from Phase 4 on) → pass acceptance → update `docs/PROGRESS.md` → stop for review.
 
 ### Phase 0 — Clone, set up & explore Docling (exploration only, hard checkpoint)
-Clone the Docling repo for reference and local use: `git clone https://github.com/docling-project/docling vendor/docling` (git-ignored; record the commit SHA and version in the report); Python 3.12 venv; install Docling from the clone (`pip install -e vendor/docling`) or the matching PyPI version if the editable install fails on Windows (record which); download models once (~1 GB). Explore with free, safe data only (Docling's own test PDFs in the clone *(verify path)*, public sample statements, a self-made fake statement, a phone photo of a printed fake page): CLI conversions to Markdown/JSON/HTML; table extraction (including borderless tables and tables across pages); OCR on scanned pages and photos (default engine; try one alternative if free); Word/Excel/image inputs; confidence grades; seconds per page with and without OCR on this laptop; RAM use; optional local API/UI server (`docling-serve`) if it installs cleanly *(verify options)*. Throwaway test scripts may live in `explore/` (git-ignored), including the roadmap's quick "tables → Excel" test to judge bank-statement quality. Fill every section of `docs/EXPLORATION_REPORT.md` (setup, feature walkthrough, performance, output quality on bank statements, limits/risks, first verdict: sellable as-is / small polish / real work, questions). Then stop.
-**Accept:** Docling runs locally with no paid service; the report is complete with a timing table (≥ 3 documents: digital, scanned, photo) and output-quality notes for bank-statement tables; no files outside `vendor/`, `explore/`, `docs/EXPLORATION_REPORT.md`, `docs/PROGRESS.md` changed; the owner has reviewed the report and confirmed (or changed) Phases 1+ in `docs/PROGRESS.md`.
+Clone a pinned Docling release into ignored `vendor/docling`; record its commit/version. Use a Python 3.12 environment and CPU-only dependencies. Download the required local model artifacts explicitly. Explore synthetic digital, scanned and simulated-photo statements, Markdown/JSON/HTML outputs, tables including borderless/multi-page layouts, OCR, confidence grades, timing and memory. Compare rows with known truth and include a tables-to-Excel experiment. Try additional input formats and a free alternate OCR engine where feasible; document unrun/blocked checks honestly. Word/Excel imports and a local API/UI server are optional research. Use ignored `explore/` for inputs/outputs and versioned `research/phase0/` for reproducible experiment helpers.
+**Accept:** successful offline Docling conversion on three synthetic document types, measured output-quality/performance report with no paid service or real client data; document cloud hardware separately from outstanding Windows/actual-photo checks. Migration/setup/research files are allowed by the owner's current instruction; no product code in Phase 0. Use the exploration runner as the gate because `scripts/check.py` starts in Phase 1. Stop for owner review before Phase 1 and record the decision in PROGRESS.
 
 > **Phases 1–10 below are the draft plan**, written before exploration. After the Phase 0 review, update them (with the owner's approval) before starting Phase 1.
 
@@ -444,9 +454,9 @@ Multi-statement merge with continuity checks and merged workbook; categorization
 `deliver` (zip, delivery note, verification summary, data-handling statement from templates), `close` with deletion certificate, ledger append, `order list --overdue`, `stats`, `run` default chain.
 **Accept:** after `close`, a directory walk finds no client file in the order folder and the manifest contains no descriptions or amounts (test scans for sample strings); ledger lines contain none of the order's descriptions, alias or file names; delivery note numbers equal the Summary sheet numbers for the synthetic order; `stats` prints median sec/page by kind.
 
-### Phase 9 — Optional AI fallback
-`ai` engine with google-genai, response JSON schema, AI gate (11.2), PII masking (11.3), page cap, integration into router step 2, ledger counters.
-**Accept:** unit tests prove the gate refuses when any one of the 4 conditions is missing (4 tests) and makes zero network calls in those cases (socket blocked in tests); masking tests turn `Account 123456789012` into `Account ********9012` and remove emails/phones; with a fake client returning JSON, AI rows are validated like any other and a MISMATCH AI page stays `NEEDS_REVIEW`; no test calls the real API.
+### Phase 9 — Optional BYOK AI fallback
+OpenAI-compatible provider adapters; guided provider/key setup; connection tests; model discovery/manual entry and presets; model picker with supported effort levels up to Max; consent gate, masking, page cap and routing.
+**Accept:** fake-provider tests cover discovery/manual models, redacted credentials, endpoint/schema variations, supported and rejected effort, invalid output, and zero network calls when any gate condition is missing. No silent provider/model/effort changes. AI rows are revalidated. API keys/personal settings remain local; current provider terms and paid connection tests are separate owner-authorized checks.
 
 ### Phase 10 — Field readiness & polish
 `run.bat` drop-folder launcher (creates order for files in `inbox/`, runs `run`), demo-asset generator (fake-data sample workbook + before/after PNG of a synthetic statement for gig images), `docs/OPERATOR_GUIDE.md` (daily workflow, review tips, QuickBooks/Xero import steps, troubleshooting), real-world acceptance run on the roadmap's 15-document checklist using the owner's anonymized/public samples, performance notes in PROGRESS.
@@ -457,7 +467,7 @@ Multi-statement merge with continuity checks and merged workbook; categorization
 ## 18. Assumptions & notes for the owner
 
 - **Competition is real.** Self-serve tools cost ~$0.13–$0.50/page and QuickBooks Online now reads statement PDFs itself. Sell verification, review, messy/scanned documents, multi-month merges and privacy — not "conversion". (RESEARCH §3)
-- **Never use the Gemini free tier on client data.** Its terms allow Google to use the content to improve products; this spec blocks it by design. For testing prompts, use synthetic statements only.
+- **Never use a provider whose terms are unsuitable for client data.** Its terms allow Google to use the content to improve products; this spec blocks it by design. For testing prompts, use synthetic statements only.
 - **Bookkeeper compliance angle.** US bookkeepers/tax preparers are treated as "financial institutions" under the FTC Safeguards Rule and must oversee service providers; your data-handling statement and deletion certificate directly help them. This is not legal advice; don't claim "compliance" — describe your practices.
 - **Docling is not magic on bank statements.** Borderless tables, wrapped rows and page-spanning tables are known weak spots for table models; that's why the text engine is primary for digital PDFs and validation decides.
 - **OCR on your CPU is slow.** Price scanned work higher (the +25% add-on may be low; measure with `stats`).
@@ -465,7 +475,9 @@ Multi-statement merge with continuity checks and merged workbook; categorization
 - **QuickBooks upload limits** (1,000 rows, file size) are third-party reports; the split setting is configurable.
 - **Invoices** were in the roadmap's test list and customization table but are V2 here to keep V1 focused on the repeatable bank-statement niche.
 
-## Appendix A — Roadmap items changed by research
+## Appendix A — Historical roadmap items changed by research
+
+The Gemini-only R1 entry below is superseded by ADR-014; retained to explain history.
 
 | # | Roadmap said | Spec does | Why | Refs |
 |---|---|---|---|---|
@@ -479,9 +491,9 @@ Multi-statement merge with continuity checks and merged workbook; categorization
 
 ## Appendix B — Open questions for the owner
 1. Which client regions first — US only, or also UK/Canada/Australia? This sets default date order and output date formats (currently: per-order choice, default `MM/DD/YYYY` for QuickBooks US).
-2. Will you use cloud AI at all? If yes, are you willing to load a few dollars of Gemini prepaid credit so the paid-tier terms apply? If no, Phase 9 can be skipped.
+2. Answered: optional BYOK OpenAI-compatible AI with model and effort selection; configure provider details when Phase 9 begins. No key is needed for local exploration.
 3. Should credit-card statements be offered from day one (spec says yes)?
 4. Is your laptop's disk encrypted (BitLocker/Device Encryption)? Which Windows edition (Home/Pro)?
 5. What business/brand name should appear in delivery notes and the data-handling statement?
 6. Do you want invoices moved into V1 after Phase 8, or kept for V2?
-7. Kilo Code only, or also Factory Droid? (Rules are written for Kilo; they port easily.)
+7. Answered: Codex cloud development, GitHub source versions, later clone/install on another device.

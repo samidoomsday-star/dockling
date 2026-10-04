@@ -1,0 +1,198 @@
+{
+  "run_id": "27acb1b6eaac438e90be5043a4c7448c",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "threads": 4,
+  "network_blocked_in_python": true,
+  "versions": {
+    "docling": "2.133.0",
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "rapidocr": "3.9.2",
+    "pdfplumber": "0.11.10",
+    "reportlab": "5.0.1"
+  },
+  "phase0_required_conversions_complete": false,
+  "tests": {
+    "pdfplumber_digital": {
+      "status": "passed",
+      "pages": 1,
+      "expected_date_tokens": 8,
+      "found_date_tokens": 8,
+      "note": "Text accessibility only; no transaction parsing or financial validation.",
+      "seconds": 0.022,
+      "observed_process_peak_mib": 485.4
+    },
+    "pdfplumber_borderless": {
+      "status": "passed",
+      "pages": 1,
+      "expected_date_tokens": 8,
+      "found_date_tokens": 8,
+      "note": "Text accessibility only; no transaction parsing or financial validation.",
+      "seconds": 0.015,
+      "observed_process_peak_mib": 486.1
+    },
+    "pdfplumber_multipage": {
+      "status": "passed",
+      "pages": 2,
+      "expected_date_tokens": 12,
+      "found_date_tokens": 12,
+      "note": "Text accessibility only; no transaction parsing or financial validation.",
+      "seconds": 0.025,
+      "observed_process_peak_mib": 487.8
+    },
+    "docling_docx": {
+      "status": "success",
+      "tables": 1,
+      "table_data_rows": 8,
+      "exact_truth_rows": 8,
+      "expected_rows": 8,
+      "all_truth_rows_exact": true,
+      "xlsx_reloaded_rows": 8,
+      "exports": [
+        "markdown",
+        "json",
+        "html"
+      ],
+      "confidence": {
+        "parse_score": null,
+        "layout_score": null,
+        "table_score": null,
+        "ocr_score": null,
+        "pages": {},
+        "mean_grade": "unspecified",
+        "low_grade": "unspecified",
+        "mean_score": null,
+        "low_score": null
+      },
+      "errors": [],
+      "seconds": 0.106,
+      "observed_process_peak_mib": 489.0
+    },
+    "docling_xlsx": {
+      "status": "success",
+      "tables": 1,
+      "table_data_rows": 8,
+      "exact_truth_rows": 8,
+      "expected_rows": 8,
+      "all_truth_rows_exact": true,
+      "xlsx_reloaded_rows": 8,
+      "exports": [
+        "markdown",
+        "json",
+        "html"
+      ],
+      "confidence": {
+        "parse_score": null,
+        "layout_score": null,
+        "table_score": null,
+        "ocr_score": null,
+        "pages": {},
+        "mean_grade": "unspecified",
+        "low_grade": "unspecified",
+        "mean_score": null,
+        "low_score": null
+      },
+      "errors": [],
+      "seconds": 0.019,
+      "observed_process_peak_mib": 490.1
+    },
+    "docling_html": {
+      "status": "success",
+      "tables": 1,
+      "table_data_rows": 9,
+      "exact_truth_rows": 8,
+      "expected_rows": 8,
+      "all_truth_rows_exact": true,
+      "xlsx_reloaded_rows": 9,
+      "exports": [
+        "markdown",
+        "json",
+        "html"
+      ],
+      "confidence": {
+        "parse_score": null,
+        "layout_score": null,
+        "table_score": null,
+        "ocr_score": null,
+        "pages": {},
+        "mean_grade": "unspecified",
+        "low_grade": "unspecified",
+        "mean_score": null,
+        "low_score": null
+      },
+      "errors": [],
+      "seconds": 0.025,
+      "observed_process_peak_mib": 490.8
+    },
+    "docling_native_pdf": {
+      "status": "success",
+      "tables": 0,
+      "table_data_rows": 0,
+      "exact_truth_rows": 0,
+      "expected_rows": 8,
+      "all_truth_rows_exact": false,
+      "xlsx_reloaded_rows": 0,
+      "exports": [
+        "markdown",
+        "json",
+        "html"
+      ],
+      "confidence": {
+        "parse_score": null,
+        "layout_score": null,
+        "table_score": null,
+        "ocr_score": null,
+        "pages": {},
+        "mean_grade": "unspecified",
+        "low_grade": "unspecified",
+        "mean_score": null,
+        "low_score": null
+      },
+      "errors": [],
+      "seconds": 0.087,
+      "observed_process_peak_mib": 505.3
+    },
+    "tesseract_scanned": {
+      "status": "passed",
+      "exit_code": 0,
+      "found_date_tokens": 8,
+      "expected_date_tokens": 8,
+      "note": "Standalone alternate OCR, not Docling table conversion or row accuracy.",
+      "seconds": 0.777,
+      "observed_process_peak_mib": 505.6
+    },
+    "tesseract_photo": {
+      "status": "passed",
+      "exit_code": 0,
+      "found_date_tokens": 8,
+      "expected_date_tokens": 8,
+      "note": "Standalone alternate OCR, not Docling table conversion or row accuracy.",
+      "seconds": 0.571,
+      "observed_process_peak_mib": 505.6
+    },
+    "docling_ml_digital": {
+      "status": "failed",
+      "error_type": "FileNotFoundError",
+      "detail": "Model 'docling-project/docling-layout-heron' not found in artifacts_path.\nExpected location: /workspace/dockling/models/docling-project--docling-layout-heron\nAvailable models in /workspace/dockling/models: none\n\nTo fix this issue:\n  1. Download the model: docling-tools models download-hf-repo docling-project/docling-layout-heron\n  2. Or remove --artifacts-path to enable auto-download\n  3. Or use a different model that exists in your artifacts_path",
+      "seconds": 1.64,
+      "observed_process_peak_mib": 554.5
+    },
+    "docling_ml_scanned": {
+      "status": "unrun",
+      "reason": "Required ML pipeline prerequisite failed; see digital attempt."
+    },
+    "docling_ml_photo": {
+      "status": "unrun",
+      "reason": "Required ML pipeline prerequisite failed; see digital attempt."
+    },
+    "docling_ml_borderless": {
+      "status": "unrun",
+      "reason": "Required ML pipeline prerequisite failed; see digital attempt."
+    },
+    "docling_ml_multipage": {
+      "status": "unrun",
+      "reason": "Required ML pipeline prerequisite failed; see digital attempt."
+    }
+  }
+}

@@ -102,3 +102,6 @@ Edge cases: file locked because it is open in Excel (error names the file; nothi
 | Export blocked on `NEEDS_REVIEW` | `export` | 3.6 |
 | Spot-check required | `export` | 10.4 |
 | Retention overdue | `order list --overdue` | 14.2 |
+
+## BYOK flow amendment (ADR-014)
+Before optional AI rescue, the owner adds a custom provider through guided settings, enters its key privately, tests the connection, selects a discovered/manual model and supported reasoning effort (Max only when available). Consent and suitable provider terms replace the Gemini-only paid-tier check. No silent model/effort change. Original A8's paid-tier edge case is superseded; cloud synthetic development and local client processing remain separate.
