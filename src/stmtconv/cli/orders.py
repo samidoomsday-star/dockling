@@ -25,6 +25,8 @@ def register(app: typer.Typer) -> None:
         date_order: Literal["auto", "DMY", "MDY", "YMD"] = "auto",
         outputs: str = "excel,csv",
         merge: bool = False,
+        account_group: str | None = None,
+        confirm_account: bool = False,
         categorize: bool = False,
     ) -> None:
         runtime = ctx.obj
@@ -51,6 +53,8 @@ def register(app: typer.Typer) -> None:
                 edited.date_order = date_order
                 edited.outputs = selected
                 edited.merge = merge
+                edited.account_group = account_group
+                edited.account_confirmed = confirm_account
                 edited.categorize = categorize
             return order.order_id
 

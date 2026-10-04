@@ -5,11 +5,11 @@ import tempfile
 from pathlib import Path
 from time import perf_counter
 
-from stmtconv.catalog import Exports
+from stmtconv.catalog import Categories, Exports
 from stmtconv.config import Settings
 from stmtconv.errors import StmtconvError
-from stmtconv.export import csv_writer, excel
-from stmtconv.extract.service import read_statements
+from stmtconv.export import csv_writer, excel, merged, ofx
+from stmtconv.extract.service import persist, read_statements
 from stmtconv.orders import store
 
 
@@ -20,6 +20,7 @@ def export(
     allow_unverified: bool = False,
     skip_spotcheck: bool = False,
     accept_unverifiable: bool = False,
+    categories: Categories | None = None,
 ) -> list[Path]:
     started = perf_counter()
     with store.edit(settings.workspace, order_id) as order:
@@ -43,8 +44,53 @@ def export(
                 "A passed spot-check is required.",
                 "Run spotcheck, or explicitly use --skip-spotcheck.",
             )
-        if "ofx" in order.outputs:
-            raise StmtconvError("EXPORT_NOT_READY", "OFX is implemented in Phase 7.")
+        from stmtconv.core.categorize import Rule, categorize
+        from stmtconv.core.merge import merge
+
+        directory = store.root(settings.workspace, order_id)
+        if order.categorize:
+            from stmtconv.config import read_yaml
+
+            rules = list((categories or Categories(rules=[])).rules)
+            override = store.child(directory, "categories.yaml")
+            if override.is_file():
+                rules = [*Categories.model_validate(read_yaml(override)).rules, *rules]
+            statements = [
+                categorize(
+                    statement, [Rule(rule.category, rule.match, rule.direction) for rule in rules]
+                )
+                for statement in statements
+            ]
+        if order.account_group and order.account_confirmed:
+            import hashlib
+
+            identity = hashlib.sha256(("operator:" + order.account_group).encode()).hexdigest()
+            for statement in statements:
+                if statement.summary.account_key is None:
+                    statement.summary.account_key = identity
+        combination = (
+            merge(
+                statements,
+                settings.balance_tolerance,
+                order.account_group if order.account_confirmed else None,
+            )
+            if order.merge
+            else None
+        )
+        if combination is not None:
+            if any(
+                i.code in {"ACCOUNT_GROUP_UNKNOWN", "ACCOUNT_IDENTITY_UNCONFIRMED"}
+                for i in combination.issues
+            ):
+                raise StmtconvError(
+                    "MERGE_ACCOUNT",
+                    "Merge requires one known account, currency and account direction.",
+                )
+            if combination.issues and not allow_unverified:
+                raise StmtconvError(
+                    "MERGE_CONTINUITY",
+                    "Resolve merge continuity/period issues or use --allow-unverified.",
+                )
         directory = store.root(settings.workspace, order_id)
         staging = Path(tempfile.mkdtemp(prefix="export-", dir=store.child(directory, "work")))
         names = []
@@ -75,6 +121,12 @@ def export(
                             order.output_date_format,
                         )
                         names.append(path.name)
+                    elif format_name == "ofx":
+                        path = staging / f"{stem}.ofx"
+                        path.write_bytes(
+                            ofx.serialize(statement, order.created_at.strftime("%Y%m%d%H%M%S"))
+                        )
+                        names.append(path.name)
                     else:
                         limit = (
                             settings.qb_csv_max_rows
@@ -97,6 +149,10 @@ def export(
                                 )
                             )
                             names.append(path.name)
+            if combination is not None:
+                path = staging / f"{order_id}-merged.xlsx"
+                merged.write(combination, path)
+                names.append(path.name)
             output = store.child(directory, "output")
             previous = staging.parent / (staging.name + "-previous")
             output.rename(previous)
@@ -109,7 +165,11 @@ def export(
         finally:
             if staging.exists():
                 shutil.rmtree(staging)
-        order.exported_unverified = any(
+        persist(settings, order_id, statements)
+        order.merge_issues = (
+            [i.model_dump(mode="json") for i in combination.issues] if combination else []
+        )
+        order.exported_unverified = bool(order.merge_issues) or any(
             s.verdict in {"NEEDS_REVIEW", "UNVERIFIABLE"} for s in statements
         )
         order.spot_check.skipped = skip_spotcheck

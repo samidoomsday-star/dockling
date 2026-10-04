@@ -96,3 +96,7 @@ Format: Context → Decision → Alternatives → Consequences. Never delete an 
 - **Status:** accepted scope after owner instruction “Start Phase 1”; implemented 4 October 2026 UTC.
 - **Decision:** retain the SPEC's foundation feature scope. Verify Python 3.12 CPU setup, packaging, CLI/config/log/privacy behavior and real offline Docling integration here. Provide Windows PowerShell instructions; record the Windows acceptance as pending until actually run, following the owner's request to test dependencies/device behavior later.
 - **Consequences:** Phase 1 has explicit nonzero placeholders for future commands. The Linux dependency lock is hash-verified and Windows needs its own validated resolution. Package default configs/model manifest so installation works outside the checkout. AI fields reserve the Phase 9 BYOK plan without enabling API calls. Cloud completion does not establish Windows or financial-conversion readiness.
+
+### ADR-016: Confirm account identity before merging or OFX
+- **Status:** implemented under the approved project plan.
+- **Decision:** masks are display values, not unique account identifiers. Hash a captured full account identifier locally; otherwise require an operator account group and --confirm-account. Merge also requires matching currency/direction/display account. OFX FITIDs use the private identity and occurrence index. No identity hash or raw account identifier enters anonymous metrics.

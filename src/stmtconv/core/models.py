@@ -60,6 +60,7 @@ class Transaction(Domain):
 
 class StatementSummary(Domain):
     account_mask: str | None = None
+    account_key: str | None = None
     period_start: date | None = None
     period_end: date | None = None
     opening: Decimal | None = None

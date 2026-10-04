@@ -58,6 +58,7 @@ def register(app: typer.Typer) -> None:
                 allow_unverified,
                 skip_spotcheck,
                 accept_unverifiable,
+                ctx.obj.catalog.categories,
             )
         )
         for path in paths:

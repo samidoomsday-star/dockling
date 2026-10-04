@@ -78,6 +78,9 @@ class Order(Record):
     currency: str = Field(default="USD", pattern=r"^[A-Z]{3}$")
     categorize: bool = False
     merge: bool = False
+    account_group: str | None = None
+    account_confirmed: bool = False
+    merge_issues: list[dict[str, object]] = Field(default_factory=list)
     ai_consent: Literal["none", "granted"] = "none"
     ai_consent_note: str = ""
     show_full_account: bool = False

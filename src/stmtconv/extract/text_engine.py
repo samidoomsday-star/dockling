@@ -1,5 +1,6 @@
 """Word geometry and profile data, with no bank-specific branches."""
 
+import hashlib
 import re
 from dataclasses import dataclass
 
@@ -63,7 +64,10 @@ def summary_from_text(text: str, profile: Profile) -> tuple[StatementSummary, li
                 setattr(summary, key, parsed_date)
                 flags.extend(issues)
             elif key == "account_mask":
-                summary.account_mask = "****" + re.sub(r"\W", "", value)[-4:]
+                identifier = re.sub(r"\W", "", value)
+                summary.account_mask = "****" + identifier[-4:]
+                if identifier.isdigit() and len(identifier) >= 8:
+                    summary.account_key = hashlib.sha256(identifier.encode()).hexdigest()
             elif key == "currency":
                 summary.currency = value.upper()
         except ValueError:
