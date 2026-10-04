@@ -56,12 +56,12 @@ def normalize(
                 )
             except ValueError:
                 values[name] = None
-                flags.append("AMOUNT_UNPARSABLE")
+                flags.extend(["AMOUNT_UNPARSABLE", "MONEY_" + name.upper() + "_UNPARSABLE"])
         debit, credit = values["debit"], values["credit"]
         if amount_style != "separate_columns":
             amount = values["amount"]
             if amount is None:
-                flags.append("AMOUNT_UNPARSABLE")
+                flags.extend(["AMOUNT_UNPARSABLE", "MONEY_AMOUNT_UNPARSABLE"])
             else:
                 signed = -amount if summary.direction == "liability" else amount
                 debit = -signed if signed < 0 else None
@@ -70,7 +70,7 @@ def normalize(
             debit = abs(debit) if debit is not None else None
             credit = abs(credit) if credit is not None else None
             if debit is None and credit is None:
-                flags.append("AMOUNT_UNPARSABLE")
+                flags.extend(["AMOUNT_UNPARSABLE", "MONEY_MOVEMENT_MISSING"])
         row_id = hashlib.sha256(
             f"{statement_id}|{row.source_file}|{row.page}|{index}".encode()
         ).hexdigest()[:16]

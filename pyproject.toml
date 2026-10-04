@@ -31,10 +31,11 @@ packages = ["src/stmtconv"]
 [tool.hatch.build.targets.wheel.force-include]
 "config" = "stmtconv/_defaults"
 "profiles" = "stmtconv/_profiles"
+"templates" = "stmtconv/_templates"
 "docs/PHASE0-MODEL-MANIFEST.json" = "stmtconv/_model-manifest.json"
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "config", "profiles", "pyproject.toml", "README-START-HERE.md", "docs/PHASE0-MODEL-MANIFEST.json"]
+include = ["src", "config", "profiles", "templates", "pyproject.toml", "README-START-HERE.md", "docs/PHASE0-MODEL-MANIFEST.json"]
 
 [tool.ruff]
 target-version = "py312"
@@ -51,7 +52,7 @@ files = ["src/stmtconv"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["docling.*", "huggingface_hub.*", "pypdfium2.*", "reportlab.*"]
+module = ["docling.*", "huggingface_hub.*", "pypdfium2.*", "reportlab.*", "openpyxl.*"]
 # Upstream packages have incomplete typing; our own boundaries remain typed.
 follow_untyped_imports = false
 ignore_missing_imports = true

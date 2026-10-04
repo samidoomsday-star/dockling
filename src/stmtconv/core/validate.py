@@ -40,6 +40,7 @@ def validate(statement: Statement, tolerance: Decimal, row_order: str = "auto") 
         )
         candidate.transactions.sort(key=lambda t: (t.date is None, t.date))
         return candidate
+    candidate.flags = [f for f in candidate.flags if f not in {"PAGE_COVERAGE", "EMPTY_STATEMENT"}]
     summary = candidate.summary
     previous = summary.opening
     for row in candidate.transactions:
@@ -108,8 +109,9 @@ def validate(statement: Statement, tolerance: Decimal, row_order: str = "auto") 
             candidate.verdict = "VERIFIED_BY_TOTALS"
         else:
             candidate.verdict = "UNVERIFIABLE"
-        if candidate.verdict != "UNVERIFIABLE" and any(
-            t.fixed_by == "review" for t in candidate.transactions
+        if candidate.verdict != "UNVERIFIABLE" and (
+            candidate.manual_fixes > 0
+            or any(t.fixed_by == "review" for t in candidate.transactions)
         ):
             candidate.verdict = "VERIFIED_WITH_FIXES"
     else:

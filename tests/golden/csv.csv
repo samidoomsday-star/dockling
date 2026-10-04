@@ -1,0 +1,3 @@
+﻿Date,Description,Debit,Credit,Balance,Check,Flags,Page,Engine
+2026-01-02,"Fake café, grocery",12.50,,987.50,OK,,1,text
+2026-01-03,Fake salary,,2000.00,2987.50,OK,,1,text

@@ -15,10 +15,6 @@ def unavailable(phase: int) -> None:
 
 def register(app: typer.Typer) -> None:
     phases = {
-        "review": 6,
-        "apply-review": 6,
-        "spotcheck": 6,
-        "export": 6,
         "deliver": 8,
         "close": 8,
         "run": 8,

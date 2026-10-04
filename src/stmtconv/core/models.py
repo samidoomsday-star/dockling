@@ -76,6 +76,8 @@ class Statement(Domain):
     transactions: list[Transaction]
     verdict: Verdict = "NEEDS_REVIEW"
     flags: list[str] = Field(default_factory=list)
+    manual_fixes: int = 0
+    review_history: list[dict[str, object]] = Field(default_factory=list)
     checks: dict[str, bool | None] = Field(default_factory=dict)
     pages: list[int] = Field(default_factory=list)
     summary_pages: list[int] = Field(default_factory=list)

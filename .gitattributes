@@ -1,0 +1,3 @@
+# Preserve exact accounting-import fixture bytes, including CRLF and BOM.
+tests/golden/*.csv -text whitespace=cr-at-eol
+tests/golden/*.ofx -text whitespace=cr-at-eol
