@@ -32,7 +32,7 @@ def register(app: typer.Typer) -> None:
         order_id: str,
         profile: str | None = None,
         pages: str | None = None,
-        engine: str = "text",
+        engine: str = "auto",
         ai: bool = False,
     ) -> None:
         report(

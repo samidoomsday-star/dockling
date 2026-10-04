@@ -1,7 +1,7 @@
 # Progress
 
 ## Current status
-- **Current phase:** Phase 5 — OCR and fallback routing in progress.
+- **Current phase:** Phase 6 — review and exports in progress.
 - **Current task:** implement Phases 2–10 in order, as newly authorized; no approval pauses.
 - **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
@@ -15,7 +15,7 @@
 | 2 | Orders, intake and synthetic corpus | Cloud milestone complete | 120 total tests passed, strict typing, lint/format; encrypted intake and scanned quote |
 | 3 | Core normalization and validation | Cloud milestone complete | 250 total tests; Decimal round trips and all 50 corrupted-row positions for asset/liability |
 | 4 | Text engine and profiles | Cloud milestone complete | 252 total tests; nine exact selftest cases, profile data checks, changed PDF digit flagged |
-| 5 | Docling/OCR and router | Not started | — |
+| 5 | Docling/OCR and router | Cloud implementation verified; borderless rescue acceptance limited | 257 total tests; 15/15 scanned rows exact offline; source warnings retained |
 | 6 | Exports and review | Not started | — |
 | 7 | Merge, categories and OFX | Not started | — |
 | 8 | Delivery, retention and metrics | Not started | — |
@@ -73,3 +73,6 @@ Strict Decimal parser covers locales, signs and suffixes; dates retain ambiguity
 
 ## Phase 4 milestone
 Text extraction uses word geometry and validated YAML profiles; summaries, wrapped rows and page provenance are persisted. CLI extract/validate/profile scaffold/test/selftest work. Nine three-layout statements (including multipage) match every row/date/amount/description; corrupted PDF produces one mismatch. Full gate: 252 passed, none skipped. Unknown layouts need review rather than being claimed supported.
+
+## Phase 5 milestone
+Pinned Docling CPU converters are lazy and reused per OCR mode, with ACCURATE tables and selective default OCR. Whole-statement candidates are normalized and validated before selection; reasons/confidence/timings retained. All 15 rows across three real scanned layouts match ground truth offline, and all OCR rows carry SOURCE_CHECK_REQUIRED. Full gate: 257 passed, none skipped; upstream deprecation/runtime warnings recorded. Selftest passes. The draft acceptance requiring Docling to rescue any borderless wrapped layout remains limited by observed Phase 0 behavior; text handles our borderless fixture. This limitation is not hidden by weakening a test or promising universal rescue.

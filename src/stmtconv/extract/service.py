@@ -60,7 +60,7 @@ def extract(
     order_id: str,
     profile_id: str | None = None,
     pages: str | None = None,
-    engine: str = "text",
+    engine: str = "auto",
     ai: bool = False,
 ) -> list[Statement]:
     start = perf_counter()
@@ -68,6 +68,11 @@ def extract(
         store.require(order, {"intake_done", "extracted", "needs_review", "reviewed"})
         if not order.files:
             raise StmtconvError("EXTRACT_EMPTY", "Complete intake first.")
+        if ai:
+            raise StmtconvError("AI_NOT_READY", "Optional BYOK routing comes in Phase 9.")
+        from stmtconv.extract.docling_engine import DoclingExtractor
+
+        docling = DoclingExtractor(settings.artifacts_path, settings.num_threads)
         profiles = load_profiles()
         directory = store.root(settings.workspace, order_id)
         statements: list[Statement] = []
@@ -92,6 +97,8 @@ def extract(
                     settings.balance_tolerance,
                     settings.date_out_of_period_days,
                     engine,
+                    docling,
+                    mismatch_ratio=settings.fallback_mismatch_ratio,
                 )
                 statement.summary.currency = order.currency
                 statements.append(statement)

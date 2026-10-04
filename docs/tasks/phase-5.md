@@ -1,0 +1,3 @@
+# Phase 5 — OCR and full routing
+
+Integrate pinned CPU Docling lazily, cache converters per OCR mode, use ACCURATE tables and stored local models. Normalize/revalidate every candidate, preserve whole-statement sequence, prefer safer reconciled candidates, retain engine reasons/confidence/page timings. OCR rows carry SOURCE_CHECK_REQUIRED: reconciliation cannot certify their dates/descriptions. Test real scanned layouts offline and honest failure retention. Phase 0 showed borderless OCR failure, so a universal borderless rescue cannot be promised; record observed acceptance gaps rather than weaken tests.
