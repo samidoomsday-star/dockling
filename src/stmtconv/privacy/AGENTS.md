@@ -1,0 +1,6 @@
+# src/stmtconv/privacy — redaction, masking, AI gate, deletion
+
+- Follow `.kilo/rules/03-security.md` and SPEC 11.2–11.3, 14.2, 15.2.
+- `redact.py` logging filter; `mask.py` account/email/phone masking; `ai_gate.py` four-condition check; `deletion.py` close-order deletion + verification + certificate.
+- Changes here need approval (security-sensitive). Every function has tests, including negative cases.
+- Deletion must never report success unless a re-scan finds no client files.

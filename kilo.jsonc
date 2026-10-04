@@ -1,0 +1,14 @@
+{
+  // Project rules loaded into every Kilo task, in this order.
+  "instructions": [
+    ".kilo/rules/01-workflow.md",
+    ".kilo/rules/02-architecture.md",
+    ".kilo/rules/03-security.md",
+    ".kilo/rules/04-extraction.md",
+    ".kilo/rules/05-accuracy.md",
+    ".kilo/rules/06-exports.md",
+    ".kilo/rules/07-ai-cloud.md",
+    ".kilo/rules/08-testing-quality.md",
+    ".kilo/rules/09-git.md"
+  ]
+}
