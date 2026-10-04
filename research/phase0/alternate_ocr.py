@@ -30,9 +30,7 @@ def main():
         do_ocr=True,
         do_table_structure=True,
         ocr_options=TesseractCliOcrOptions(lang=["eng"], force_full_page_ocr=True),
-        accelerator_options=AcceleratorOptions(
-            num_threads=4, device=AcceleratorDevice.CPU
-        ),
+        accelerator_options=AcceleratorOptions(num_threads=4, device=AcceleratorDevice.CPU),
     )
     options.table_structure_options.mode = TableFormerMode.ACCURATE
     converter = DocumentConverter(

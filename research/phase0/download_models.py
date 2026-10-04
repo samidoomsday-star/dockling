@@ -1,3 +1,5 @@
+# Offline/setup flags must precede third-party imports.
+# ruff: noqa: E402
 """Setup-only network operation. Uses upstream downloads with TLS intact."""
 
 import hashlib
@@ -36,19 +38,13 @@ def main():
                         "Downloaded artifacts differ from the recorded exploration version"
                     )
     except Exception as exc:  # noqa: BLE001 — record download failure without leaking URLs/keys.
-        output.write_text(
-            json.dumps({"status": "failed", "error_type": type(exc).__name__})
-        )
+        output.write_text(json.dumps({"status": "failed", "error_type": type(exc).__name__}))
         print("Model download failed:", type(exc).__name__)
         print("Check model-source access, retained files and recorded artifact hashes.")
         return 1
     output.write_text(json.dumps({"status": "downloaded", "path": str(path)}))
     print("Required models downloaded to", path)
-    print(
-        "Recorded artifact hashes match."
-        if manifest.exists()
-        else "No recorded manifest yet."
-    )
+    print("Recorded artifact hashes match." if manifest.exists() else "No recorded manifest yet.")
     return 0
 
 

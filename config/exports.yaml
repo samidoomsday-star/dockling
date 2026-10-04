@@ -1,0 +1,20 @@
+formats:
+  excel:
+    columns: [Date, Description, Debit, Credit, Balance, Check, Page, Source file]
+    date_formats: ["%m/%d/%Y", "%d/%m/%Y", "%Y-%m-%d"]
+  qb_csv3:
+    columns: [Date, Description, Amount]
+    date_formats: ["%m/%d/%Y", "%d/%m/%Y"]
+  qb_csv4:
+    columns: [Date, Description, Credit, Debit]
+    date_formats: ["%m/%d/%Y", "%d/%m/%Y"]
+  xero_csv:
+    columns: [Date, Amount, Payee, Description, Reference]
+    date_formats: ["%d/%m/%Y", "%m/%d/%Y", "%Y/%m/%d"]
+  csv:
+    columns: [Date, Description, Debit, Credit, Balance, Check, Flags, Page, Engine]
+    date_formats: ["%Y-%m-%d"]
+  ofx:
+    columns: []
+    date_formats: ["%Y%m%d"]
+

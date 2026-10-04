@@ -1,0 +1,22 @@
+# Original SPEC starter prices; not a quote engine yet.
+packages:
+  - name: basic
+    page_limit: 10
+    price_min: "10.00"
+    price_max: "15.00"
+  - name: standard
+    page_limit: 50
+    price_min: "30.00"
+    price_max: "40.00"
+  - name: premium
+    page_limit: 200
+    price_min: "80.00"
+    price_max: "100.00"
+  - name: monthly
+    page_limit: null
+    price_min: "99.00"
+    price_max: "199.00"
+addons:
+  scanned: "0.25"
+  rush: "0.50"
+

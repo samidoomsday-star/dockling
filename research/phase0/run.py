@@ -1,3 +1,5 @@
+# Offline/setup flags must precede third-party imports.
+# ruff: noqa: E402
 """Offline exploration; output is evidence, not an application readiness claim."""
 
 import importlib.metadata
@@ -187,9 +189,7 @@ def main():
     )
     for ext in ["docx", "xlsx", "html"]:
         tests[f"docling_{ext}"] = measured(
-            lambda ext=ext: convert(
-                office, inputs / f"statement.{ext}", truth["statement"], out
-            )
+            lambda ext=ext: convert(office, inputs / f"statement.{ext}", truth["statement"], out)
         )
     native = DocumentConverter(
         allowed_formats=[InputFormat.PDF],
@@ -201,25 +201,19 @@ def main():
         },
     )
     tests["docling_native_pdf"] = measured(
-        lambda: convert(
-            native, inputs / "digital.pdf", truth["digital"], out / "native"
-        )
+        lambda: convert(native, inputs / "digital.pdf", truth["digital"], out / "native")
     )
     if shutil.which("tesseract"):
         for name, filename in [("scanned", "scan.png"), ("photo", "photo.jpg")]:
             tests[f"tesseract_{name}"] = measured(
-                lambda name=name, filename=filename: ocr(
-                    inputs / filename, truth[name], out
-                )
+                lambda name=name, filename=filename: ocr(inputs / filename, truth[name], out)
             )
     models = ROOT / "models"
     options = PdfPipelineOptions(
         artifacts_path=models,
         do_ocr=False,
         do_table_structure=True,
-        accelerator_options=AcceleratorOptions(
-            num_threads=4, device=AcceleratorDevice.CPU
-        ),
+        accelerator_options=AcceleratorOptions(num_threads=4, device=AcceleratorDevice.CPU),
     )
     options.table_structure_options.mode = TableFormerMode.ACCURATE
     ml = DocumentConverter(
@@ -251,9 +245,7 @@ def main():
             )
         for name in ["borderless", "multipage"]:
             tests[f"docling_ml_{name}"] = measured(
-                lambda name=name: convert(
-                    ml, inputs / f"{name}.pdf", truth[name], out / "ml"
-                )
+                lambda name=name: convert(ml, inputs / f"{name}.pdf", truth[name], out / "ml")
             )
     else:
         for name in ["scanned", "photo", "borderless", "multipage"]:
@@ -262,9 +254,7 @@ def main():
                 "reason": "Required ML pipeline prerequisite failed; see digital attempt.",
             }
     needed = ["digital", "scanned", "photo"]
-    complete = all(
-        tests[f"docling_ml_{name}"]["status"] == "success" for name in needed
-    )
+    complete = all(tests[f"docling_ml_{name}"]["status"] == "success" for name in needed)
     evidence = {
         "run_id": run_id,
         "platform": platform.platform(),
@@ -285,9 +275,7 @@ def main():
         "phase0_required_conversions_complete": complete,
         "tests": tests,
     }
-    (out / "results.json").write_text(
-        json.dumps(json_safe(evidence), indent=2, allow_nan=False)
-    )
+    (out / "results.json").write_text(json.dumps(json_safe(evidence), indent=2, allow_nan=False))
     (ROOT / "explore/latest-run.txt").write_text(str(out))
     for name, result in tests.items():
         print(

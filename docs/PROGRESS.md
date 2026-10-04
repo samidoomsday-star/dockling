@@ -1,16 +1,17 @@
 # Progress
 
 ## Current status
-- **Current phase:** Phase 0 — exploration complete; awaiting owner review before Phase 1.
-- **Current task:** review findings and confirm the Phase 1 foundation task.
-- **Last updated:** 2026-10-04.
-- **Owner decisions:** Codex development; original phases 0–10; GitHub versions; other-device installation; beginner guidance; optional OpenAI-compatible BYOK model/effort picker up to supported Max.
+- **Current phase:** Phase 1 — foundation implemented and verified in the cloud; Windows acceptance pending.
+- **Current task:** owner review of the Phase 1 milestone before Phase 2.
+- **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
+- **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
 
 ## Phases
+
 | Phase | Name | Status | Verified |
 |---|---|---|---|
-| 0 | Import, setup and explore Docling | Experiments complete; review pending | Required offline conversions ran; limitations documented |
-| 1 | Foundation | Not started | — |
+| 0 | Import, setup and explore Docling | Complete; owner approved proceeding | Offline experiments and limitations recorded |
+| 1 | Foundation | Cloud milestone complete; Windows acceptance pending | 32 tests, strict typing, lint/format, build, model setup and installed-wheel doctor |
 | 2 | Orders, intake and synthetic corpus | Not started | — |
 | 3 | Core normalization and validation | Not started | — |
 | 4 | Text engine and profiles | Not started | — |
@@ -21,30 +22,45 @@
 | 9 | Optional BYOK AI | Not started | — |
 | 10 | Windows/field readiness | Not started | — |
 
-## Task log
-- 2026-10-04: downloaded required models after publication; ran offline ML and supplemental alternate OCR; saved current evidence, observed model hashes and complete exploration report. No product code, client data or paid API call.
-- 2026-10-04: diagnosed Hugging Face's redirected artifact host us.aws.cdn.hf.co; saved domain addition and owner published it. Metadata and actual file downloads now work.
-- 2026-10-04: imported starter; recorded Codex/BYOK decisions; installed pinned CPU dependencies and ran independent experiments while downloads were blocked.
+## Phase 1 result
 
-## Known issues and limits
-- Docling detects zero tables in our borderless and two-page borderless examples despite excellent mean grades; this is a diagnosed extraction limitation, not an environment blocker. Keep the text-first engine and independent validation.
-- Eight-row ruled digital/scan/photo-like examples are exact, but the corpus is not broad accuracy evidence.
-- Windows/device performance, real-camera input, full dependency/OCR-weight license audit and actual accounting imports are unverified.
-- CODEX-PROJECT-PLAN records remaining requirement clarifications for later phases.
+- Added a Python 3.12 package, all module folders, thin Typer CLI and explicit nonzero placeholders for later commands. Help, version, doctor and model download work. No order/conversion/AI feature is claimed implemented.
+- Validated YAML and optional personal settings with environment > .env > YAML > defaults priority. Money uses Decimal; configuration errors hide values. Pricing/category/export stubs retain the original specification.
+- Rotating JSON and console logs mask account-like digit runs and structured descriptions/keys, including nested fields; exception content is suppressed. Reinitialization avoids duplicate handlers. This does not justify logging arbitrary raw statements.
+- Model setup verifies the recorded artifact hashes, uses a writable cache in the ignored models folder, and restores offline settings after success or failure. Hashes were not changed to pass verification.
+- Created a hash-locked Linux CPU dependency set, repeatable installer and beginner Windows handoff guide. Packaging includes YAML defaults and the model manifest.
 
-## Phase 0 verification
-- Main run: a6db92287d9f4481bf0b39640c045614; research runner exit 0. Required digital/scanned/photo-like conversions each preserve 8/8 expected rows.
-- Borderless and multi-page conversions execute successfully but preserve 0 structured rows (0/8, 0/12); text remains. Do not mark table-quality checks passed for those targets.
-- DOCX/XLSX/HTML preserve 8/8 expected rows. Native PDF emits text without tables.
-- Alternate integrated Docling/Tesseract scan preserves 8/8 rows; standalone OCR checks date-token accessibility only.
-- Research lint/format, pip check, repeated Linux install, repeated model download, parsed JSON exports and workbook reopening pass.
-- Current evidence: PHASE0-EVIDENCE.json, PHASE0-ALTERNATE-OCR.json, PHASE0-MODEL-MANIFEST.json, EXPLORATION_REPORT.md.
-- scripts/check.py and stmtconv selftest do not exist; no product tests executed.
+## Phase 1 verification
 
-## GitHub and environment
-- Original starter on main; latest development work on phase-0-exploration. No merge into main has been authorized/performed.
-- Git pushes work. Automatic draft PR creation was previously blocked by GitHub API access; no PR created or token requested.
-- Network settings have been published and required model downloads work in this instance. Refreshed install/start instructions are saved for review; a new snapshot/publication of the prepared models is not yet verified.
+- `.venv/bin/python scripts/check.py`: **32 passed, 0 failed, 0 skipped**; ruff lint, format (42 files) and strict mypy (20 source files) passed. Two upstream Docling deprecation warnings remain. The slow integration test converts a synthetic two-row PDF with Python network connections blocked and verifies both rows.
+- Privacy tests prove a 12-digit number, description, nested raw text/key and exception content do not reach captured console/file logs. Configuration, model tampering/path escapes, safe error handling and placeholder behavior are also tested.
+- `bash scripts/install-linux.sh`: exit 0; hash-locked dependency install, editable installation and pip check passed. CPU torch 2.14.1+cpu / torchvision 0.29.1+cpu confirmed. Installer debugging identified the required editable-build dependency; it is now pinned.
+- `.venv/bin/python -m stmtconv models download`: exit 0; all pinned model hashes matched. Repeated download works; read-only home-cache warnings were resolved.
+- `.venv/bin/python -m build --no-isolation`: source archive and wheel built successfully.
+- Fresh `/tmp/dockling-wheelcheck` virtual environment: hash-locked dependencies installed, wheel installed, `python -m stmtconv doctor` ran successfully from unrelated `/tmp`. Bundled defaults/manifest were used, workspace/model/offline checks passed; disk encryption remains explicitly unverified. This checks packaging portability on Linux, not Windows.
+- Logs and installed/generated files are ignored or outside the repository. Only synthetic data was used; no client documents, secrets or paid API calls.
+
+## Known limits
+
+- Windows PowerShell installation/tests have not run. The SPEC's Windows Phase 1 acceptance remains pending; the owner approved doing device checks later. Do not count the Linux lock as a validated Windows lock.
+- Docling produced zero structured tables for the Phase 0 borderless and two-page borderless examples despite excellent grades. Keep text-first extraction and independent validation; do not promise every layout is rescued by OCR.
+- Eight-row Phase 0 examples and the two-row foundation smoke test are not general accuracy evidence. Broader corpus, camera samples, license audit, hardware timings and accounting imports remain later work.
+- Optional BYOK fields are reserved only. The actual custom endpoint/model/effort picker and consent gates come in Phase 9. No LLM key is needed now.
+- Encryption cannot be established by this cloud doctor. Confirm Windows device encryption before real client work.
+
+## Phase 0 evidence retained
+
+- Main run a6db92287d9f4481bf0b39640c045614: required digital/scanned/photo-like examples preserve 8/8 rows.
+- Borderless/multi-page examples preserve 0/8 and 0/12 structured rows; text remains. Native PDF has text but no structured tables. DOCX/XLSX/HTML preserve 8/8 rows.
+- Alternate integrated Tesseract scan preserves 8/8 rows; standalone OCR checks only date tokens.
+- Evidence files: PHASE0-EVIDENCE.json, PHASE0-ALTERNATE-OCR.json, PHASE0-MODEL-MANIFEST.json and EXPLORATION_REPORT.md.
+
+## GitHub and reusable environment
+
+- Phase 1 work lives on `phase-1-foundation`, based on `phase-0-exploration`. `main` remains the original starter. No merge has been authorized or performed.
+- Git push works. Previous GitHub API access blocked automatic PR creation; no PR exists and no token is needed for normal Git operations.
+- Reusable setup uses scripts/install-linux.sh and the Phase 1 command-line checks. The environment draft must select this milestone commit. Saving instructions is distinct from publishing; only the owner can publish the updated snapshot. New-task restoration is not yet verified.
 
 ## Next step
-Owner reviews EXPLORATION_REPORT and confirms Phase 1. Then create docs/tasks/phase-1.md and implement foundation acceptance criteria. Do not treat missing Windows checks or unresolved synthetic coverage as passed.
+
+Review Phase 1. Then Phase 2 implements order records, safe status changes, file intake/quotes and a broader synthetic test corpus. Continue cloud development while retaining Windows checks for the other device, as agreed. See ENVIRONMENT.md for exact clone/update instructions.

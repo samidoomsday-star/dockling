@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling==1.32.4", "editables==0.5"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dockling-stmtconv"
+version = "0.1.0"
+description = "Local-first statement conversion operator CLI (foundation phase)"
+readme = "README-START-HERE.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "typer==0.26.8", "rich==15.0.0", "pydantic==2.13.5",
+  "pydantic-settings==2.15.0", "PyYAML==6.0.3", "python-dotenv==1.2.4",
+  "pdfplumber==0.11.10", "pypdfium2==5.13.0", "docling==2.133.0",
+  "Pillow==12.3.0", "openpyxl==3.1.5",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==9.1.1", "pytest-cov==7.1.0", "hypothesis==6.168.3",
+  "reportlab==5.0.1", "ruff==0.16.10", "mypy==2.4.0",
+  "types-PyYAML==6.0.12.20260906", "build==1.6.1", "hatchling==1.32.4", "editables==0.5",
+]
+
+[project.scripts]
+stmtconv = "stmtconv.cli.app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/stmtconv"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"config" = "stmtconv/_defaults"
+"docs/PHASE0-MODEL-MANIFEST.json" = "stmtconv/_model-manifest.json"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "config", "pyproject.toml", "README-START-HERE.md", "docs/PHASE0-MODEL-MANIFEST.json"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+python_version = "3.12"
+files = ["src/stmtconv"]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["docling.*", "huggingface_hub.*"]
+follow_untyped_imports = false
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = ["slow: real model/dependency integration checks"]
+

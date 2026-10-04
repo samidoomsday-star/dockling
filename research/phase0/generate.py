@@ -25,8 +25,7 @@ def rows(count=8):
         result.append(
             [
                 f"{i + 1:02d} Sep 2026",
-                f"Synthetic shop {i + 1:02d}"
-                + (" wrapped description" if i == 2 else ""),
+                f"Synthetic shop {i + 1:02d}" + (" wrapped description" if i == 2 else ""),
                 f"{debit:.2f}" if debit else "",
                 f"{credit:.2f}" if credit else "",
                 f"{balance:.2f}",
@@ -79,11 +78,7 @@ def generate(out):
     image = page.render(scale=200 / 72).to_pil().convert("RGB")
     image.save(out / "scan.png")
     image.save(out / "scanned.pdf", "PDF", resolution=200)
-    photo = (
-        ImageEnhance.Contrast(image)
-        .enhance(0.85)
-        .rotate(2, expand=True, fillcolor="white")
-    )
+    photo = ImageEnhance.Contrast(image).enhance(0.85).rotate(2, expand=True, fillcolor="white")
     rng = random.Random(2026)
     for _ in range(8000):
         pos = (rng.randrange(photo.width), rng.randrange(photo.height))
@@ -107,18 +102,12 @@ def generate(out):
         book.active.append(row)
     book.save(out / "statement.xlsx")
     body = "".join(
-        "<tr>" + "".join(f"<td>{v}</td>" for v in row) + "</tr>"
-        for row in [HEADERS, *data]
+        "<tr>" + "".join(f"<td>{v}</td>" for v in row) + "</tr>" for row in [HEADERS, *data]
     )
     (out / "statement.html").write_text(
-        "<html><body><h1>Synthetic statement</h1><table>"
-        + body
-        + "</table></body></html>"
+        "<html><body><h1>Synthetic statement</h1><table>" + body + "</table></body></html>"
     )
-    truth = {
-        name: data
-        for name in ["digital", "borderless", "scanned", "photo", "statement"]
-    }
+    truth = {name: data for name in ["digital", "borderless", "scanned", "photo", "statement"]}
     truth["multipage"] = rows(12)
     (out / "truth.json").write_text(json.dumps(truth, indent=2))
     return truth

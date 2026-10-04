@@ -6,7 +6,7 @@ Windows operator CLI (`stmtconv`) for a done-for-you statement conversion servic
 - Follow the owner's current instructions first, then `docs/SPEC.md`, `docs/DECISIONS.md`, and `docs/TECH_ARCHITECTURE.md`.
 - Start by reading `docs/PROGRESS.md` and the current `docs/tasks/phase-N.md`.
 - Work through original phases 0–10, one coherent task at a time. Record evidence and remaining checks; do not mark unrun checks passed.
-- Phase 0 is exploration only: upstream reference under ignored `vendor/docling`, synthetic experiments under ignored `explore/`, reproducible research helpers under `research/phase0/`, results in `docs/EXPLORATION_REPORT.md`. No application code yet. Stop for owner review before Phase 1.
+- Phase 0 rules applied during exploration (now complete and approved): upstream reference under ignored `vendor/docling`, synthetic experiments under ignored `explore/`, reproducible research helpers under `research/phase0/`, results in `docs/EXPLORATION_REPORT.md`. No application implementation belonged in Phase 0. Owner has now approved Phase 1; see progress for current scope.
 - Phase 0 uses its exploration runner as the gate. `scripts/check.py` does not exist until Phase 1; `stmtconv selftest` starts in Phase 4.
 - Existing cloud checkouts already provide isolation. Do not create Git worktrees unless the owner asks.
 - Update progress and decisions after each meaningful task. Commit working milestones and push reviewable versions to GitHub when authorized. Do not merge a PR without authorization.
