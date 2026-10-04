@@ -17,4 +17,3 @@ formats:
   ofx:
     columns: []
     date_formats: ["%Y%m%d"]
-
