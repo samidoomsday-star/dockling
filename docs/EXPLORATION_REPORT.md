@@ -1,96 +1,97 @@
-# Phase 0 exploration report — partial; model downloads blocked
+# Phase 0 exploration report — experiments complete, awaiting owner review
 
 ## Plain-language result
-The starter is imported and Docling is installed. It can convert our fake Word, Excel and HTML tables correctly. The fake digital PDF text is accessible. However, model-file downloads are still blocked at a redirected artifact host, even though Hugging Face metadata is now reachable. We cannot yet judge Docling's main bank-statement extraction or call Phase 0 complete.
+Docling is installed and the required models downloaded successfully. It ran offline on our fake digital PDF, scanned PDF and simulated photo, preserving all eight expected transaction rows in each. It also exported Markdown, JSON, HTML and raw-table Excel workbooks.
 
-The next owner action is to review/save the model-source domain additions in cloud environment settings and publish the environment. Codex can then retry the downloads and remaining conversions. No API key, paid AI account or local installation is needed.
+**Important limit:** our borderless and two-page borderless examples kept their text but produced no structured tables. Docling assigned them high confidence anyway. Therefore Docling alone is not a reliable statement converter. Keep the planned pdfplumber text-first engine and use Docling for OCR/fallback; always validate rows, balances and page coverage independently.
 
-## 1. Setup
+Cloud exploration is complete. The tool itself has not been built yet. The next step is owner review of these findings, then authorization to begin Phase 1 (foundation). Windows/laptop and real-camera acceptance remain separate, later checks. No API key or paid LLM was used.
+
+## 1. Setup and provenance
 | Item | Observed value |
 |---|---|
-| Upstream reference | docling-project/docling tag v2.133.0; b0315ea356298e4659c9727e9f5191dd2001860a |
-| Installed version | docling and docling-slim 2.133.0, matching PyPI release; not editable source |
+| Upstream reference | docling-project/docling tag v2.133.0, commit b0315ea356298e4659c9727e9f5191dd2001860a |
+| Installation | Matching PyPI docling/docling-slim 2.133.0, not editable source |
 | Python | 3.12.14 |
 | Runtime | Linux x86_64; 4 CPU-equivalent quota; 32 GiB memory limit; no GPU used |
-| CPU dependencies | torch 2.14.1+cpu and torchvision 0.29.1+cpu |
-| Free path | Local libraries and synthetic inputs; no LLM key or paid API calls |
-| Research helpers | research/phase0; Linux hash-locked dependencies; no product code |
-| Required artifacts | Hugging Face layout/table models and RapidOCR English weights; unavailable so far |
-| Reusable setup | PHASE0-SETUP.md and research/phase0/install-linux.sh |
+| CPU pair | torch 2.14.1+cpu; torchvision 0.29.1+cpu |
+| Main OCR | RapidOCR 3.9.2, torch backend, English via iso:en, full-page OCR for scan/photo |
+| Table configuration | ACCURATE TableFormer; OCR off for digital PDFs |
+| Local artifacts | 23 non-cache files, about 699.5 MiB; layout, table and selected RapidOCR files |
+| Main run | a6db92287d9f4481bf0b39640c045614 |
+| Required conversion gate | Runner exit 0; all three required conversions executed successfully |
+| Evidence | PHASE0-EVIDENCE.json; separate PHASE0-ALTERNATE-OCR.json |
+| Artifact record | PHASE0-MODEL-MANIFEST.json: observed SHA-256 hashes and Hugging Face commit metadata |
 
-### Problems and corrections
-- Initial PyPI torchvision did not match CPU torch and failed with `operator torchvision::nms does not exist`. Replaced torchvision with the matching CPU wheel from PyTorch's official index; both imports now pass.
-- `pip check` passes. The Linux install script was rerun successfully against the hash-locked dependencies.
-- Upstream model-free confidence summaries have undefined numeric values and emit warnings. The research evidence records undefined confidence as null rather than inventing grades. JSON evidence serialization was corrected and the experiment rerun.
-- Actual model download failed with ProxyError. A read-only request to Hugging Face returned HTTP 403 at the CONNECT proxy. An offline main-pipeline attempt fails because the layout model folder is absent. No verification was disabled and no model source was substituted.
-- Network additions were saved as a draft; saving alone does not change runtime access. Runtime connectivity is still unresolved.
+The model manifest records observed downloaded bytes, not independent publisher signatures. Artifacts were fetched through upstream mechanisms with TLS verification intact. Model binaries, generated statements/images/workbooks, installed dependencies and caches are ignored and excluded from Git.
+
+### Setup problems resolved
+- Replaced incompatible PyPI torchvision with matching CPU torchvision from PyTorch's official CPU index. Both imports and pip check pass.
+- Public Hugging Face metadata became accessible after the first environment publication; model weights redirected to us.aws.cdn.hf.co. After allowing and publishing that exact host, downloads succeeded. No HF token was required; the unauthenticated rate-limit warning was informational.
+- Hugging Face's standard Xet route is enabled. No TLS, checksum or signature verification was disabled.
+- Linux dependencies are pinned with hashes. The install script was rerun successfully; model download was also repeated successfully, reusing retained artifacts.
+- Model-free formats omit confidence values. Upstream emits warnings about undefined averages; evidence encodes unavailable scores as null, rather than making up grades.
 
 ## 2. Feature walkthrough
-| Feature | Synthetic input | Observed result |
+| Feature | Input | Result |
 |---|---|---|
-| Digital text access via pdfplumber | Ruled, borderless and two-page PDFs | All 8/8, 8/8 and 12/12 expected date tokens present; not transaction extraction validation |
-| Docling DOCX conversion | Word table | One table, all 8 ground-truth rows exact |
-| Docling XLSX conversion | Excel table | One table, all 8 ground-truth rows exact |
-| Docling HTML conversion | HTML table | All 8 ground-truth rows exact; 9 table rows include header, so header filtering is needed |
-| Markdown/JSON/HTML export | Each successful Docling conversion | Files generated; native PDF export also succeeds |
-| Tables to Excel | DOCX/XLSX/HTML results | Generated workbooks reopen with 8/8/9 rows respectively |
-| Docling model-free native PDF | Digital PDF | Converts embedded text but produces zero structured tables; not a replacement for the planned ML pipeline |
-| Alternate free OCR: Tesseract 5.5.0 | Rasterized scan and simulated photo | Commands succeed, 8/8 date tokens present in each; no Docling integration or complete row-accuracy claim |
-| Docling ML PDF, ACCURATE tables | Digital PDF | Attempted offline; fails with missing layout artifacts |
-| Docling ML OCR | Scanned PDF, simulated photo image | Unrun: model prerequisite failed |
-| Docling ML borderless/multi-page tables | Two synthetic layouts | Unrun: model prerequisite failed |
-| Model-dependent confidence grades | Main PDF/OCR pipeline | Unavailable until models download; model-free formats lack populated confidence |
-| Real phone photo and laptop benchmark | Owner device | Unrun: must be tested on that device |
-| Local API/UI server | Optional docling-serve research | Unrun; not necessary for the operator CLI |
+| Main digital PDF | Ruled synthetic statement with a wrapped description | One table, 8/8 exact rows |
+| Main scanned PDF | Same fake page rasterized at 200 dpi | One table, 8/8 exact rows via RapidOCR |
+| Main photo input | Same fake page, rotation/contrast/noise and JPEG compression | One table, 8/8 exact rows via RapidOCR; simulated, not a real camera photo |
+| Borderless table | Same rows with ruled lines removed | Conversion succeeds, text retained, zero tables and 0/8 structured rows |
+| Multi-page borderless table | 12 rows across two pages with repeated header | Conversion succeeds, text retained, zero tables and 0/12 structured rows |
+| Docling DOCX/XLSX/HTML | Matching fake table in each format | 8/8 expected rows exact in all; HTML also exposes a header row |
+| Markdown/JSON/HTML | All successful Docling conversions | Exports produced; saved document JSON parses |
+| Tables to Excel | Detected tables | Workbooks written and reopened with expected data-row counts |
+| Native model-free PDF pipeline | Fake digital PDF | Text conversion works but zero structured tables; not a replacement for the ML table path |
+| Confidence grades | Main PDF/image conversions | Available layout/parse/OCR grades; table score remains unavailable; grades do not prove transaction correctness |
+| Alternate OCR integrated with Docling | Tesseract 5.5.0 on the fake scanned PDF | One table, 8/8 exact rows, 9.412 seconds in a separate process |
+| Standalone Tesseract | Fake scan and photo-like image | Commands execute successfully; 8/8 date tokens in each; token checks are not full transaction validation |
+| Local server/UI | Optional docling-serve | Unrun; not needed for the operator CLI |
+| Actual phone photo and Windows device | Owner hardware | Unrun; deferred device-specific acceptance |
 
-## 3. Performance on this cloud machine
-Run ID: 27acb1b6eaac438e90be5043a4c7448c. Raw current-run evidence is saved in PHASE0-EVIDENCE.json. The runner returns 1 because required ML conversions are incomplete; this is not a passing Phase 0 gate.
+All three required inputs derive from one known eight-row statement. This is three formats, not a broad corpus of independent bank layouts. Full row comparison checks date, description, debit, credit and balance after whitespace normalization. It does not exercise product parsers, reconciliation, flags, state changes or accounting imports, which do not exist yet.
 
-| Check | Status | Seconds | Exact rows or accessible date tokens* |
-|---|---|---|---|
-| pdfplumber_digital | passed | 0.022 | 8 |
-| pdfplumber_borderless | passed | 0.015 | 8 |
-| pdfplumber_multipage | passed | 0.025 | 12 |
-| docling_docx | success | 0.106 | 8 |
-| docling_xlsx | success | 0.019 | 8 |
-| docling_html | success | 0.025 | 8 |
-| docling_native_pdf | success | 0.087 | 0 |
-| tesseract_scanned | passed | 0.777 | 8 |
-| tesseract_photo | passed | 0.571 | 8 |
-| docling_ml_digital | failed | 1.64 | — |
-| docling_ml_scanned | unrun | — | — |
-| docling_ml_photo | unrun | — | — |
-| docling_ml_borderless | unrun | — | — |
-| docling_ml_multipage | unrun | — | — |
+## 3. Cloud timings and output quality
+| Main input | Seconds | Tables | Exact expected rows | Mean grade |
+|---|---|---|---|---|
+| digital | 8.447 | 1 | 8/8 | good |
+| scanned | 8.843 | 1 | 8/8 | good |
+| photo | 9.252 | 1 | 8/8 | good |
+| borderless | 1.134 | 0 | 0/8 | excellent |
+| multipage | 2.222 | 0 | 0/12 | excellent |
 
-*DOCX/XLSX/HTML numbers compare full rows, including date, description, debit, credit and balance, with ground truth. pdfplumber/Tesseract numbers check date-token presence only. Native PDF produced no tables. These tests do not yet exercise a product parser, router, reconciliation or financial verdict.
+Digital timing includes the first model initialization. Borderless/multi-page timings reuse the digital converter and are warm measurements. The photo follows the scan using the OCR converter. These are total conversion/export times, not isolated per-page inference measurements. The two-page conversion is about 1.11 seconds/page on this small warm example, but produces no tables.
 
-Python-process RSS samples were approximately 485–555 MiB across the warmed research process. They include imports and prior operations and exclude Tesseract child memory. They are not isolated per-engine peak benchmarks. Times exclude dependency installation/import startup, model loading where blocked, and future operator review. CPU limits, documents and environment differ from the owner's laptop; do not use these numbers to quote real jobs.
+Python-process RSS samples peaked at about 2,769 MiB across the sequential main runner. They include imported libraries, retained converters and prior operations; they are not isolated model memory measurements. The separate alternate-OCR process observed about 1,088 MiB. Standalone Tesseract child memory is excluded. Cloud hardware differs from the owner's i5-8250U laptop; do not use these timings for client quotes or promise Windows speed.
 
-## 4. Output quality
-The structured Word/Excel/HTML examples preserve every expected fake row, including the long description. HTML header handling differs. Digital PDFs expose the expected text quickly, supporting the planned geometry-based text engine, but date-token accessibility alone says nothing about correct column grouping.
+The ruled examples preserve all expected rows, including the wrapped description. Removing the rules causes table detection to disappear while body text remains. Borderless/multi-page grades are excellent even with zero tables, demonstrating why grade thresholds alone cannot choose extraction winners. Page coverage and whole-statement checks remain required.
 
-Docling's native PDF path exports text without reconstructing financial tables. The standalone OCR reads the date tokens in clean scans and simulated photos, but we have not measured amounts, missing/extra rows, or coupled validation for these images. Bank-statement ML table quality, OCR quality and confidence grades remain unknown.
+Raw-table Excel workbooks are research outputs, not finished client workbooks: amounts remain strings, and there are no validated Summary/Issues sheets or accounting-specific formatting. Those are later product phases.
 
-## 5. Limits and risks
-- This synthetic set is intentionally small and clean; it cannot establish general bank coverage or real-camera performance.
-- The full ML prerequisite is externally blocked. Do not replace required tests with optional conversions or report sellable extraction.
-- PyPI/installed APIs show upstream changes from historical research: docling is now a meta-package, PDF OCR defaults to auto, and RapidOCR options support multiple backends. Explicit configuration/version pins are necessary.
-- Product code and its check/selftest commands are not implemented yet. We checked research lint/format and real research conversions only.
-- Package/code licenses and model-weight licenses are separate. Docling code declares MIT; a complete selected-weight/transitive-license review is outstanding before commercial reliance.
-- Third-party prices/provider terms/import limits in RESEARCH are historical and were not independently verified here.
-- Financial reconciliation cannot prove every date/description or detect all offsetting errors. Preserve conservative flags and operator review in later phases.
+## 4. Readiness checks
+- Actual offline experiments: Python socket connections are blocked and HF/Transformers offline settings are enabled. Main digital/scan/photo and additional layouts executed; runner exit 0 means required conversion execution completed, not that every layout extracted correctly.
+- Exact known-row counts: 8/8 for required three formats and DOCX/XLSX/HTML; 0/8 and 0/12 for borderless layouts. The matched rows in the required examples equal all detected data rows, so no extra data rows were observed there.
+- Model download repeatability: second download completed successfully using retained artifacts.
+- Dependency consistency and repeat Linux install passed.
+- Research ruff lint/format passed; exported document JSON parses and table workbooks reopen.
+- No product tests/check.py/selftest were run: application code is not implemented yet.
 
-## 6. First verdict
-**Needs real work; main feasibility verdict still pending.** This is a documentation starter, not a usable service tool. Successful structured-input conversion and text accessibility are encouraging, but do not prove bank-statement extraction. Keep the hybrid text-first/Docling-fallback architecture provisionally; confirm it after the blocked ML experiments.
+## 5. Licenses, costs and remaining risks
+Observed metadata: Docling code declares MIT; layout model cards declare Apache-2.0; the TableFormer/model bundle card declares CDLA-Permissive-2.0; RapidOCR package metadata declares Apache-2.0. These are separate code/model terms. This inspection is not a full transitive dependency or OCR-weight licensing audit; complete that before commercial distribution/reliance, and preserve required notices.
 
-## 7. Owner action and next steps
-1. In this cloud environment's settings, review/save the network draft adding Hugging Face and ModelScope model-download destinations, then publish the environment.
-2. Codex retries model downloads, runs digital/scanned/photo-like and borderless/multi-page ML conversions, and updates this report with real row comparisons, grades, timings and limits.
-3. Owner reviews completed exploration; only then confirm/adjust Phase 1. No local setup or BYOK key is needed for Phase 0.
-4. Windows installation, actual phone photos and hardware timings remain device-specific checks later.
+The local path uses no paid service. BYOK AI is a Phase 9 option, not needed for OCR. Current provider terms, accounting-import limits, competitor prices and other historical RESEARCH claims still need primary-source checking when relevant.
 
-## Connectivity retry after environment publication
-The published configuration now contains the original five model-source domains, and an actual request to Hugging Face model metadata returns HTTP 200. The layout weight request redirects to `us.aws.cdn.hf.co`, where a HEAD request fails with ProxyError. The supported default Xet route reaches the same host and also fails; this is an artifact destination issue, not evidence of a missing HF token. Public model authentication is not required for this request.
+The corpus is small, clean and English-only. Real bank coverage, liability sign conventions, ambiguous dates, bad images, dropped/duplicated rows, reconciliation accuracy and Windows operation remain unproven. Financial balance matches cannot prove every date/description or detect all offsetting errors. Model confidence is diagnostic only.
 
-One additional exact domain, `us.aws.cdn.hf.co`, is now saved in the environment draft, preserving the five previously configured domains. Review/save and publish this addition from the same Environment panel, then retry model download. Required ML experiments remain unrun/incomplete; earlier synthetic evidence remains explicitly partial. No Phase 1 work was started.
+## 6. Verdict and recommendation
+**Needs real application work; core development environment now supports the planned exploration.** Docling is useful for ruled tables and clean synthetic OCR, but its failure to detect these borderless layouts validates the proposed hybrid architecture. Do not advertise general statement accuracy based on this experiment.
+
+Keep original phases 1–10. In Phase 1 build the installable skeleton, settings, logging/redaction, health checks, model download command and quality gate; do not jump directly to a full converter. In Phases 2–4 build a substantially richer synthetic corpus, pure normalization/validation, and geometry-based text extraction. Phase 5 then integrates tested Docling APIs behind the same interface.
+
+## 7. Owner review
+The owner can review this plain-language report and authorize Phase 1. No API key or local installation is needed now. Later, on the other device, clone the selected GitHub version, install device-specific dependencies/models, and verify Windows/Excel/accounting-import behavior. Real client data stays on that device.
+
+Reusable cloud instructions have been refreshed for the now-working model downloads. They must be reviewed/saved and the environment published to snapshot the prepared model files and latest settings; live processes are not retained. Saving a draft is not evidence of a new published snapshot.
+
+The setup downloader now checks artifacts against the recorded model SHA-256 manifest and stops if a future upstream revision differs. Hash verification succeeded on a repeat download. It does not silently update expected hashes to accept changed files.

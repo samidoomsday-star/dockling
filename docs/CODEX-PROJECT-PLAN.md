@@ -140,3 +140,6 @@ This plan update creates no product implementation, repository commit, push, dra
 
 ## Execution update — 4 October 2026
 The owner authorized Phase 0 and reaffirmed original phase tracking. Starter imported, Codex/BYOK migration recorded, research helpers installed/tested and partial exploration evidence saved. Required model-download network access remains blocked; see EXPLORATION_REPORT and PROGRESS. The earlier analysis-only statements describe the initial review, not the current execution state. No application implementation yet.
+
+## Completed cloud exploration update — 4 October 2026
+Model-source connectivity is resolved; required offline digital/scanned/photo-like conversions preserve 8/8 expected rows each. Borderless/multi-page examples produce no tables, supporting the hybrid plan. Phase 0 experiments are complete; owner review precedes Phase 1. Original phase numbering remains the execution tracker. See updated EXPLORATION_REPORT and PROGRESS; prior blocker entries above are historical.

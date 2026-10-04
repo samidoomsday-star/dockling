@@ -1,5 +1,5 @@
 {
-  "run_id": "27acb1b6eaac438e90be5043a4c7448c",
+  "run_id": "a6db92287d9f4481bf0b39640c045614",
   "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
   "python": "3.12.14",
   "threads": 4,
@@ -12,7 +12,7 @@
     "pdfplumber": "0.11.10",
     "reportlab": "5.0.1"
   },
-  "phase0_required_conversions_complete": false,
+  "phase0_required_conversions_complete": true,
   "tests": {
     "pdfplumber_digital": {
       "status": "passed",
@@ -20,8 +20,8 @@
       "expected_date_tokens": 8,
       "found_date_tokens": 8,
       "note": "Text accessibility only; no transaction parsing or financial validation.",
-      "seconds": 0.022,
-      "observed_process_peak_mib": 485.4
+      "seconds": 0.02,
+      "observed_process_peak_mib": 380.4
     },
     "pdfplumber_borderless": {
       "status": "passed",
@@ -29,8 +29,8 @@
       "expected_date_tokens": 8,
       "found_date_tokens": 8,
       "note": "Text accessibility only; no transaction parsing or financial validation.",
-      "seconds": 0.015,
-      "observed_process_peak_mib": 486.1
+      "seconds": 0.022,
+      "observed_process_peak_mib": 381.8
     },
     "pdfplumber_multipage": {
       "status": "passed",
@@ -38,8 +38,8 @@
       "expected_date_tokens": 12,
       "found_date_tokens": 12,
       "note": "Text accessibility only; no transaction parsing or financial validation.",
-      "seconds": 0.025,
-      "observed_process_peak_mib": 487.8
+      "seconds": 0.036,
+      "observed_process_peak_mib": 382.8
     },
     "docling_docx": {
       "status": "success",
@@ -66,8 +66,8 @@
         "low_score": null
       },
       "errors": [],
-      "seconds": 0.106,
-      "observed_process_peak_mib": 489.0
+      "seconds": 0.13,
+      "observed_process_peak_mib": 383.8
     },
     "docling_xlsx": {
       "status": "success",
@@ -94,8 +94,8 @@
         "low_score": null
       },
       "errors": [],
-      "seconds": 0.019,
-      "observed_process_peak_mib": 490.1
+      "seconds": 0.03,
+      "observed_process_peak_mib": 384.9
     },
     "docling_html": {
       "status": "success",
@@ -122,8 +122,8 @@
         "low_score": null
       },
       "errors": [],
-      "seconds": 0.025,
-      "observed_process_peak_mib": 490.8
+      "seconds": 0.032,
+      "observed_process_peak_mib": 385.1
     },
     "docling_native_pdf": {
       "status": "success",
@@ -150,8 +150,8 @@
         "low_score": null
       },
       "errors": [],
-      "seconds": 0.087,
-      "observed_process_peak_mib": 505.3
+      "seconds": 0.118,
+      "observed_process_peak_mib": 394.2
     },
     "tesseract_scanned": {
       "status": "passed",
@@ -159,8 +159,8 @@
       "found_date_tokens": 8,
       "expected_date_tokens": 8,
       "note": "Standalone alternate OCR, not Docling table conversion or row accuracy.",
-      "seconds": 0.777,
-      "observed_process_peak_mib": 505.6
+      "seconds": 0.731,
+      "observed_process_peak_mib": 394.4
     },
     "tesseract_photo": {
       "status": "passed",
@@ -168,31 +168,213 @@
       "found_date_tokens": 8,
       "expected_date_tokens": 8,
       "note": "Standalone alternate OCR, not Docling table conversion or row accuracy.",
-      "seconds": 0.571,
-      "observed_process_peak_mib": 505.6
+      "seconds": 0.508,
+      "observed_process_peak_mib": 394.4
     },
     "docling_ml_digital": {
-      "status": "failed",
-      "error_type": "FileNotFoundError",
-      "detail": "Model 'docling-project/docling-layout-heron' not found in artifacts_path.\nExpected location: /workspace/dockling/models/docling-project--docling-layout-heron\nAvailable models in /workspace/dockling/models: none\n\nTo fix this issue:\n  1. Download the model: docling-tools models download-hf-repo docling-project/docling-layout-heron\n  2. Or remove --artifacts-path to enable auto-download\n  3. Or use a different model that exists in your artifacts_path",
-      "seconds": 1.64,
-      "observed_process_peak_mib": 554.5
+      "status": "success",
+      "tables": 1,
+      "table_data_rows": 8,
+      "exact_truth_rows": 8,
+      "expected_rows": 8,
+      "all_truth_rows_exact": true,
+      "xlsx_reloaded_rows": 8,
+      "exports": [
+        "markdown",
+        "json",
+        "html"
+      ],
+      "confidence": {
+        "parse_score": 1.0,
+        "layout_score": 0.748289480805397,
+        "table_score": null,
+        "ocr_score": null,
+        "pages": {
+          "1": {
+            "parse_score": 1.0,
+            "layout_score": 0.748289480805397,
+            "table_score": null,
+            "ocr_score": null,
+            "mean_grade": "good",
+            "low_grade": "fair",
+            "mean_score": 0.8741447404026985,
+            "low_score": 0.7608750067651272
+          }
+        },
+        "mean_grade": "good",
+        "low_grade": "fair",
+        "mean_score": 0.8741447404026985,
+        "low_score": 0.7608750067651272
+      },
+      "errors": [],
+      "seconds": 8.447,
+      "observed_process_peak_mib": 1025.3
     },
     "docling_ml_scanned": {
-      "status": "unrun",
-      "reason": "Required ML pipeline prerequisite failed; see digital attempt."
+      "status": "success",
+      "tables": 1,
+      "table_data_rows": 8,
+      "exact_truth_rows": 8,
+      "expected_rows": 8,
+      "all_truth_rows_exact": true,
+      "xlsx_reloaded_rows": 8,
+      "exports": [
+        "markdown",
+        "json",
+        "html"
+      ],
+      "confidence": {
+        "parse_score": null,
+        "layout_score": 0.7748708605766297,
+        "table_score": null,
+        "ocr_score": 0.9922913953488369,
+        "pages": {
+          "1": {
+            "parse_score": null,
+            "layout_score": 0.7748708605766297,
+            "table_score": null,
+            "ocr_score": 0.9922913953488369,
+            "mean_grade": "good",
+            "low_grade": "fair",
+            "mean_score": 0.8835811279627332,
+            "low_score": 0.7857418873152401
+          }
+        },
+        "mean_grade": "good",
+        "low_grade": "fair",
+        "mean_score": 0.8835811279627332,
+        "low_score": 0.7857418873152401
+      },
+      "errors": [],
+      "seconds": 8.843,
+      "observed_process_peak_mib": 2143.6
     },
     "docling_ml_photo": {
-      "status": "unrun",
-      "reason": "Required ML pipeline prerequisite failed; see digital attempt."
+      "status": "success",
+      "tables": 1,
+      "table_data_rows": 8,
+      "exact_truth_rows": 8,
+      "expected_rows": 8,
+      "all_truth_rows_exact": true,
+      "xlsx_reloaded_rows": 8,
+      "exports": [
+        "markdown",
+        "json",
+        "html"
+      ],
+      "confidence": {
+        "parse_score": null,
+        "layout_score": 0.7818623304367065,
+        "table_score": null,
+        "ocr_score": 0.9928041860465118,
+        "pages": {
+          "1": {
+            "parse_score": null,
+            "layout_score": 0.7818623304367065,
+            "table_score": null,
+            "ocr_score": 0.9928041860465118,
+            "mean_grade": "good",
+            "low_grade": "fair",
+            "mean_score": 0.8873332582416091,
+            "low_score": 0.7924094232171968
+          }
+        },
+        "mean_grade": "good",
+        "low_grade": "fair",
+        "mean_score": 0.8873332582416091,
+        "low_score": 0.7924094232171968
+      },
+      "errors": [],
+      "seconds": 9.252,
+      "observed_process_peak_mib": 2769.3
     },
     "docling_ml_borderless": {
-      "status": "unrun",
-      "reason": "Required ML pipeline prerequisite failed; see digital attempt."
+      "status": "success",
+      "tables": 0,
+      "table_data_rows": 0,
+      "exact_truth_rows": 0,
+      "expected_rows": 8,
+      "all_truth_rows_exact": false,
+      "xlsx_reloaded_rows": 0,
+      "exports": [
+        "markdown",
+        "json",
+        "html"
+      ],
+      "confidence": {
+        "parse_score": 1.0,
+        "layout_score": 0.838292121887207,
+        "table_score": null,
+        "ocr_score": null,
+        "pages": {
+          "1": {
+            "parse_score": 1.0,
+            "layout_score": 0.838292121887207,
+            "table_score": null,
+            "ocr_score": null,
+            "mean_grade": "excellent",
+            "low_grade": "good",
+            "mean_score": 0.9191460609436035,
+            "low_score": 0.8463775157928467
+          }
+        },
+        "mean_grade": "excellent",
+        "low_grade": "good",
+        "mean_score": 0.9191460609436035,
+        "low_score": 0.8463775157928467
+      },
+      "errors": [],
+      "seconds": 1.134,
+      "observed_process_peak_mib": 2373.5
     },
     "docling_ml_multipage": {
-      "status": "unrun",
-      "reason": "Required ML pipeline prerequisite failed; see digital attempt."
+      "status": "success",
+      "tables": 0,
+      "table_data_rows": 0,
+      "exact_truth_rows": 0,
+      "expected_rows": 12,
+      "all_truth_rows_exact": false,
+      "xlsx_reloaded_rows": 0,
+      "exports": [
+        "markdown",
+        "json",
+        "html"
+      ],
+      "confidence": {
+        "parse_score": 1.0,
+        "layout_score": 0.8070557794787667,
+        "table_score": null,
+        "ocr_score": null,
+        "pages": {
+          "1": {
+            "parse_score": 1.0,
+            "layout_score": 0.8117502602663907,
+            "table_score": null,
+            "ocr_score": null,
+            "mean_grade": "excellent",
+            "low_grade": "good",
+            "mean_score": 0.9058751301331953,
+            "low_score": 0.8211627472530713
+          },
+          "2": {
+            "parse_score": 1.0,
+            "layout_score": 0.8023612986911427,
+            "table_score": null,
+            "ocr_score": null,
+            "mean_grade": "excellent",
+            "low_grade": "good",
+            "mean_score": 0.9011806493455714,
+            "low_score": 0.8122432337565856
+          }
+        },
+        "mean_grade": "excellent",
+        "low_grade": "good",
+        "mean_score": 0.9035278897393834,
+        "low_score": 0.8167029905048284
+      },
+      "errors": [],
+      "seconds": 2.222,
+      "observed_process_peak_mib": 2453.8
     }
   }
 }

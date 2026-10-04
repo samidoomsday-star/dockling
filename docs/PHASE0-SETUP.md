@@ -33,6 +33,14 @@ Codex performs these steps. The owner only needs to change environment network s
    .venv/bin/ruff format --check research/phase0
    ```
 
+Optional integrated alternate-OCR comparison (after the main runner):
+
+```bash
+.venv/bin/python research/phase0/alternate_ocr.py
+```
+
+It writes alternate-ocr.json under the current run and does not replace the required main checks.
+
 The Tesseract comparison runs only if the system already supplies `tesseract` and English language data. Its child-process memory is not included in the Python-process RSS samples. It is an alternate standalone OCR experiment, not the proposed product's primary OCR dependency. A photo-like input is generated, not taken with a real camera.
 
 The pinned upstream source used for API reference is Docling tag `v2.133.0`, commit `b0315ea356298e4659c9727e9f5191dd2001860a`. To restore the optional ignored reference clone:
@@ -49,8 +57,14 @@ Package-manager presets already cover PyPI, GitHub and the CPU PyTorch index. Ad
 
 A saved environment draft is not a runtime update. When blocked, review/save the network additions in environment settings and publish the environment, then rerun the download and affected experiments. Preserve any existing custom domains. If a new redirect destination is denied, add only the required domain after diagnosing it.
 
+## Observed working setup
+
+After publication of the artifact host addition, model downloads succeed and all required offline conversions run. The repeated download reuses cached artifacts. About 699.5 MiB of non-cache model files are retained locally. PHASE0-MODEL-MANIFEST records observed hashes/commit metadata; do not commit the binaries.
+
 ## On your other device later
 
 You will clone the repository, create a Python 3.12 environment, install dependencies for that device, download models, and run checks. The Linux lock is not a Windows lock. Windows dependency resolution, PowerShell instructions, Excel behavior and actual laptop timings remain unverified; the device guide and Windows validation are tracked in the original phase plan. Do not copy `.venv` from the cloud onto Windows.
 
 GitHub keeps these scripts, the lock and documentation. Installed packages, generated PDFs/images/workbooks, model weights, personal settings and keys remain outside Git. Keep client documents on your local device when the finished application is ready.
+
+The setup downloader now checks artifacts against the recorded model SHA-256 manifest and stops if a future upstream revision differs. Hash verification succeeded on a repeat download. It does not silently update expected hashes to accept changed files.

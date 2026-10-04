@@ -16,4 +16,4 @@ Owner authorized starter migration and cloud exploration. No product code. Origi
 Current-run exploration results must identify inputs, versions, successful/failed checks and known-truth comparisons. Phase 1 checks/selftest do not yet exist. Required conversions cannot be marked passed until actually run.
 
 ## Current outcome
-Import/migration, dependency installation and independent research checks are complete. Required model download failed with proxy denial; ML PDF attempt confirms missing artifacts. Scanned/photo and further ML layouts remain unrun. See EXPLORATION_REPORT and PHASE0-EVIDENCE; do not start Phase 1 until the blocker is resolved and owner reviews exploration.
+Required model downloads and repeated downloads succeed. Digital/scanned/photo-like conversions run offline and preserve 8/8 expected rows. Borderless and multi-page conversions run but detect zero tables; this diagnosed limitation is recorded honestly. Supplemental Docling/Tesseract works. Evidence/report/setup are saved. Exploration is complete, pending owner review before Phase 1; Windows and actual-camera checks are later device acceptance.
