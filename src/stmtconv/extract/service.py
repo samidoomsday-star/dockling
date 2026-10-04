@@ -157,3 +157,17 @@ def revalidate(settings: Settings, order_id: str) -> list[Statement]:
         if order.status != target:
             store.transition(order, target)
     return statements
+
+
+def version(statements: list[Statement]) -> str:
+    import hashlib
+    import json
+
+    data = []
+    for statement in statements:
+        value = statement.model_dump(mode="json", exclude={"timings", "diagnostics"})
+        value["summary"].pop("account_key", None)
+        for row in value["transactions"]:
+            row.pop("category", None)
+        data.append(value)
+    return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()

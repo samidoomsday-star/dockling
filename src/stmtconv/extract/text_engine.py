@@ -3,6 +3,7 @@
 import hashlib
 import re
 from dataclasses import dataclass
+from time import perf_counter
 
 import pdfplumber
 
@@ -82,6 +83,7 @@ class TextExtractor:
         page_texts = []
         with pdfplumber.open(pages.path) as document:
             for number in pages.pages:
+                page_started = perf_counter()
                 page = document.pages[number - 1]
                 text = page.extract_text() or ""
                 page_texts.append(text)
@@ -138,6 +140,7 @@ class TextExtractor:
                     "engine": "text",
                     "rows": page_rows,
                     "header_found": bool(active),
+                    "seconds": perf_counter() - page_started,
                 }
         summary, flags = summary_from_text("\n".join(page_texts), profile)
         return ExtractionResult(rows, summary, flags, diagnostics)

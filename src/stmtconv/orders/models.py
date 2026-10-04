@@ -61,6 +61,7 @@ class SpotCheck(Record):
     passed: bool | None = None
     note: str = ""
     skipped: bool = False
+    revision: str | None = None
 
 
 class Order(Record):
@@ -95,6 +96,12 @@ class Order(Record):
     deleted_at: datetime | None = None
     deletion_certificate: dict[str, object] | None = None
     exported_unverified: bool = False
+    export_hashes: dict[str, str] = Field(default_factory=dict)
+    export_revision: str | None = None
+    ai_pages_used: int = 0
+    deletion_pending: bool = False
+    deletion_inventory: list[dict[str, str]] = Field(default_factory=list)
+    metrics: dict[str, object] = Field(default_factory=dict)
     pages_by_kind: dict[str, int] = Field(default_factory=dict)
 
 

@@ -1,7 +1,7 @@
 # Progress
 
 ## Current status
-- **Current phase:** Phase 8 — delivery, retention and metrics in progress.
+- **Current phase:** Phase 9 — optional BYOK configuration and AI gate in progress.
 - **Current task:** implement Phases 2–10 in order, as newly authorized; no approval pauses.
 - **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
@@ -18,7 +18,7 @@
 | 5 | Docling/OCR and router | Cloud implementation verified; borderless rescue acceptance limited | 257 total tests; 15/15 scanned rows exact offline; source warnings retained |
 | 6 | Exports and review | Cloud milestone complete | 269 total tests; four CSV goldens, numeric Excel, review atomicity/staleness and gates |
 | 7 | Merge, categories and OFX | Cloud milestone complete | 278 tests; twelve-month workbook, exact gaps, account identity, category precedence, OFX goldens/parse |
-| 8 | Delivery, retention and metrics | Not started | — |
+| 8 | Delivery, retention and metrics | Cloud milestone complete | 284 tests; full delivery/close, versioned spot-checks, tamper refusal, partial deletion/retry and anonymous stats |
 | 9 | Optional BYOK AI | Not started | — |
 | 10 | Windows/field readiness | Not started | — |
 
@@ -82,3 +82,6 @@ Client Excel and four deterministic CSV formats, configurable dates/headers, QB 
 
 ## Phase 7 milestone
 Twelve monthly sheets plus All Transactions/Summary/Issues; exact Decimal continuity/gap/overlap checks; category precedence/direction/regex with local overrides; deterministic bank/card OFX and occurrence-aware FITIDs implemented. Same last-four display masks alone cannot authorize merging or identify OFX transactions: private full-account hashes or operator-confirmed account groups are required. Manual bank/card golden fixtures use the private account key in the FITID hash; SGML round-trip parses totals/dates/amounts. Full gate: 278 passed, none skipped; selftest passes. Actual accounting imports remain device checks.
+
+## Phase 8 milestone
+Delivery validates export hashes and statement revision, then archives outputs and factual template disclosures. Pipeline pauses for review/spot-check instead of bypassing them. Spot checks are versioned. Close confines paths, refuses symlinks, inventories hashes, preserves retryable partial failures, re-scans before certification and scrubs all client fields. Anonymous typed ledger writes are atomic/idempotent; stats/quote medians use measured timings. Full gate: 284 passed, no skips; selftest passes. Tests confirm closed folder contains only order.json, no sample alias/description/file names/amounts in retained manifest/ledger, and a partial deletion issues no certificate.

@@ -39,10 +39,10 @@ def test_help_lists_inventory_without_workspace_or_model_import(tmp_path):
         ["deliver", "synthetic-id"],
     ],
 )
-def test_unbuilt_commands_are_explicit_and_nonzero(args, config_dir, tmp_path):
+def test_unknown_order_commands_are_safe_and_nonzero(args, config_dir, tmp_path):
     result = runner.invoke(app, ["--config-dir", str(config_dir), *args])
-    assert result.exit_code == 2
-    assert "Not implemented in this phase" in result.output
+    assert result.exit_code == 1
+    assert "ORDER_ID" in result.output
     assert not (tmp_path / "workspace/orders").exists()
 
 

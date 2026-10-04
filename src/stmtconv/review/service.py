@@ -15,7 +15,7 @@ from stmtconv.core.models import Statement, Transaction
 from stmtconv.core.validate import validate
 from stmtconv.errors import StmtconvError
 from stmtconv.export.csv_writer import safe_text
-from stmtconv.extract.service import persist, read_statements
+from stmtconv.extract.service import persist, read_statements, version
 from stmtconv.orders import store
 
 HEADERS = [
@@ -320,5 +320,6 @@ def record_spotcheck(
         rows = sample(settings, order_id)
         order.spot_check.sample_ids = [row.id for row in rows]
         order.spot_check.passed = passed
+        order.spot_check.revision = version(read_statements(settings, order_id))
         order.spot_check.note = note
     return rows

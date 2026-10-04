@@ -9,7 +9,7 @@ from stmtconv.catalog import Categories, Exports
 from stmtconv.config import Settings
 from stmtconv.errors import StmtconvError
 from stmtconv.export import csv_writer, excel, merged, ofx
-from stmtconv.extract.service import persist, read_statements
+from stmtconv.extract.service import persist, read_statements, version
 from stmtconv.orders import store
 
 
@@ -43,6 +43,10 @@ def export(
                 "EXPORT_SPOTCHECK",
                 "A passed spot-check is required.",
                 "Run spotcheck, or explicitly use --skip-spotcheck.",
+            )
+        if not skip_spotcheck and order.spot_check.revision != version(statements):
+            raise StmtconvError(
+                "EXPORT_SPOTCHECK_STALE", "Statements changed after the spot-check; repeat it."
             )
         from stmtconv.core.categorize import Rule, categorize
         from stmtconv.core.merge import merge
@@ -165,6 +169,13 @@ def export(
         finally:
             if staging.exists():
                 shutil.rmtree(staging)
+        import hashlib
+
+        order.export_hashes = {
+            name: hashlib.sha256((directory / "output" / name).read_bytes()).hexdigest()
+            for name in names
+        }
+        order.export_revision = version(statements)
         persist(settings, order_id, statements)
         order.merge_issues = (
             [i.model_dump(mode="json") for i in combination.issues] if combination else []

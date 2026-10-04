@@ -11,8 +11,7 @@ from rich.table import Table
 
 from stmtconv import __version__, health, model_setup
 from stmtconv.catalog import Catalog, load_catalog
-from stmtconv.cli import extraction, messages, orders, review_export
-from stmtconv.cli.pending import register
+from stmtconv.cli import delivery, extraction, messages, orders, review_export
 from stmtconv.config import Settings, load_settings, resolve_config_dir
 from stmtconv.errors import StmtconvError
 from stmtconv.logging_setup import configure_logging
@@ -103,7 +102,7 @@ def download_models(ctx: typer.Context) -> None:
 orders.register(app)
 extraction.register(app)
 review_export.register(app)
-register(app)
+delivery.register(app)
 
 
 def main() -> None:
