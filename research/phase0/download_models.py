@@ -6,9 +6,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 os.environ["HF_HOME"] = str(ROOT / "explore/hf-cache")
-os.environ["HF_HUB_DISABLE_XET"] = (
-    "1"  # Supported HTTP download path; not a trust bypass.
-)
 
 from docling.utils.model_downloader import download_models
 

@@ -1,7 +1,7 @@
 # Phase 0 exploration report — partial; model downloads blocked
 
 ## Plain-language result
-The starter is imported and Docling is installed. It can convert our fake Word, Excel and HTML tables correctly. The fake digital PDF text is accessible. However, the cloud currently blocks the sites hosting Docling's layout/table/OCR model files. We cannot yet judge Docling's main bank-statement extraction or call Phase 0 complete.
+The starter is imported and Docling is installed. It can convert our fake Word, Excel and HTML tables correctly. The fake digital PDF text is accessible. However, model-file downloads are still blocked at a redirected artifact host, even though Hugging Face metadata is now reachable. We cannot yet judge Docling's main bank-statement extraction or call Phase 0 complete.
 
 The next owner action is to review/save the model-source domain additions in cloud environment settings and publish the environment. Codex can then retry the downloads and remaining conversions. No API key, paid AI account or local installation is needed.
 
@@ -89,3 +89,8 @@ Docling's native PDF path exports text without reconstructing financial tables. 
 2. Codex retries model downloads, runs digital/scanned/photo-like and borderless/multi-page ML conversions, and updates this report with real row comparisons, grades, timings and limits.
 3. Owner reviews completed exploration; only then confirm/adjust Phase 1. No local setup or BYOK key is needed for Phase 0.
 4. Windows installation, actual phone photos and hardware timings remain device-specific checks later.
+
+## Connectivity retry after environment publication
+The published configuration now contains the original five model-source domains, and an actual request to Hugging Face model metadata returns HTTP 200. The layout weight request redirects to `us.aws.cdn.hf.co`, where a HEAD request fails with ProxyError. The supported default Xet route reaches the same host and also fails; this is an artifact destination issue, not evidence of a missing HF token. Public model authentication is not required for this request.
+
+One additional exact domain, `us.aws.cdn.hf.co`, is now saved in the environment draft, preserving the five previously configured domains. Review/save and publish this addition from the same Environment panel, then retry model download. Required ML experiments remain unrun/incomplete; earlier synthetic evidence remains explicitly partial. No Phase 1 work was started.

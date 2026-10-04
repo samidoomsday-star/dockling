@@ -45,7 +45,7 @@ The actual environment installs the matching PyPI release, not an editable sourc
 
 ## Required model-download network access
 
-Package-manager presets already cover PyPI, GitHub and the CPU PyTorch index. Additional model sources are Hugging Face (`huggingface.co`, its `*.xethub.hf.co` and `cdn-lfs.huggingface.co` download destinations) and RapidOCR's ModelScope artifacts (`www.modelscope.cn` and its download subdomains). These are public artifacts; no account key is required for the selected models.
+Package-manager presets already cover PyPI, GitHub and the CPU PyTorch index. Additional model sources are Hugging Face (`huggingface.co`, its `*.xethub.hf.co` and `cdn-lfs.huggingface.co` and `us.aws.cdn.hf.co` download destinations) and RapidOCR's ModelScope artifacts (`www.modelscope.cn` and its download subdomains). These are public artifacts; no account key is required for the selected models.
 
 A saved environment draft is not a runtime update. When blocked, review/save the network additions in environment settings and publish the environment, then rerun the download and affected experiments. Preserve any existing custom domains. If a new redirect destination is denied, add only the required domain after diagnosing it.
 

@@ -2,7 +2,7 @@
 
 ## Current status
 - **Current phase:** Phase 0 — import, setup and Docling exploration.
-- **Current task:** required model downloads blocked by runtime network policy; independent experiments complete.
+- **Current task:** model metadata reachable after publication; redirected weight downloads need us.aws.cdn.hf.co allowed.
 - **Last updated:** 2026-10-04.
 - **Owner decisions:** Codex development; original phases 0–10; GitHub versions; other-device installation; plain-language guidance; optional OpenAI-compatible BYOK model/effort picker up to supported Max.
 
@@ -34,7 +34,7 @@
 - 3 text-access checks passed; 3 Docling office/web conversions succeeded with 8/8 exact expected rows; native PDF converted but yielded no tables; 2 alternate OCR commands succeeded with 8/8 date tokens. These are distinct capabilities, not 9 tests of bank-statement correctness.
 - Main Docling PDF attempt failed with missing layout artifacts; required scans/photo and additional ML layouts remain unrun. Runner exit 1 preserved.
 - Research ruff lint/format passed; pip check and repeat Linux installation passed. scripts/check.py and stmtconv selftest do not exist yet.
-- Domain additions saved in environment draft, not applied/published. Owner must review/save and publish before retry.
+- The original five domain additions are present in a new published version; runtime metadata requests succeed. A newly discovered file-download host us.aws.cdn.hf.co remains blocked and its addition is saved in a new draft.
 - Phase 1 remains unstarted pending completed exploration and owner review.
 
 - 2026-10-04: pinned CPU dependency pair, generated synthetic research inputs, recorded actual partial results, and prepared reproducible setup. No client data/model binaries/installed dependencies in commits.
@@ -43,4 +43,9 @@
 - Original uploaded starter pushed to `main` (bootstrap commit 70e1f7b).
 - Codex migration, reproducible research and partial report pushed to `phase-0-exploration`; use that branch for the current work. It has not been merged into main.
 - Automatic draft pull-request creation was attempted but GitHub API/GraphQL access returned Forbidden. Git push access works; no new token is requested. Review the branch directly or create a PR on GitHub. No PR was created by Codex.
-- Environment network/install/start draft saves are confirmed; runtime application/publication is not confirmed. Required model downloads still need the settings action described in EXPLORATION_REPORT.
+- Original environment network/install/start settings are now published; Hugging Face metadata connectivity was verified. The additional artifact-host draft is saved but not yet applied/published; see EXPLORATION_REPORT.
+
+## Latest connectivity diagnosis
+- Retried downloads after publication: metadata HTTP 200, redirected file host `us.aws.cdn.hf.co` denied by proxy. Default Xet download route has the same destination and fails.
+- Saved one additional exact domain, preserving all existing custom domains. No extra secret/token requested and TLS verification remains enabled.
+- Next owner action: Save draft then Publish in the same Environment panel. Then retry model downloads and outstanding ML experiments. Original current-run evidence remains partial; no completed Phase 0 claim.
