@@ -115,5 +115,5 @@ TRANSITIONS: dict[Status, set[Status]] = {
     "exported": {"delivered", "failed"},
     "delivered": {"closed", "failed"},
     "closed": set(),
-    "failed": set(),
+    "failed": {"closed"},
 }

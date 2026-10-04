@@ -4,7 +4,7 @@ from datetime import date
 from decimal import Decimal
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 Direction = Literal["asset", "liability"]
 Verdict = Literal[
@@ -14,6 +14,23 @@ Verdict = Literal[
 
 class Domain(BaseModel):
     model_config = ConfigDict(extra="forbid", validate_assignment=True)
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def no_float_money(cls, value: object, info: ValidationInfo) -> object:
+        if info.field_name in {
+            "debit",
+            "credit",
+            "balance",
+            "opening",
+            "closing",
+            "total_debits",
+            "total_credits",
+            "expected",
+            "difference",
+        } and isinstance(value, float):
+            raise ValueError("financial fields require Decimal or exact strings")
+        return value
 
 
 class RawRow(Domain):

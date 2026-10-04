@@ -13,18 +13,18 @@ def safe_text(value: str) -> str:
     return "'" + value if value.lstrip().startswith(("=", "+", "-", "@")) else value
 
 
-def money(value: Decimal | None) -> str:
-    return format(value, ".2f") if value else ""
+def money(value: Decimal | None, blank_zero: bool = False) -> str:
+    return "" if value is None or (blank_zero and not value) else format(value, ".2f")
 
 
-def cells(row: Transaction, date_format: str) -> dict[str, str]:
+def cells(row: Transaction, date_format: str, blank_zero: bool = False) -> dict[str, str]:
     amount = None if "AMOUNT_UNPARSABLE" in row.flags else row.amount
     return {
         "Date": row.date.strftime(date_format) if row.date else "",
         "Description": safe_text(row.description),
-        "Debit": money(row.debit),
-        "Credit": money(row.credit),
-        "Amount": money(amount),
+        "Debit": money(row.debit, blank_zero),
+        "Credit": money(row.credit, blank_zero),
+        "Amount": money(amount, blank_zero),
         "Balance": money(row.balance),
         "Payee": "",
         "Reference": row.id,
@@ -43,6 +43,7 @@ def serialize(
     date_format: str,
     rows: list[Transaction] | None = None,
     bom: bool = False,
+    blank_zero: bool = False,
 ) -> bytes:
     if date_format not in spec.date_formats:
         raise StmtconvError(
@@ -52,7 +53,7 @@ def serialize(
     writer = csv.writer(output, lineterminator="\r\n")
     writer.writerow(spec.columns)
     for row in rows if rows is not None else statement.transactions:
-        values = cells(row, date_format)
+        values = cells(row, date_format, blank_zero)
         if set(spec.columns) - set(values):
             raise StmtconvError("EXPORT_COLUMNS", "An output column has no defined value.")
         writer.writerow([values[column] for column in spec.columns])

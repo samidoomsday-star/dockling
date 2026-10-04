@@ -63,6 +63,11 @@ def extract(
     engine: str = "auto",
     ai: bool = False,
 ) -> list[Statement]:
+    if not settings.offline:
+        raise StmtconvError(
+            "OFFLINE_REQUIRED",
+            "Keep STMTCONV_OFFLINE=true for processing; model download manages its own setup exception.",
+        )
     start = perf_counter()
     with store.edit(settings.workspace, order_id) as order:
         store.require(order, {"intake_done", "extracted", "needs_review", "reviewed"})
@@ -92,6 +97,7 @@ def extract(
                         file.name,
                         group,
                         any(p.kind == "scanned" for p in file.pages if p.page in group),
+                        [p.page for p in file.pages if p.page in group and p.kind == "blank"],
                     ),
                     profile,
                     order.date_order,

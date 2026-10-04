@@ -11,13 +11,13 @@ from rich.table import Table
 
 from stmtconv import __version__, health, model_setup
 from stmtconv.catalog import Catalog, load_catalog
-from stmtconv.cli import ai, delivery, extraction, messages, orders, review_export
+from stmtconv.cli import ai, delivery, extraction, handoff, messages, orders, review_export
 from stmtconv.config import Settings, load_settings, resolve_config_dir
 from stmtconv.errors import StmtconvError
 from stmtconv.logging_setup import configure_logging
 
 app = typer.Typer(
-    help="Dockling — local statement converter (Phase 1 foundation).", no_args_is_help=True
+    help="Dockling — local statement conversion, review and delivery.", no_args_is_help=True
 )
 console = Console()
 
@@ -104,6 +104,7 @@ extraction.register(app)
 review_export.register(app)
 delivery.register(app)
 ai.register(app)
+handoff.register(app)
 
 
 def main() -> None:

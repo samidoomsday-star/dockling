@@ -1,8 +1,8 @@
 # Progress
 
 ## Current status
-- **Current phase:** Phase 10 — launcher, hardening, operator guide and acceptance in progress.
-- **Current task:** implement Phases 2–10 in order, as newly authorized; no approval pauses.
+- **Current phase:** Phases 0–10 cloud development complete; Windows/field/provider acceptance pending.
+- **Current task:** final GitHub handoff and reusable environment snapshot; device acceptance next.
 - **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
 
@@ -20,7 +20,7 @@
 | 7 | Merge, categories and OFX | Cloud milestone complete | 278 tests; twelve-month workbook, exact gaps, account identity, category precedence, OFX goldens/parse |
 | 8 | Delivery, retention and metrics | Cloud milestone complete | 284 tests; full delivery/close, versioned spot-checks, tamper refusal, partial deletion/retry and anonymous stats |
 | 9 | Optional BYOK AI | Cloud implementation verified with fakes | 302 tests; gate/no-network, private keys, capabilities/Max, chat/responses adapters, invalid/rejected output and budget binding |
-| 10 | Windows/field readiness | Not started | — |
+| 10 | Launcher and handoff | Cloud milestone complete; device/field acceptance pending | 314 tests, full gate/selftest, 15 synthetic cases, build and installed-package delivery/cleanup |
 
 ## Phase 1 result
 
@@ -44,8 +44,8 @@
 
 - Windows PowerShell installation/tests have not run. The SPEC's Windows Phase 1 acceptance remains pending; the owner approved doing device checks later. Do not count the Linux lock as a validated Windows lock.
 - Docling produced zero structured tables for the Phase 0 borderless and two-page borderless examples despite excellent grades. Keep text-first extraction and independent validation; do not promise every layout is rescued by OCR.
-- Eight-row Phase 0 examples and the two-row foundation smoke test are not general accuracy evidence. Broader corpus, camera samples, license audit, hardware timings and accounting imports remain later work.
-- Optional BYOK fields are reserved only. The actual custom endpoint/model/effort picker and consent gates come in Phase 9. No LLM key is needed now.
+- Phase 10 adds the broader synthetic corpus and a direct/model license inventory. Real camera/field samples, laptop timings, accounting imports and remaining transitive/model provenance obligations are pending. Synthetic examples do not establish general accuracy.
+- Optional BYOK is implemented and tested with fake providers in Phase 9. Actual provider connection/inference, model-specific effort and terms remain owner/device checks; no paid inference call was made here.
 - Encryption cannot be established by this cloud doctor. Confirm Windows device encryption before real client work.
 
 ## Phase 0 evidence retained
@@ -57,16 +57,17 @@
 
 ## GitHub and reusable environment
 
-- Phase 1 work lives on `phase-1-foundation`, based on `phase-0-exploration`. `main` remains the original starter. No merge has been authorized or performed.
-- Git push works. Previous GitHub API access blocked automatic PR creation; no PR exists and no token is needed for normal Git operations.
-- Reusable setup uses scripts/install-linux.sh and the Phase 1 command-line checks. The environment draft must select this milestone commit. Saving instructions is distinct from publishing; only the owner can publish the updated snapshot. New-task restoration is not yet verified.
+- All remaining phases are on `development-phases-2-10`, based on `phase-1-foundation`. `main` remains the starter; no merge has been authorized/performed.
+- Git push works. Previous GitHub API access blocked automatic PR creation; no PR exists and no token is needed for ordinary Git operations.
+- Setup uses the tested scripts/install-linux.sh and final command-line checks. The historical Phase 1 Linux hash lock contains all phase 2–10 dependencies; HTTPx was already pinned. It is not a validated Windows lock.
+- Reusable environment instructions and repository HEAD are refreshed for final review/publication. Saving a draft does not publish; new-task snapshot restoration remains unverified.
 
 ## Next step
 
-Review Phase 1. Then Phase 2 implements order records, safe status changes, file intake/quotes and a broader synthetic test corpus. Continue cloud development while retaining Windows checks for the other device, as agreed. See ENVIRONMENT.md for exact clone/update instructions.
+Use [OPERATOR_GUIDE.md](OPERATOR_GUIDE.md) for the first fake delivery and daily operations, [ENVIRONMENT.md](ENVIRONMENT.md) for clone/install/update, and [BYOK_GUIDE.md](BYOK_GUIDE.md) for your own provider. Complete the Windows/field checklist before real client work. Development phases do not need further approval pauses.
 
 ## Phase 2 milestone
-Owner authorized remaining phases in sequence. Typed manifests, atomic writes/exclusive edits, checked transitions, confined paths, file-content intake, password-safe copies, image combination and YAML quotes implemented. All 81 state pairs tested; 120 total tests passed with none skipped. Three layouts have text/scanned, wrapped and multipage synthetic variants. Combined images use numbered filename order; closed/failed are terminal. Windows execution remains pending.
+Owner authorized remaining phases in sequence. Typed manifests, atomic writes/exclusive edits, checked transitions, confined paths, file-content intake, password-safe copies, image combination and YAML quotes implemented. All 81 state pairs tested; 120 total tests passed with none skipped. Three layouts have text/scanned, wrapped and multipage synthetic variants. Combined images use numbered filename order. Phase 10 later permits explicit abandoned cleanup from failed to closed; closed remains terminal. Windows execution remains pending.
 
 ## Phase 3 milestone
 Strict Decimal parser covers locales, signs and suffixes; dates retain ambiguity and missing-year flags; wrapped/inherited rows preserve source provenance. Validation checks running balances, printed totals, closing movement, duplicates and page coverage. 250 total tests pass with none skipped, including 100 single-digit corruption positions. Verified verdicts describe financial reconciliation, not source-date/description certainty.
@@ -88,3 +89,13 @@ Delivery validates export hashes and statement revision, then archives outputs a
 
 ## Phase 9 milestone
 Private OpenAI-compatible provider setup, hidden keys, discovery/manual model entry, model-specific capability references, picker defaults to highest supported effort (Max only when documented), and explicit schema/effort/token/route adapters implemented. Processing requires activation, consent/note, terms, model/key and budget; requests/retries consume persisted pages before network access. Provider/model/effort changes require explicit renewed consent. Only minimized/masked table cells are sent; invalid JSON is bounded/rejected; AI output remains source-review-gated and financially revalidated. Source confirmation is distinct from changing amounts, so fix counts are not fabricated. Full gate: 302 passed, no skips; selftest passes. All provider tests use fakes/MockTransport; no real model connection or paid API call was made. Actual provider terms/model capabilities must be confirmed on the owner device.
+
+## Phase 10 milestone
+
+- Added `run.bat` and `inbox`: validates drop-folder content, moves files into a tracked order, pauses for source review/spot-check, then resumes delivery. Added synthetic PDF/workbook/before/after PNG demo generation and beginner operator/BYOK guides.
+- Hardened leap-day year inference, rejected float financial fields, preserved zero CSV balances, accounted for known blank pages, required offline local extraction, rejected clear invoice headers, added per-order currency choice and explicit abandoned cleanup. Abandoned ledger records do not influence delivery-based quote medians.
+- Full gate: **314 passed, 0 failed, 0 skipped**, strict mypy over 66 source files, lint and format passed; 13 upstream Docling/RapidOCR/PyTorch warnings remain. Nine exact selftest cases passed. Installer repeated successfully with pip check and CPU torch/torchvision confirmed. Model setup verifies all pinned hashes. Wheel and sdist 0.2.0 built successfully.
+- Installed wheel tested in a separate virtual environment from unrelated `/tmp`: bundled defaults/profiles/templates, nine-case selftest, demo assets, intake/extraction, source-check pause, export, delivery ZIP and verified close all passed. Installed-package doctor passed with disk encryption explicitly unverified.
+- **15/15 synthetic checklist cases passed** with network socket connections blocked. See PHASE10-SYNTHETIC-ACCEPTANCE.json for per-case rows, printed balances/totals, mismatches and seconds/page. Twelve statements preserve **437/437 exact rows**; three clear-header invoices reject as outside V1. Long statements preserve 176/176 rows over 22 pages and 168/168 over 21 pages. All statement mismatch counts are zero. Digital intake+extraction measured about 0.034–0.080 seconds/page; scans/simulated JPEG about 5.6–11.4 seconds/page, including cold model setup. Cloud measurements are not laptop estimates; the photo is a rendered simulation, not a real camera capture.
+- LICENSES.md and PHASE10-DEPENDENCY-LICENSES.json record inspected direct/dev/native package metadata and model-card terms. Hypothesis is development-only MPL-2.0; RapidOCR artifact provenance/additional terms and full transitive redistribution notices remain limited. Models/dependency binaries are not distributed in Git/wheel.
+- **Original field acceptance remains pending:** Windows installation/run.bat, Excel review and actual QuickBooks/Xero/OFX imports, 15 permitted owner/public documents including real photos, laptop performance, and actual BYOK service/terms/capability checks. Borderless Docling rescue and unknown-layout safe AI cells retain documented limitations. No real client documents or paid LLM inference calls were used.

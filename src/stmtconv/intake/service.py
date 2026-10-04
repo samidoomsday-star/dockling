@@ -128,6 +128,19 @@ def intake(
             )
         work = store.child(directory, "work")
         files = [inspect_file(path, work, index, password) for index, path in enumerate(paths, 1)]
+        import re
+
+        for file in files:
+            with pdfplumber.open(store.child(directory, file.work_file)) as document:
+                header_text = "\n".join((document.pages[0].extract_text() or "").splitlines()[:15])
+            if any(
+                re.search(pattern, header_text) for pattern in settings.invoice_markers
+            ) and not any(
+                re.search(pattern, header_text) for pattern in settings.statement_markers
+            ):
+                raise StmtconvError(
+                    "INTAKE_DOCUMENT_TYPE", "Invoices are outside V1; this tool handles statements."
+                )
         if not force and sum(len(f.pages) for f in files) > settings.max_pages_per_order:
             raise StmtconvError("INTAKE_LIMIT", "The order exceeds the page limit.")
         if combine:

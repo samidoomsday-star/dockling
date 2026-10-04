@@ -1,10 +1,10 @@
 # Installation and updates
 
-Phase 1 works in the Codex Linux cloud environment. The Windows steps below are the handoff recipe and still need verification on a Windows device. GitHub stores the project files; Python, installed dependencies and about 700 MiB of local models are installed separately on each device.
+Phases 1–10 are implemented and checked in the Codex Linux cloud environment. The Windows steps below are the handoff recipe and still need verification on a Windows device. GitHub stores the project files; Python, installed dependencies and about 700 MiB of local models are installed separately on each device.
 
 ## 1. What you need
 
-Use 64-bit Python 3.12, Git, and at least 5 GB free disk space. Windows 10/11 is the target. No GPU, CUDA, Docker, Tesseract or LLM key is required for the foundation. Later review work needs Excel or LibreOffice.
+Use 64-bit Python 3.12, Git, and at least 5 GB free disk space. Windows 10/11 is the target. No GPU, CUDA, Docker, Tesseract or LLM key is required for offline statement processing. Later review work needs Excel or LibreOffice.
 
 ## 2. Cloud setup (verified)
 
@@ -14,7 +14,7 @@ From `/workspace/dockling`, run each command separately:
 bash scripts/install-linux.sh
 ```
 
-This installs the hash-locked Linux dependencies and editable project. Then:
+This installs the hash-locked Linux dependencies and editable project. The lock retains its historical `requirements/phase1-linux.txt` name; it also contains every dependency used by phases 2–10, including HTTPx. No additional runtime dependency was needed for those phases. Then:
 
 ```bash
 .venv/bin/python -m stmtconv models download
@@ -41,7 +41,7 @@ Install Python 3.12 (64-bit, with PATH enabled) and Git for Windows. Open **Powe
 Clone the development branch:
 
 ```powershell
-git clone --branch phase-1-foundation https://github.com/samidoomsday-star/dockling.git C:\work\dockling
+git clone --branch development-phases-2-10 https://github.com/samidoomsday-star/dockling.git C:\work\dockling
 ```
 
 Enter the project folder:
@@ -106,7 +106,7 @@ Run development checks:
 .venv\Scripts\python.exe scripts\check.py
 ```
 
-Expect a passing test count and “All requested development checks passed.” Report failures or skipped tests. `selftest` and conversion are not implemented yet. Keep real client files out of this development checkout.
+Expect a passing test count and “All requested development checks passed.” Report failures or skipped tests. Run `.venv\Scripts\python.exe -m stmtconv selftest` next, then the fake first-delivery walkthrough in [OPERATOR_GUIDE.md](OPERATOR_GUIDE.md). Keep real client files out of this development checkout.
 
 ## 4. Personal settings and BYOK
 
@@ -114,31 +114,31 @@ Defaults work without `.env`. Optional overrides use this priority: process envi
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `STMTCONV_WORKSPACE` | `workspace` | Local logs and later order files |
+| `STMTCONV_WORKSPACE` | `workspace` | Local logs, order files and private provider settings |
 | `STMTCONV_LOG_LEVEL` | `INFO` | Logging detail |
-| `STMTCONV_NUM_THREADS` | `4` | Validated thread setting, consumed by later engines |
+| `STMTCONV_NUM_THREADS` | `4` | Validated thread setting, used by the extraction engines |
 | `STMTCONV_OFFLINE` | `true` | Keep enabled; model download handles its own exception |
 | `DOCLING_ARTIFACTS_PATH` | `models` | Local model files; setup cache remains inside this folder |
-| `STMTCONV_AI_PROVIDER` | empty | Reserved for Phase 9 custom provider setup |
-| `STMTCONV_AI_MODEL` | empty | Reserved model selection |
-| `STMTCONV_AI_EFFORT` | `provider_default` | Reserved effort selection; Max only when supported |
-| `STMTCONV_AI_API_KEY` | empty | Reserved hidden credential; no AI calls in Phase 1 |
-| `STMTCONV_AI_TERMS_CONFIRMED` | `false` | Reserved provider-terms gate; not sufficient by itself |
+| `STMTCONV_AI_PROVIDER` | empty | Optional configured provider nickname |
+| `STMTCONV_AI_MODEL` | empty | Optional model override |
+| `STMTCONV_AI_EFFORT` | `provider_default` | Optional effort override; Max only when supported |
+| `STMTCONV_AI_API_KEY` | empty | Optional private key override |
+| `STMTCONV_AI_TERMS_CONFIRMED` | `false` | Optional terms gate; not sufficient by itself |
 
-These reserved AI fields do not implement AI. Phase 9 adds endpoint/key setup, discovery/manual model selection, effort capabilities and per-order consent. Earlier Gemini-only instructions are superseded by ADR-014. Never paste keys into this chat or commit them.
+Use [BYOK_GUIDE.md](BYOK_GUIDE.md) for guided custom endpoint/model/effort setup, consent and privacy. No real model inference call was made in development. Never paste keys into chat or commit them.
 
 ## 5. Shared config files
 
 | File | Contents |
 |---|---|
 | `config/settings.yaml` | Typed operational defaults; monetary tolerance is the quoted string `"0.01"` |
-| `config/pricing.yaml` | Validated original package ranges and surcharges; quote logic comes in Phase 2 |
-| `config/categories.yaml` | Empty validated rule list; application comes in Phase 7 |
-| `config/exports.yaml` | Validated six-format column/date stubs; writers come in later phases |
-| `profiles/*.yaml` | Future bank layouts, without client data |
-| `templates/*.md` | Future delivery/privacy texts |
+| `config/pricing.yaml` | Validated original package ranges and surcharges; quotes use these values |
+| `config/categories.yaml` | Ordered category rules; add only synthetic keywords to shared defaults |
+| `config/exports.yaml` | Validated output columns and date formats |
+| `profiles/*.yaml` | Validated extraction layouts, without client data |
+| `templates/*.md` | Delivery, verification, deletion and demo text |
 
-YAML structure is validated at startup. Money settings use Decimal; float money inputs are rejected. Keep settings, schemas, `.env.example` and this guide in sync when adding fields. Installed wheels include default YAML and the model manifest, so they work outside the repository folder.
+YAML structure is validated at startup. Money settings use Decimal; float money inputs are rejected. Keep settings, schemas, `.env.example` and this guide in sync when adding fields. Installed wheels include default YAML, profiles, templates and the model manifest, so they work outside the repository folder.
 
 ## 6. Getting later versions
 

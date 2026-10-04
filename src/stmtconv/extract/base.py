@@ -14,6 +14,7 @@ class PageSet:
     source_file: str
     pages: list[int]
     scanned: bool = False
+    summary_pages: list[int] = field(default_factory=list)
 
 
 @dataclass

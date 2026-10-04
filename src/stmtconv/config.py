@@ -60,6 +60,8 @@ class Settings(BaseSettings):
     default_seconds_per_page: dict[str, float] = Field(
         default_factory=lambda: {"text": 0.5, "scanned": 15.0}
     )
+    invoice_markers: list[str] = Field(default_factory=list)
+    statement_markers: list[str] = Field(default_factory=list)
     ai_provider: str | None = None
     ai_model: str | None = None
     ai_effort: str = "provider_default"
@@ -81,6 +83,18 @@ class Settings(BaseSettings):
             YamlValuesSource(settings_cls, YAML_VALUES.get() or {}),
             init_settings,
         )
+
+    @field_validator("invoice_markers", "statement_markers")
+    @classmethod
+    def valid_document_patterns(cls, value: list[str]) -> list[str]:
+        import re
+
+        try:
+            for pattern in value:
+                re.compile(pattern)
+        except re.error as exc:
+            raise ValueError("invalid document marker") from exc
+        return value
 
     @field_validator("balance_tolerance", mode="before")
     @classmethod

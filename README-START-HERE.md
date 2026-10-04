@@ -1,24 +1,18 @@
 # Dockling — start here
 
-Dockling is being developed here in Codex, following the original phases 0–10. Phase 1 provides the working foundation: command-line help, setup checks, configuration, private logs and model downloads. Statement conversion and order handling arrive in later phases.
+Dockling now includes the cloud-developed phases 1–10: local order intake, text/OCR extraction, financial checks, Excel review, CSV/Excel/OFX exports, merging/categories, delivery/cleanup, and optional custom OpenAI-compatible BYOK models with supported effort choices up to Max.
 
-## What you need to do now
+The complete development version is on **`development-phases-2-10`**. `main` remains the original starter; no merge has been performed. Think of this branch as your saved IDE project. GitHub carries source and setup instructions, while Python, dependencies, local OCR models, job data and API keys are installed/kept separately on each device.
 
-Review the Phase 1 result. You can keep developing here without installing anything on your other device yet. No LLM API key is needed. The optional custom OpenAI-compatible BYOK model picker and supported effort settings remain planned for Phase 9.
-
-## Where the work is
-
-The current code is on GitHub branch `phase-1-foundation`. `main` still contains the original starter; these branches have not been merged. Think of this branch as the saved project version you would open in a local IDE. GitHub carries code and instructions; each device separately installs Python, dependencies and local models.
-
-- [Progress and evidence](docs/PROGRESS.md)
-- [Installation and update guide](docs/ENVIRONMENT.md)
-- [Phase 1 scope](docs/tasks/phase-1.md)
+- [Beginner operator guide and first fake delivery](docs/OPERATOR_GUIDE.md)
+- [Clone, installation and update commands](docs/ENVIRONMENT.md)
+- [Your own provider, model picker and effort](docs/BYOK_GUIDE.md)
+- [Phase evidence and remaining device checks](docs/PROGRESS.md)
+- [Synthetic cloud acceptance](docs/PHASE10-SYNTHETIC-ACCEPTANCE.json)
 - [Original specification](docs/SPEC.md)
-- [Cloud/GitHub/device workflow and BYOK plan](docs/CODEX-PROJECT-PLAN.md)
-- [Exploration findings](docs/EXPLORATION_REPORT.md)
 
-For cloud setup, run `bash scripts/install-linux.sh`, then `.venv/bin/python -m stmtconv models download`. Check setup with `.venv/bin/python -m stmtconv doctor` and development with `.venv/bin/python scripts/check.py`.
+For cloud development: `bash scripts/install-linux.sh`, `.venv/bin/python -m stmtconv models download`, `.venv/bin/python -m stmtconv doctor`, `.venv/bin/python scripts/check.py`, then `.venv/bin/python -m stmtconv selftest`.
 
-Windows instructions are provided in the guide; they have not yet been executed on a Windows device. Use synthetic documents during development. Keys, real statements, installed dependencies and model binaries stay outside GitHub.
+Windows installation, real camera/field samples, Excel/accounting imports and your actual BYOK service still need device checks. This is a development preview; financial reconciliation does not prove source dates/descriptions, and Docling cannot rescue every borderless layout. Use synthetic documents until you complete those checks. No paid LLM inference call was made here.
 
-The `.kilo/` files are historical reference. You do not need Kilo Code. Active development instructions are in `AGENTS.md`.
+The `.kilo/` files remain historical reference; Kilo Code is not required. Active development instructions are in `AGENTS.md`.

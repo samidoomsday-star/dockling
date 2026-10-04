@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dockling-stmtconv"
-version = "0.1.0"
-description = "Local-first statement conversion operator CLI (foundation phase)"
+version = "0.2.0"
+description = "Local-first statement conversion operator CLI (development preview)"
 readme = "README-START-HERE.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [

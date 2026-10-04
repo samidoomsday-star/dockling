@@ -19,12 +19,14 @@ def register(app: typer.Typer) -> None:
         Console().print(str(path), markup=False)
 
     @app.command("close")
-    def close_command(ctx: typer.Context, order_id: str, yes: bool = False) -> None:
+    def close_command(
+        ctx: typer.Context, order_id: str, yes: bool = False, abandon: bool = False
+    ) -> None:
         if not yes and not typer.confirm(
             "Remove this order’s local input, review, output and delivery files?"
         ):
             raise typer.Exit(2)
-        result = call(lambda: close(ctx.obj.settings, order_id))
+        result = call(lambda: close(ctx.obj.settings, order_id, abandon))
         Console().print(str(result.get("text", "")), markup=False)
 
     @app.command("stats")

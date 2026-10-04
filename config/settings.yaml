@@ -23,3 +23,9 @@ ai_model: null
 ai_effort: provider_default
 ai_api_key: null
 ai_terms_confirmed: false
+
+# Clear invoice headers are outside V1; statements take precedence.
+invoice_markers:
+  - '(?im)^\s*(?:tax\s+)?invoice(?:\s|#|:|$)'
+statement_markers:
+  - '(?i)\bstatement\b'

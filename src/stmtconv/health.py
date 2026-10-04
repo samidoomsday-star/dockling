@@ -92,9 +92,9 @@ def inspect(settings: Settings) -> list[Check]:
         Check(
             "AI key",
             "PASS",
-            "Present (hidden); AI is not implemented yet."
+            "Environment key present (hidden); optional AI requires consent and explicit activation."
             if settings.ai_api_key
-            else "Not configured; no key is needed in Phase 1.",
+            else "No environment key; local conversion needs none. Optional BYOK uses ai setup.",
         )
     )
     return checks

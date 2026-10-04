@@ -149,7 +149,12 @@ def export(
                             )
                             path.write_bytes(
                                 csv_writer.serialize(
-                                    statement, spec, date_format, rows, format_name == "csv"
+                                    statement,
+                                    spec,
+                                    date_format,
+                                    rows,
+                                    format_name == "csv",
+                                    format_name.startswith("qb_"),
                                 )
                             )
                             names.append(path.name)

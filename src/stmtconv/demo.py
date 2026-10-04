@@ -37,7 +37,9 @@ def generate(
         balance += debit - credit if liability else credit - debit
         rows.append(
             {
-                "date": (date(year, month, 1) + timedelta(days=index % 27)).isoformat(),
+                "date": (
+                    date(year, month, 1) + timedelta(days=index // max(1, (count + 26) // 27))
+                ).isoformat(),
                 "description": f"Synthetic purchase {index:03d} continued detail",
                 "debit": str(debit),
                 "credit": str(credit),

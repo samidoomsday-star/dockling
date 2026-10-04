@@ -69,7 +69,11 @@ def parse_date(
         ):
             continue
         try:
-            parsed = datetime.strptime(value, pattern).date()
+            input_value, input_pattern = value, pattern
+            if "%Y" not in pattern and "%y" not in pattern:
+                # Leap-safe reference year parses month/day; the actual year is inferred below.
+                input_value, input_pattern = value + " 2000", pattern + " %Y"
+            parsed = datetime.strptime(input_value, input_pattern).date()
         except ValueError:
             continue
         if "%Y" not in pattern and "%y" not in pattern:

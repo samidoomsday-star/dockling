@@ -143,3 +143,7 @@ The owner authorized Phase 0 and reaffirmed original phase tracking. Starter imp
 
 ## Completed cloud exploration update — 4 October 2026
 Model-source connectivity is resolved; required offline digital/scanned/photo-like conversions preserve 8/8 expected rows each. Borderless/multi-page examples produce no tables, supporting the hybrid plan. Phase 0 experiments are complete; owner review precedes Phase 1. Original phase numbering remains the execution tracker. See updated EXPLORATION_REPORT and PROGRESS; prior blocker entries above are historical.
+
+## Final cloud milestone (2026-10-04)
+
+The owner authorized all remaining phases in sequence. Phases 2–10 are now implemented on `development-phases-2-10`, with 314 passing tests, selftest, synthetic acceptance and an installed-package delivery/cleanup check. Prior unstarted/blocker/analysis-only notes above are historical. Use PROGRESS for current evidence and OPERATOR_GUIDE/BYOK_GUIDE for device actions. Windows, permitted field samples, actual accounting imports/provider checks and some license provenance remain pending; main has not been merged.

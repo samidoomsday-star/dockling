@@ -100,3 +100,9 @@ Format: Context → Decision → Alternatives → Consequences. Never delete an 
 ### ADR-016: Confirm account identity before merging or OFX
 - **Status:** implemented under the approved project plan.
 - **Decision:** masks are display values, not unique account identifiers. Hash a captured full account identifier locally; otherwise require an operator account group and --confirm-account. Merge also requires matching currency/direction/display account. OFX FITIDs use the private identity and occurrence index. No identity hash or raw account identifier enters anonymous metrics.
+
+## ADR-024 — Final handoff and honest acceptance scope
+
+The owner authorized phases 2–10 without further phase approval. Final cloud code lives on development-phases-2-10; main is not merged. Windows launcher instructions and first-delivery guide accompany a Linux installed-wheel functional check and a reproducible 15-case synthetic supplement. The original owner/public field checklist, Windows/Excel/accounting imports, actual BYOK calls and hardware timings remain separate pending checks. Borderless OCR limitations remain explicit. Max is offered only from advertised or model-specific documented capability evidence.
+
+Explicit close --abandon permits unfinished/failed jobs to undergo the same confined deletion/inventory/scrubbing checks, then failed -> closed; abandoned anonymous metrics do not train delivery quote medians. Known blank pages count as covered, with no fabricated transactions. Clear invoice headers are rejected via configurable markers, but scanned/ambiguous invoices still require operator classification; invoices remain outside V1.

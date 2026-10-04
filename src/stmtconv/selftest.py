@@ -4,13 +4,14 @@ import tempfile
 from pathlib import Path
 
 from stmtconv.config import Settings
-from stmtconv.demo import generate
 from stmtconv.extract.service import extract
 from stmtconv.intake.service import intake
 from stmtconv.orders import store
 
 
 def run(settings: Settings) -> dict[str, object]:
+    from stmtconv.demo import generate
+
     results = []
     with tempfile.TemporaryDirectory(prefix="stmtconv-selftest-") as temporary:
         local = settings.model_copy(update={"workspace": Path(temporary) / "workspace"})

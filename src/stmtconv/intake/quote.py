@@ -45,6 +45,8 @@ def quote(order: Order, pricing: Pricing, settings: Settings) -> Quote:
         try:
             for line in ledger.read_text(encoding="utf-8").splitlines():
                 record = json.loads(line)
+                if record.get("outcome", "delivered") != "delivered":
+                    continue
                 for kind in samples:
                     value = record.get("seconds_per_page", {}).get(kind)
                     if isinstance(value, (int, float)) and value > 0:

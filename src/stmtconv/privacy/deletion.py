@@ -36,7 +36,10 @@ def inventory(directory: Path) -> list[Path]:
 
 
 def metrics(settings: Settings, order: Order) -> ledger.Metrics:
-    statements = read_statements(settings, order.order_id)
+    try:
+        statements = read_statements(settings, order.order_id)
+    except StmtconvError:
+        statements = []  # Cleanup must remain possible for damaged/abandoned artifacts.
     engines = Counter(engine for fact in order.statements for engine in fact.engines.values())
     samples: dict[str, list[float]] = {"text": [], "scanned": []}
     for statement in statements:
@@ -48,6 +51,7 @@ def metrics(settings: Settings, order: Order) -> ledger.Metrics:
             if kind in samples and isinstance(seconds, (int, float)) and seconds > 0:
                 samples[kind].append(float(seconds))
     return ledger.Metrics(
+        outcome="abandoned" if order.status == "failed" else "delivered",
         order_id=order.order_id,
         platform=order.platform,
         package=order.package,
@@ -67,12 +71,18 @@ def metrics(settings: Settings, order: Order) -> ledger.Metrics:
     )
 
 
-def close(settings: Settings, order_id: str) -> dict[str, object]:
+def close(settings: Settings, order_id: str, abandon: bool = False) -> dict[str, object]:
     with store.edit(settings.workspace, order_id) as order:
         if order.status == "closed":
             ledger.append(settings.workspace, ledger.Metrics.model_validate(order.metrics))
             return order.deletion_certificate or {}
-        store.require(order, {"delivered"})
+        if order.status != "delivered":
+            if not abandon:
+                raise StmtconvError(
+                    "CLOSE_UNDELIVERED", "Use --abandon explicitly to remove an unfinished order."
+                )
+            if order.status != "failed":
+                store.transition(order, "failed", "OPERATOR_ABANDONED")
         directory = store.root(settings.workspace, order_id)
         paths = inventory(directory)
         if not order.deletion_pending:
@@ -128,7 +138,7 @@ def close(settings: Settings, order_id: str) -> dict[str, object]:
             platform=order.platform,
             package=order.package,
             currency=order.currency,
-            status="delivered",
+            status=order.status,
             status_history=order.status_history,
             pages_by_kind=order.pages_by_kind,
             manual_fixes=order.manual_fixes,

@@ -3,6 +3,7 @@
 from collections import Counter
 from pathlib import Path
 from statistics import median
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 
@@ -12,6 +13,7 @@ from stmtconv.orders import store
 
 class Metrics(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    outcome: Literal["delivered", "abandoned"] = "delivered"
     order_id: str
     platform: str
     package: str

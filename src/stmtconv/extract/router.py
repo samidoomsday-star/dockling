@@ -39,7 +39,7 @@ def normalized(
         pages.pages,
     )
     statement.flags.extend(result.flags)
-    statement.summary_pages = result.summary_pages
+    statement.summary_pages = sorted(set(result.summary_pages) | set(pages.summary_pages))
     statement.diagnostics = result.diagnostics
     return validate(statement, tolerance, profile.row_order)
 

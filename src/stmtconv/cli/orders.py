@@ -28,6 +28,7 @@ def register(app: typer.Typer) -> None:
         account_group: str | None = None,
         confirm_account: bool = False,
         categorize: bool = False,
+        currency: str | None = None,
     ) -> None:
         runtime = ctx.obj
 
@@ -41,12 +42,17 @@ def register(app: typer.Typer) -> None:
             from pydantic import TypeAdapter
 
             selected = TypeAdapter(list[Output]).validate_python(outputs.split(","))
+            selected_currency = currency or runtime.settings.default_currency
+            import re
+
+            if not re.fullmatch(r"[A-Z]{3}", selected_currency):
+                raise StmtconvError("ORDER_CURRENCY", "Use a three-letter uppercase currency code.")
             order = store.create(
                 runtime.settings.workspace,
                 platform,
                 alias,
                 package,
-                runtime.settings.default_currency,
+                selected_currency,
                 runtime.settings.output_date_format,
             )
             with store.edit(runtime.settings.workspace, order.order_id) as edited:
