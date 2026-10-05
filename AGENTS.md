@@ -3,6 +3,7 @@
 Windows operator CLI (`stmtconv`) for a done-for-you statement conversion service. Develop here with synthetic data; process real client documents on the owner's device. The owner is nontechnical/semi-technical: explain outcomes plainly and provide exact steps only when action is needed.
 
 ## Authority and session workflow
+- When asked to set up a newly cloned device, start with `docs/DEVICE_SETUP.md` and execute the appropriate `docs/ENVIRONMENT.md` recipe through verification and a synthetic first delivery. Preserve personal configuration/jobs; optional BYOK is not a prerequisite. Report actual device evidence and unrun checks separately.
 - Follow the owner's current instructions first, then `docs/SPEC.md`, `docs/DECISIONS.md`, and `docs/TECH_ARCHITECTURE.md`.
 - Start by reading `docs/PROGRESS.md` and the current `docs/tasks/phase-N.md`.
 - Work through original phases 0–10, one coherent task at a time. Record evidence and remaining checks; do not mark unrun checks passed.
@@ -13,6 +14,7 @@ Windows operator CLI (`stmtconv`) for a done-for-you statement conversion servic
 - Routine implementation within an approved task needs no repeated approval. Ask about changes to agreed scope or genuinely missing prerequisites, after finishing independent work.
 
 ## Document map
+- `docs/DEVICE_SETUP.md`: receiving-assistant setup protocol and owner copy/paste prompt for a new device.
 - `docs/SPEC.md`: requirements and original phase sequence.
 - `docs/CODEX-PROJECT-PLAN.md`: owner workflow, beginner guidance, BYOK/model/effort requirements and issues to resolve.
 - `docs/DECISIONS.md`: architectural decisions; append superseding records rather than deleting history.

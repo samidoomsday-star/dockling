@@ -6,6 +6,7 @@ The complete development version is on **`development-phases-2-10`**. `main` rem
 
 - [Beginner operator guide and first fake delivery](docs/OPERATOR_GUIDE.md)
 - [Clone, installation and update commands](docs/ENVIRONMENT.md)
+- [Ask an assistant to set up your cloned device](docs/DEVICE_SETUP.md)
 - [Your own provider, model picker and effort](docs/BYOK_GUIDE.md)
 - [Phase evidence and remaining device checks](docs/PROGRESS.md)
 - [Synthetic cloud acceptance](docs/PHASE10-SYNTHETIC-ACCEPTANCE.json)

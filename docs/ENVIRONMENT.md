@@ -1,5 +1,7 @@
 # Installation and updates
 
+For an assistant to perform setup on your other device, start with [DEVICE_SETUP.md](DEVICE_SETUP.md). It provides a copyable request and the checks to complete automatically using the commands below.
+
 Phases 1–10 are implemented and checked in the Codex Linux cloud environment. The Windows steps below are the handoff recipe and still need verification on a Windows device. GitHub stores the project files; Python, installed dependencies and about 700 MiB of local models are installed separately on each device.
 
 ## 1. What you need
