@@ -1,6 +1,6 @@
 # Dockling: production SaaS plan
 
-**Status:** proposal for owner review, 10 October 2026 (Asia/Dhaka). Based on `web-frontend` commit `d24cbf5`. This plan covers a customer-facing service, not merely a hosted copy of the sample frontend. No backend, billing, or public deployment is claimed complete by this document.
+**Status:** architecture direction accepted for development by the owner's instruction to start one phase at a time. The [SaaS Phase 0 checklist](tasks/saas-phase-0.md) is prepared; its implementation contracts and benchmark remain pending. Original proposal: 10 October 2026 (Asia/Dhaka), based on `web-frontend` commit `d24cbf5`. This plan covers a customer-facing service, not merely a hosted copy of the sample frontend. No backend, billing, or public deployment is claimed complete by this document.
 
 ## 1. The product we are building
 
@@ -141,7 +141,7 @@ The architecture above is my recommended default. These product choices influenc
 4. **Retention and support promises:** approve default live-data retention, backup expiry, support contact/hours and acceptable recovery targets after seeing host costs. The local CLI’s seven-day preference cannot automatically become a truthful cloud backup promise.
 5. **Budget and capacity:** set a maximum monthly hosting spend and a first-cohort size. Use the phase-0 benchmark to choose infrastructure and limits, then adjust before publishing prices.
 
-After this plan is reviewed, the first implementation slice is Phase 0’s contracts/threat model and Phase 1’s workspace/auth/database boundary. It should produce a working, isolated two-workspace synthetic API before touching real customer files. The existing frontend remains the visual starting point throughout.
+Follow [the SaaS Phase 0 task](tasks/saas-phase-0.md) for contracts/threat model and measured capacity, then Phase 1’s workspace/auth/database boundary. Phase 1 should produce a working, isolated two-workspace synthetic API before touching real customer files. The existing frontend remains the visual starting point throughout.
 
 ## 9. Basis for the architecture
 

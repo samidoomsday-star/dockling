@@ -1,8 +1,8 @@
 # Progress
 
 ## Current status
-- **Current phase:** Phases 0–10 cloud development complete; Windows/field/provider acceptance pending.
-- **Current task:** Production SaaS architecture and phased implementation plan drafted on `saas-production-plan` for owner review. Stage B interactive frontend is complete; real API/worker/authentication, billing and deployment remain pending.
+- **Current phase:** Original Python phases 0–10 cloud development complete; Windows/field/provider acceptance pending. New SaaS Phase 0 starting-phase checklist prepared.
+- **Current task:** Owner authorized the SaaS direction one phase at a time. Follow `docs/tasks/saas-phase-0.md` for contracts, permissions, data/job design, privacy and capacity preparation. This milestone plans that work; its deliverables are not yet implemented. Stage B interactive frontend is complete; real API/worker/authentication, billing and deployment remain pending.
 - **Last updated:** 2026-10-09 UTC (10 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
 
@@ -64,7 +64,9 @@
 
 ## Next step
 
-Review [PRODUCTION-SAAS-PLAN.md](PRODUCTION-SAAS-PLAN.md), especially the target buyer/region, pilot sales path, retention promise and monthly budget. The first build slice is the API/permissions/data contract with a two-workspace synthetic test. Use [OPERATOR_GUIDE.md](OPERATOR_GUIDE.md) for the existing CLI's fake delivery and daily operations, [ENVIRONMENT.md](ENVIRONMENT.md) for clone/install/update, and [BYOK_GUIDE.md](BYOK_GUIDE.md) for your own provider. Complete the Windows/field checklist before real client work. Development phases do not need further approval pauses.
+Implement [the SaaS Phase 0 checklist](tasks/saas-phase-0.md) in order, starting with a product decision register and complete feature/permission map. Pending business choices must not block independent synthetic technical preparation; they remain prerequisites for the related hosting, sales and customer-data actions.
+
+The overall direction is in [PRODUCTION-SAAS-PLAN.md](PRODUCTION-SAAS-PLAN.md). Use [OPERATOR_GUIDE.md](OPERATOR_GUIDE.md) for the existing CLI's fake delivery and daily operations, [ENVIRONMENT.md](ENVIRONMENT.md) for clone/install/update, and [BYOK_GUIDE.md](BYOK_GUIDE.md) for your own provider. Complete the Windows/field checklist before real client work. Development phases do not need further approval pauses.
 
 ## Phase 2 milestone
 Owner authorized remaining phases in sequence. Typed manifests, atomic writes/exclusive edits, checked transitions, confined paths, file-content intake, password-safe copies, image combination and YAML quotes implemented. All 81 state pairs tested; 120 total tests passed with none skipped. Three layouts have text/scanned, wrapped and multipage synthetic variants. Combined images use numbered filename order. Phase 10 later permits explicit abandoned cleanup from failed to closed; closed remains terminal. Windows execution remains pending.
