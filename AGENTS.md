@@ -14,7 +14,7 @@ Windows operator CLI (`stmtconv`) for a done-for-you statement conversion servic
 - Routine implementation within an approved task needs no repeated approval. Ask about changes to agreed scope or genuinely missing prerequisites, after finishing independent work.
 
 ## Document map
-- `docs/WEB-APP-PLAN.md`: customer web-app proposal, feature coverage and new hosted requirements; awaiting owner acceptance before implementation. `docs/WEB-APP-WIREFRAME.html` is a synthetic planning illustration only.
+- `docs/WEB-APP-PLAN.md`: customer web-app plan, feature coverage and new hosted requirements; owner endorsed the direction and requested a modern color refinement. Working web application/deployment is not yet implemented. `docs/WEB-APP-WIREFRAME.html` is a synthetic planning illustration only.
 - `docs/DEVICE_SETUP.md`: receiving-assistant setup protocol and owner copy/paste prompt for a new device.
 - `docs/SPEC.md`: requirements and original phase sequence.
 - `docs/CODEX-PROJECT-PLAN.md`: owner workflow, beginner guidance, BYOK/model/effort requirements and issues to resolve.

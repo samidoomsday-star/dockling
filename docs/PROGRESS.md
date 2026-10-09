@@ -2,7 +2,7 @@
 
 ## Current status
 - **Current phase:** Phases 0–10 cloud development complete; Windows/field/provider acceptance pending.
-- **Current task:** proposed customer web-app UI plan for owner review; implementation awaits acceptance.
+- **Current task:** refine the web preview with richer, modern colors following owner feedback; functional web application/deployment not started.
 - **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
 
@@ -113,3 +113,9 @@ Added DEVICE_SETUP.md with a copyable owner request and receiving-assistant prot
 Owner requested an audit and UI/frontend plan for review before implementation, and selected customer self-service plus owner/admin tools. WEB-APP-PLAN.md maps existing CLI/services/configuration to web screens, states, permissions, integration work and staged acceptance. Includes all six formats, Excel/browser review, merge/categories, BYOK/model/effort/consent/budget, operational profiles/models/stats, delivery and deletion. WEB-APP-WIREFRAME.html illustrates seven major screens with synthetic data and no processing/network/key storage; it is not a web application. No backend/frontend application dependencies or behavior were changed. Proposal acceptance, branding/style edits, commercial/payment scope and hosting selection remain open; no publication or application implementation authorized by this planning request.
 
 Planning artifact checks: local links, HTML screen IDs/navigation targets/input labels, absence of remote assets, JavaScript syntax and git whitespace checks passed. Headless Chromium screenshot attempts timed out in this environment; no screenshot or completed browser/viewport validation is claimed. Full application gates were not rerun for this documentation/design-only change.
+
+## Web visual refinement — 9 October 2026 (Asia/Dhaka)
+
+Owner endorsed the plan direction and requested a more attractive, current UI while keeping the friendly basic layout and avoiding neon/disco styling. Refreshed the seven-screen design preview with forest-teal actions, mint/peach/dusty-blue/lavender surfaces, stronger typography, outline navigation icons, softer gradients, restrained shadows and clearer cards. Financial tables keep readable neutral surfaces and meaningful status colors. Updated WEB-APP-PLAN's color/design direction; functionality and feature coverage remain as planned. This is still a synthetic planning preview, not the working web application.
+
+Refinement checks: seven-screen navigation targets, unique IDs, labels, absence of remote assets, local links, JavaScript syntax and git whitespace passed. Eight representative text/background color pairs exceed 4.5:1 after darkening the coral label; this is not a full accessibility audit. Browser screenshot capture still times out here, so visual/viewport inspection remains pending. No app processing code or dependency changes, no paid calls and no production deployment.

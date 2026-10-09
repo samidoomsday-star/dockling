@@ -1,6 +1,6 @@
 # Dockling web app — proposal for owner review
 
-**Status:** proposed, not approved for application implementation. Prepared 9 October 2026 (Asia/Dhaka). Audited source baseline: `a9bf6d36f83c4ddec2c2062465e6ff42512cc954`, branch `development-phases-2-10`. The accompanying [visual wireframe](WEB-APP-WIREFRAME.html) is an offline, synthetic design illustration, not a functioning converter or a deployed app. Open the HTML file directly in a browser to review its seven screen sketches. Links, screen targets, labels and JavaScript syntax were checked; headless capture timed out here, so browser/viewport visual validation is pending.
+**Status:** owner endorsed the plan direction and requested a richer, modern color treatment; visual prototype refinement in progress. Functional application/deployment work has not started. Prepared 9 October 2026 (Asia/Dhaka). Audited source baseline: `a9bf6d36f83c4ddec2c2062465e6ff42512cc954`, branch `development-phases-2-10`. The accompanying [visual wireframe](WEB-APP-WIREFRAME.html) is an offline, synthetic design illustration, not a functioning converter or a deployed app. Open the HTML file directly in a browser to review its seven screen sketches. Links, screen targets, labels and JavaScript syntax were checked; headless capture timed out here, so browser/viewport visual validation is pending.
 
 ## 1. What this product becomes
 
@@ -24,7 +24,11 @@ Working name stays **Dockling** unless the owner changes it. Sales positioning a
 
 ## 3. Visual and UX direction
 
-Use a calm, polished accounting workspace: warm off-white background, white cards, deep teal navigation/actions, restrained coral accents, and distinct green/amber/red check states. Numbers align right with tabular digits; money and source pages are readable. Use a clean system font stack first, consistent outline icons, generous spacing, rounded but restrained cards, and a compact desktop sidebar. Avoid giant dashboards with unrelated charts.
+Owner visual feedback, 9 October 2026: keep the friendly basic layout, make it more attractive and current with color, and avoid disco/neon/futuristic styling.
+
+Use a light blue-gray canvas and white surfaces with richer forest-teal actions, gentle peach/coral accents, dusty blue information accents and muted lavender for model/connection tools. Add soft tinted section cards, a restrained pastel gradient behind the public sample preview, outline navigation icons, stronger headline hierarchy, carefully rounded cards, thin borders and subtle shadows. Keep financial tables mostly white so status highlights and money remain readable. Hover/focus states provide polish without busy animation.
+
+Color roles: primary actions `#16665e`; body text `#213542`; canvas `#f6f7fa`; muted text `#586c77`; gentle mint `#e3f1ea`; peach `#fff0e6`; information blue `#315f90`; lavender `#eeebfa`. Amber/red/green retain issue/warning/reconciled meanings; decorative colors never imply that data has been verified. Numbers align right with tabular digits. Use a clean system font stack, consistent outline icons, generous spacing and a compact desktop sidebar. No neon glow, animated backgrounds, excessive gradients or unrelated charts.
 
 Primary action per screen: **Try sample → Upload → Review → Export**. Advanced settings expand only when needed. Every advanced capability remains discoverable in Settings, job tabs or admin tools. UI language uses “Needs a source check,” “Numbers reconcile,” and “Ready to export”; raw flags/error codes are available in details and support, not the main explanation.
 
@@ -220,10 +224,10 @@ Public prototype review uses synthetic data. Actual Windows, Excel/accounting im
 Recommended defaults for review:
 1. **Confirmed audience:** customer self-service with owner/admin tools. Invite-only pilot remains the recommended rollout.
 2. Bank/card statements for accountants/bookkeepers as the first market.
-3. Dockling name; warm light workspace, teal/coral accents; accessible responsive layout.
+3. Dockling name; refreshed light workspace with forest teal, peach, dusty blue and muted lavender; accessible responsive layout, no neon styling.
 4. Complete current feature coverage with advanced/admin placement; preserve CLI and Excel fallback.
 5. Local functioning web app before private staging; hosting selected after runtime checks.
 6. BYOK optional/off by default; highest known supported effort, Max only with evidence.
 7. Sample-first selling experience; paid pilot/service offer before automatic subscription billing.
 
-Owner can accept these defaults or change: audience, name/style, navigation/workflow, initial commercial/payment scope, and hosting route. This proposal does not authorize application implementation or publication; after owner acceptance, Stage B begins with the agreed design.
+Owner can accept these defaults or change: audience, name/style, navigation/workflow, initial commercial/payment scope, and hosting route. The owner has endorsed the plan direction with a visual refinement request. This update refines the synthetic planning preview; it does not claim that a functioning web application or deployment exists. The agreed look will carry into the frontend build, with publication remaining a separate step.
