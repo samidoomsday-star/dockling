@@ -1,0 +1,295 @@
+import { Link } from 'react-router-dom';
+import { FileCheck2, ScanLine, Download, ShieldCheck, Sparkles, ArrowRight } from 'lucide-react';
+import { Card, Heading, Notice, LinkButton, Badge } from '../components/ui';
+import { outputs } from '../lib/types';
+export function Home() {
+  return (
+    <>
+      <section className="hero">
+        <div>
+          <Badge tone="mint">Your statements, made useful</Badge>
+          <h1>
+            From statement clutter
+            <br />
+            to clear, usable data.
+          </h1>
+          <p>
+            Turn bank statements into organized transactions. Review the details, understand the
+            checks, and choose the format your work needs.
+          </p>
+          <div className="actions">
+            <LinkButton to="/app/jobs/sample-review">Try the guided sample</LinkButton>
+            <LinkButton to="/help" secondary>
+              See how it works
+            </LinkButton>
+          </div>
+          <p className="fine">
+            PDFs and scans · six output formats · optional AI with your own provider
+          </p>
+        </div>
+        <Card className="hero-preview">
+          <div className="spread">
+            <span className="eyebrow">January statement</span>
+            <Badge tone="peach">1 item to review</Badge>
+          </div>
+          <h2>
+            A clearer picture.
+            <br />
+            One row at a time.
+          </h2>
+          <div className="mini-row">
+            <span>Fake café, grocery</span>
+            <strong>12.59</strong>
+          </div>
+          <div className="mini-row">
+            <span>Fake salary</span>
+            <strong>2,000.00</strong>
+          </div>
+          <Notice tone="warning">Compare the first amount with its source: 12.50.</Notice>
+          <Link to="/app/jobs/sample-review">
+            Open the review workspace <ArrowRight size={16} />
+          </Link>
+          <small>Fictional example. No real document processing.</small>
+        </Card>
+      </section>
+      <section className="section">
+        <Heading level={2} eyebrow="A simple path" title="Upload. Review. Ready to use." />
+        <div className="grid three">
+          {[
+            [
+              ScanLine,
+              'Bring your statements',
+              'PDF, JPG, PNG and TIFF intake controls with clear processing options.',
+            ],
+            [
+              FileCheck2,
+              'Check with confidence',
+              'See the source beside your rows. Fix differences before preparing a package.',
+            ],
+            [
+              Download,
+              'Take your data forward',
+              'Excel, CSV, QuickBooks, Xero and OFX reference exports.',
+            ],
+          ].map(([Icon, title, text]) => {
+            const I = Icon as typeof ScanLine;
+            return (
+              <Card key={String(title)}>
+                <span className="feature-icon">
+                  <I />
+                </span>
+                <h2>{String(title)}</h2>
+                <p>{String(text)}</p>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+      <section className="split callout">
+        <div>
+          <Sparkles />
+          <h2>
+            A familiar workspace,
+            <br />
+            with room to grow.
+          </h2>
+          <p>
+            Built for business owners, bookkeeping teams and people who need usable transaction
+            data.
+          </p>
+        </div>
+        <div>
+          <p>
+            <ShieldCheck size={19} /> Optional AI stays off until you choose it.
+          </p>
+          <p>
+            <FileCheck2 size={19} /> Numeric checks and source comparison stay separate.
+          </p>
+          <p>
+            <Download size={19} /> Keep your workflow and choose your outputs.
+          </p>
+          <LinkButton to="/sign-in">Explore the sample workspace</LinkButton>
+        </div>
+      </section>
+      <Notice>
+        Development preview: real conversion, accounts, private storage and hosting are the next
+        integration stage. This preview does not establish accuracy for an unseen bank layout.
+      </Notice>
+    </>
+  );
+}
+export function Demo() {
+  return (
+    <>
+      <Heading eyebrow="Try it yourself" title="A two-minute guided sample">
+        No account, document or API key needed.
+      </Heading>
+      <div className="grid three">
+        <Card>
+          <Badge tone="peach">1 · Review</Badge>
+          <h2>Find the difference</h2>
+          <p>One fictional café amount was read as 12.59. The source shows 12.50.</p>
+          <LinkButton to="/app/jobs/sample-review">Fix the sample</LinkButton>
+        </Card>
+        <Card>
+          <Badge tone="mint">2 · Download</Badge>
+          <h2>Explore the outputs</h2>
+          <p>
+            Open the already checked sample and download reference files generated by the Python
+            writers.
+          </p>
+          <LinkButton to="/app/jobs/sample-ready">See ready package</LinkButton>
+        </Card>
+        <Card>
+          <Badge tone="lavender">3 · Optional AI</Badge>
+          <h2>Understand the safeguards</h2>
+          <p>
+            AI-derived rows need source confirmation. Consent and supported model effort remain
+            visible.
+          </p>
+          <LinkButton to="/app/jobs/sample-scanned">Review AI sample</LinkButton>
+        </Card>
+      </div>
+    </>
+  );
+}
+export function Pricing() {
+  return (
+    <>
+      <Heading eyebrow="Commercial setup" title="Choose the service that fits">
+        Pilot terms and hosted subscription pricing have not been set.
+      </Heading>
+      <div className="grid three">
+        {['Occasional statements', 'Monthly bookkeeping', 'Team workspace'].map((name, i) => (
+          <Card key={name} className={i === 1 ? 'featured' : ''}>
+            <Badge tone={i === 1 ? 'mint' : 'blue'}>
+              {i === 1 ? 'Monthly workflow' : 'Service concept'}
+            </Badge>
+            <h2>{name}</h2>
+            <p>
+              {
+                [
+                  'For a few documents and selected formats.',
+                  'For recurring statements, account groups and monthly outputs.',
+                  'For shared review and owner-managed operations.',
+                ][i]
+              }
+            </p>
+            <strong className="price">Pricing to be agreed</strong>
+            <p>Scope, bank layout and review requirements affect the quote.</p>
+            <LinkButton to="/help" secondary>
+              Read pilot requirements
+            </LinkButton>
+          </Card>
+        ))}
+      </div>
+      <Notice>
+        These are product concepts, not purchasable subscriptions. The original operator pricing
+        remains editable through owner configuration; payment and subscription features require a
+        later backend.
+      </Notice>
+    </>
+  );
+}
+export function Help() {
+  return (
+    <>
+      <Heading eyebrow="Plain-language guide" title="What can I do here?">
+        Explore the experience safely, then run the same frontend on your own device.
+      </Heading>
+      <div className="grid two">
+        <Card>
+          <h2>Start with a sample</h2>
+          <ol>
+            <li>Open the sample review.</li>
+            <li>
+              Edit the café debit to <strong>12.50</strong> and save the staged change.
+            </li>
+            <li>Complete the source comparison.</li>
+            <li>Prepare the preview package and download a reference file.</li>
+          </ol>
+          <LinkButton to="/app/jobs/sample-review">Start reviewing</LinkButton>
+        </Card>
+        <Card>
+          <h2>What the checks mean</h2>
+          <p>
+            “Numbers reconcile” means amounts fit the financial evidence. It does not prove every
+            date or description is correct.
+          </p>
+          <p>
+            Source comparison is a separate step. Scanned and AI-derived rows need careful visual
+            review.
+          </p>
+          <p>
+            Unknown or incomplete bank layouts can require manual correction or a tested bank
+            profile.
+          </p>
+        </Card>
+        <Card>
+          <h2>Your data and your models</h2>
+          <p>
+            The preview stores sample state in memory and resets on reload. Do not select real
+            client documents or enter keys.
+          </p>
+          <p>
+            The planned backend will keep private documents and BYOK keys on the server, with
+            per-job consent, provider terms and page caps before AI requests.
+          </p>
+          <p>
+            Removing a preview job demonstrates the flow; it is not a certificate of physical file
+            or backup deletion.
+          </p>
+        </Card>
+        <Card>
+          <h2>Formats and limits</h2>
+          {outputs.map((o) => (
+            <p key={o.id}>
+              <strong>{o.name}</strong> — {o.detail}.
+            </p>
+          ))}
+          <p>
+            Accounting files are downloadable imports. Live accounting connections and .qbo files
+            are not implemented.
+          </p>
+        </Card>
+      </div>
+      <Card className="section">
+        <h2>For a real hosted pilot</h2>
+        <p>
+          Connect authentication, the Python processing worker, private file storage, revision-aware
+          review, server-side export checks and key storage. Hosting free tiers must support these
+          workloads; sleeping services and OCR memory limits need testing.
+        </p>
+        <p>
+          The repository’s frontend README and device setup guide explain local startup. Public
+          deployment is a separate milestone.
+        </p>
+      </Card>
+    </>
+  );
+}
+export function Access() {
+  return (
+    <div className="access-card">
+      <Heading eyebrow="Welcome to Dockling" title="Your workspace awaits">
+        Explore the customer and owner experiences without entering credentials.
+      </Heading>
+      <Card>
+        <Badge tone="mint">Preview access</Badge>
+        <h2>Open Sample Studio</h2>
+        <p>
+          Use the role selector inside to explore owner tools. It is a design control, not
+          authentication or authorization.
+        </p>
+        <LinkButton to="/app">Open sample workspace</LinkButton>
+        <hr />
+        <h3>Real sign-in / invitation</h3>
+        <p>
+          Invite-only accounts and password recovery need the authentication backend. No email or
+          password is collected in this preview.
+        </p>
+        <Link to="/help">Read the setup requirements →</Link>
+      </Card>
+    </div>
+  );
+}

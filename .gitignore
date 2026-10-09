@@ -29,3 +29,9 @@ htmlcov/
 *.tiff
 !docs/**
 !tests/golden/**
+# Frontend tooling and generated browser test artifacts
+node_modules/
+frontend/.npm-cache/
+frontend/playwright-report/
+frontend/test-results/
+!frontend/public/samples/**

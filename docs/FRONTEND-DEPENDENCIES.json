@@ -1,0 +1,156 @@
+{
+  "source": "npm registry metadata checked 10 October 2026; direct frontend/test tools, not full transitive license clearance",
+  "packages": {
+    "react": {
+      "version": "19.3.0",
+      "license": "MIT",
+      "engines": {
+        "node": ">=0.10.0"
+      }
+    },
+    "react-dom": {
+      "version": "19.3.0",
+      "license": "MIT",
+      "engines": null
+    },
+    "react-router-dom": {
+      "version": "7.18.4",
+      "license": "MIT",
+      "engines": {
+        "node": ">=20.0.0"
+      }
+    },
+    "lucide-react": {
+      "version": "1.54.0",
+      "license": "ISC",
+      "engines": null
+    },
+    "@tanstack/react-query": {
+      "version": "5.104.1",
+      "license": "MIT",
+      "engines": null
+    },
+    "@radix-ui/react-dialog": {
+      "version": "1.2.0",
+      "license": "MIT",
+      "engines": null
+    },
+    "@radix-ui/react-tabs": {
+      "version": "1.1.22",
+      "license": "MIT",
+      "engines": null
+    },
+    "zod": {
+      "version": "4.6.5",
+      "license": "MIT",
+      "engines": null
+    },
+    "tailwindcss": {
+      "version": "4.3.3",
+      "license": "MIT",
+      "engines": null
+    },
+    "@tailwindcss/vite": {
+      "version": "4.3.3",
+      "license": "MIT",
+      "engines": null
+    },
+    "vite": {
+      "version": "8.3.4",
+      "license": "MIT",
+      "engines": {
+        "node": "^20.19.0 || >=22.12.0"
+      }
+    },
+    "typescript": {
+      "version": "6.0.3",
+      "license": "Apache-2.0",
+      "engines": {
+        "node": ">=14.17"
+      }
+    },
+    "@vitejs/plugin-react": {
+      "version": "6.1.2",
+      "license": "MIT",
+      "engines": {
+        "node": "^20.19.0 || >=22.12.0"
+      }
+    },
+    "vitest": {
+      "version": "5.0.3",
+      "license": "MIT",
+      "engines": {
+        "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
+      }
+    },
+    "jsdom": {
+      "version": "30.1.2",
+      "license": "MIT",
+      "engines": {
+        "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+      }
+    },
+    "@playwright/test": {
+      "version": "1.64.0",
+      "license": "Apache-2.0",
+      "engines": {
+        "node": ">=20"
+      }
+    },
+    "@axe-core/playwright": {
+      "version": "4.13.0",
+      "license": "MPL-2.0",
+      "engines": null
+    },
+    "@types/react": {
+      "version": "19.3.0",
+      "license": "MIT",
+      "engines": null
+    },
+    "@types/react-dom": {
+      "version": "19.3.0",
+      "license": "MIT",
+      "engines": null
+    },
+    "@types/node": {
+      "version": "24.19.1",
+      "license": "MIT",
+      "engines": null
+    },
+    "eslint": {
+      "version": "10.12.0",
+      "license": "MIT",
+      "engines": {
+        "node": "^20.19.0 || ^22.13.0 || >=24"
+      }
+    },
+    "typescript-eslint": {
+      "version": "8.71.1",
+      "license": "MIT",
+      "engines": {
+        "node": "^18.18.0 || ^20.9.0 || >=21.1.0"
+      }
+    },
+    "eslint-plugin-react-hooks": {
+      "version": "7.1.1",
+      "license": "MIT",
+      "engines": {
+        "node": ">=18"
+      }
+    },
+    "prettier": {
+      "version": "3.9.9",
+      "license": "MIT",
+      "engines": {
+        "node": ">=14"
+      }
+    }
+  },
+  "build_tool_transitives": {
+    "lightningcss": {
+      "version": "1.32.0",
+      "license": "MPL-2.0",
+      "scope": "Tailwind build tool only; not client runtime or production JavaScript"
+    }
+  }
+}

@@ -2,8 +2,8 @@
 
 ## Current status
 - **Current phase:** Phases 0–10 cloud development complete; Windows/field/provider acceptance pending.
-- **Current task:** refine the web preview with richer, modern colors following owner feedback; functional web application/deployment not started.
-- **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
+- **Current task:** Stage B interactive frontend implemented/tested/reviewed on web-frontend; real API/worker/authentication and deployment remain pending.
+- **Last updated:** 2026-10-09 UTC (10 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
 
 ## Phases
@@ -119,3 +119,12 @@ Planning artifact checks: local links, HTML screen IDs/navigation targets/input 
 Owner endorsed the plan direction and requested a more attractive, current UI while keeping the friendly basic layout and avoiding neon/disco styling. Refreshed the seven-screen design preview with forest-teal actions, mint/peach/dusty-blue/lavender surfaces, stronger typography, outline navigation icons, softer gradients, restrained shadows and clearer cards. Financial tables keep readable neutral surfaces and meaningful status colors. Updated WEB-APP-PLAN's color/design direction; functionality and feature coverage remain as planned. This is still a synthetic planning preview, not the working web application.
 
 Refinement checks: seven-screen navigation targets, unique IDs, labels, absence of remote assets, local links, JavaScript syntax and git whitespace passed. Eight representative text/background color pairs exceed 4.5:1 after darkening the coral label; this is not a full accessibility audit. Browser screenshot capture still times out here, so visual/viewport inspection remains pending. No app processing code or dependency changes, no paid calls and no production deployment.
+
+
+## Stage B frontend — 10 October 2026 (Asia/Dhaka)
+
+Owner authorized an implementation checklist followed by building, testing and review. React/TypeScript/Vite frontend now covers public home/sample/help/pricing/access, customer dashboard/intake/jobs/review/checks/exports/AI/categories/settings and owner profiles/pricing/config/health/metrics. Approved forest-teal, peach, blue and lavender styling is implemented responsively. Exact monetary strings, staged atomic fixture edits, revision/source-check/export gates, consent/model-effort controls and removal/partial-retry flows are interactive in memory. Every original capability is mapped in FRONTEND-COVERAGE.md, including server-dependent controls and retained CLI equivalents.
+
+Fresh `npm ci`, lint/format/strict typing/production build, 36 unit tests and 18 Chromium journeys passed; automated accessibility scans covered 14 routes at 1440 and 375 px plus review tabs/provider dialog. Final mobile-only scroll/edit polish passed both route/accessibility checks again. Four CSV references match manual goldens; production HTTP serving verifies numeric/date Excel cells, OFX amounts, matching synthetic PDF and ZIP contents. Python full gate: 314 passed, none skipped, 13 upstream warnings; no processing logic changed. npm audit: zero known vulnerabilities at this run. Actual screenshots, direct/build/test dependency terms and setup instructions are recorded. Windows launcher and GitHub CI execution remain unobserved; no public staging deployment.
+
+This is Stage B, not a real hosted conversion service. No actual upload/OCR, authentication, private storage, key storage, provider request or payment occurs. Fixed reference downloads are not exports of user files or edits. Stage C connects API/worker/source viewer/shared review/live exports; Stage D adds secure accounts/isolation/BYOK/outbound policies/quotas; Stage E tests chosen hosting. Main remains unmerged. Frontend branch includes the completed Python work; fresh devices follow frontend/README.md for UI and DEVICE_SETUP.md for optional Python setup.

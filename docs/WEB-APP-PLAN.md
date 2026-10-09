@@ -1,5 +1,8 @@
 # Dockling web app — proposal for owner review
 
+Implementation status, 10 October 2026 (Asia/Dhaka): the owner authorized frontend implementation, testing and review. Stage B is implemented under `frontend/` with the approved visual direction. See [FRONTEND-IMPLEMENTATION.md](FRONTEND-IMPLEMENTATION.md), [FRONTEND-COVERAGE.md](FRONTEND-COVERAGE.md) and [frontend setup](../frontend/README.md). The sections below retain the complete target architecture; backend/worker/authentication/deployment requirements remain Stages C–E, rather than completed frontend behavior. The original HTML wireframe is still a planning artifact.
+
+
 **Status:** owner endorsed the plan direction and requested a richer, modern color treatment; visual prototype refinement in progress. Functional application/deployment work has not started. Prepared 9 October 2026 (Asia/Dhaka). Audited source baseline: `a9bf6d36f83c4ddec2c2062465e6ff42512cc954`, branch `development-phases-2-10`. The accompanying [visual wireframe](WEB-APP-WIREFRAME.html) is an offline, synthetic design illustration, not a functioning converter or a deployed app. Open the HTML file directly in a browser to review its seven screen sketches. Links, screen targets, labels and JavaScript syntax were checked; headless capture timed out here, so browser/viewport visual validation is pending.
 
 ## 1. What this product becomes

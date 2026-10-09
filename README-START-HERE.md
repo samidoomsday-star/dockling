@@ -2,8 +2,10 @@
 
 Dockling now includes the cloud-developed phases 1–10: local order intake, text/OCR extraction, financial checks, Excel review, CSV/Excel/OFX exports, merging/categories, delivery/cleanup, and optional custom OpenAI-compatible BYOK models with supported effort choices up to Max.
 
-The complete development version is on **`development-phases-2-10`**. `main` remains the original starter; no merge has been performed. Think of this branch as your saved IDE project. GitHub carries source and setup instructions, while Python, dependencies, local OCR models, job data and API keys are installed/kept separately on each device.
+The frontend plus completed Python version is on **`web-frontend`**. The Python-only milestone remains on **`development-phases-2-10`**. `main` remains the original starter; no merge has been performed. Think of this branch as your saved IDE project. GitHub carries source and setup instructions, while Python, dependencies, local OCR models, job data and API keys are installed/kept separately on each device.
 
+- [New interactive frontend: setup and guided testing](frontend/README.md)
+- [Frontend feature coverage and pending integrations](docs/FRONTEND-COVERAGE.md)
 - [Beginner operator guide and first fake delivery](docs/OPERATOR_GUIDE.md)
 - [Clone, installation and update commands](docs/ENVIRONMENT.md)
 - [Ask an assistant to set up your cloned device](docs/DEVICE_SETUP.md)
@@ -11,7 +13,7 @@ The complete development version is on **`development-phases-2-10`**. `main` rem
 - [Phase evidence and remaining device checks](docs/PROGRESS.md)
 - [Synthetic cloud acceptance](docs/PHASE10-SYNTHETIC-ACCEPTANCE.json)
 - [Original specification](docs/SPEC.md)
-- [Proposed customer web-app plan — awaiting review](docs/WEB-APP-PLAN.md)
+- [Approved customer web-app direction and remaining backend stages](docs/WEB-APP-PLAN.md)
 - [Offline visual wireframe — open the HTML file in a browser](docs/WEB-APP-WIREFRAME.html)
 
 For cloud development: `bash scripts/install-linux.sh`, `.venv/bin/python -m stmtconv models download`, `.venv/bin/python -m stmtconv doctor`, `.venv/bin/python scripts/check.py`, then `.venv/bin/python -m stmtconv selftest`.

@@ -1,3 +1,10 @@
 # Preserve exact accounting-import fixture bytes, including CRLF and BOM.
 tests/golden/*.csv -text whitespace=cr-at-eol
 tests/golden/*.ofx -text whitespace=cr-at-eol
+# Keep generated frontend reference downloads byte-identical on every device.
+frontend/public/samples/*.csv -text whitespace=cr-at-eol
+frontend/public/samples/*.ofx -text whitespace=cr-at-eol
+frontend/public/samples/*.pdf binary
+frontend/public/samples/*.xlsx binary
+frontend/public/samples/*.zip binary
+run-web.bat text eol=crlf
