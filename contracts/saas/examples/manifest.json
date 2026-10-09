@@ -1,0 +1,30 @@
+[
+  {
+    "file": "job-create.json",
+    "schema": "JobOptions"
+  },
+  {
+    "file": "job.json",
+    "schema": "Job"
+  },
+  {
+    "file": "rows.json",
+    "schema": "RowList"
+  },
+  {
+    "file": "review.json",
+    "schema": "ReviewCommand"
+  },
+  {
+    "file": "revision-error.json",
+    "schema": "Error"
+  },
+  {
+    "file": "connection.json",
+    "schema": "Connection"
+  },
+  {
+    "file": "operation.json",
+    "schema": "Operation"
+  }
+]

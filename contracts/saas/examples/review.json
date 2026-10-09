@@ -1,0 +1,15 @@
+{
+  "expected_revision": 3,
+  "edits": [
+    {
+      "row_id": "row-1",
+      "statement_id": "s0001",
+      "action": "fix",
+      "changes": {
+        "description": "Fictional corrected shop",
+        "balance": null
+      },
+      "note": "Synthetic source correction"
+    }
+  ]
+}

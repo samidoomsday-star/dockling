@@ -1,6 +1,6 @@
 # SaaS Phase 0 — decisions and implementation contracts
 
-**Status:** starting-phase checklist prepared after the owner's instruction to start one phase at a time. The SaaS architecture direction is accepted for development; Phase 0 deliverables below are not yet implemented. Original Python phases 0–10 and frontend Stage B remain completed milestones.
+**Status:** technical Phase 0 deliverables implemented on `saas-phase-0`. Product/vendor decisions remain explicitly pending where the owner has not answered. Benchmark evidence retains a multi-page OCR description mismatch; this phase establishes the design/capacity findings, not production readiness. Original Python phases 0–10 and frontend Stage B remain completed milestones.
 
 ## Outcome in plain language
 
@@ -47,14 +47,14 @@ Do not publish provisional retention, subscription prices, compliance claims or 
 
 ## Checklist
 
-- [ ] 0.1 Decision register complete, with pending business choices labelled.
-- [ ] 0.2 All 33 existing capabilities and new SaaS controls mapped.
-- [ ] 0.3 Data, revision and queue/state contracts specified.
-- [ ] 0.4 API contract/examples validated and frontend migration identified.
-- [ ] 0.5 Threat model and complete deletion/backup inventory reviewed.
-- [ ] 0.6 Synthetic benchmark run and capacity/hosting assessment recorded.
-- [ ] 0.7 Phase 1 implementation task and acceptance fixtures specified.
-- [ ] Progress/decisions updated; reviewable milestone committed and pushed.
+- [x] 0.1 [Decision register](../saas/DECISIONS.md) complete, with pending business choices labelled and US/Europe preference recorded.
+- [x] 0.2 [Feature/permission matrix](../saas/FEATURE-MATRIX.md) maps all 33 capabilities and new SaaS controls.
+- [x] 0.3 [Data/jobs contract](../saas/DATA-AND-JOBS.md) specifies tenancy, revisions, queue/fencing and local/hosted boundaries.
+- [x] 0.4 [API contract](../../contracts/saas/README.md) validates 89 planned operations, 89 schemas and seven synthetic examples; migration documented.
+- [x] 0.5 [Threat/privacy model](../saas/SECURITY-AND-PRIVACY.md) and live/backup data inventory reviewed against current services.
+- [x] 0.6 [Capacity/hosting assessment](../saas/CAPACITY-AND-HOSTING.md) records seven cases/two runs each and a focused OCR failure diagnosis; exact-source failure preserved.
+- [x] 0.7 [Phase 1 task](saas-phase-1.md) and two-workspace acceptance fixture specified.
+- [x] Progress/decisions updated; milestone packaged for GitHub on `saas-phase-0`.
 
 ## Completion and Phase 1 entry gate
 
@@ -67,3 +67,11 @@ Phase 1's first working result will be a real API with two synthetic workspaces,
 Reviewed the existing frontend API/types, order model/store, extraction/review/intake/AI/deletion dependencies, overall SaaS roadmap, feature ledger and historical acceptance helpers. This milestone prepares the starting-phase task; it does not mark its contracts, benchmark or backend as implemented. No application code, models, vendor account or hosted environment changes are required to review this checklist.
 
 Planning validation: all relative Markdown links in changed user-facing documents resolve, tasks 0.1–0.7 are present, and `git diff --check` passes. Application tests were not rerun for this documentation-only milestone.
+
+## Phase 0 implementation evidence
+
+The paragraph above records the earlier checklist-only milestone. The current milestone implements tasks 0.1–0.7 as documents, validated contracts and reproducible measurement tools. API schema checks verify official OpenAPI structure, local references, exact-money/no-key/revision boundaries, examples and unchanged 33-row inventory. They do not run HTTP routes or prove auth/tenant controls. Lint/format checks cover the new Python tools.
+
+The full capacity probe ran 14 conversions across seven cases. Six cases matched all expected rows in both runs. The two-page scan found 12 rows with 10 exact descriptions in both runs; a targeted repeat confirmed two description differences with all dates/amounts/balances exact. Its report remains failed, and source warnings remain present. Phase 2/3 must address the review workflow/regression case; Phase 0's diagnostic task is complete. No core/UI application change, real provider inference, customer document or deployment occurred.
+
+Validation also passed from an export of the staged Git source using the existing cloud Python environment. The official schema/license are tracked despite the broad historical `vendor/` ignore rule. This verifies fresh-source completeness, not a new Windows/ARM dependency installation. Source whitespace, new-tool lint/format and relative-document links pass; the unchanged full Python/frontend suites were not rerun for this contract/measurement milestone.

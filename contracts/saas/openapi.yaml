@@ -1,0 +1,5937 @@
+openapi: 3.1.0
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+info:
+  title: Dockling hosted API contract
+  version: 0.1.0
+  description: Phase 0 implementation contract. Phase 1 foundation schemas are the
+    initial baseline; later-phase schemas are planned and subject to domain contract
+    review. No route is implemented by this document. All private routes enforce membership/grants
+    and never substitute demo results.
+servers:
+- url: /api/v1
+security:
+- SessionCookie: []
+paths:
+  /session:
+    get:
+      operationId: get_session
+      summary: GET /session
+      x-phase: 1
+      x-feature-ids:
+      - N01
+      x-access-roles:
+      - member
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /session/logout:
+    post:
+      operationId: post_session_logout
+      summary: POST /session/logout
+      x-phase: 1
+      x-feature-ids:
+      - N01
+      x-access-roles:
+      - member
+      x-workspace-scoped: false
+      responses:
+        '204':
+          description: Completed
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+  /workspaces:
+    get:
+      operationId: get_workspaces
+      summary: GET /workspaces
+      x-phase: 1
+      x-feature-ids:
+      - N02
+      x-access-roles:
+      - member
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+  /session/workspace:
+    post:
+      operationId: post_session_workspace
+      summary: POST /session/workspace
+      x-phase: 1
+      x-feature-ids:
+      - N02
+      x-access-roles:
+      - member
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceSelect'
+  /members:
+    get:
+      operationId: get_members
+      summary: GET /members
+      x-phase: 1
+      x-feature-ids:
+      - N03
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+  /members/{member}:
+    patch:
+      operationId: patch_members_member
+      summary: PATCH /members/{member}
+      x-phase: 1
+      x-feature-ids:
+      - N03
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathMember'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberCommand'
+  /invitations:
+    post:
+      operationId: post_invitations
+      summary: POST /invitations
+      x-phase: 1
+      x-feature-ids:
+      - N03
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '201':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invitation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvitationCreate'
+  /invitations/{invitation}:
+    delete:
+      operationId: delete_invitations_invitation
+      summary: DELETE /invitations/{invitation}
+      x-phase: 1
+      x-feature-ids:
+      - N03
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '204':
+          description: Completed
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathInvitation'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+  /invitations/accept:
+    post:
+      operationId: post_invitations_accept
+      summary: POST /invitations/accept
+      x-phase: 1
+      x-feature-ids:
+      - N03
+      x-access-roles:
+      - member
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvitationAccept'
+  /jobs:
+    get:
+      operationId: get_jobs
+      summary: GET /jobs
+      x-phase: 1
+      x-feature-ids:
+      - F02
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+    post:
+      operationId: post_jobs
+      summary: POST /jobs
+      x-phase: 1
+      x-feature-ids:
+      - F01
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '201':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobOptions'
+  /jobs/{job}:
+    get:
+      operationId: get_jobs_job
+      summary: GET /jobs/{job}
+      x-phase: 1
+      x-feature-ids:
+      - F02
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      - support_read
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+    patch:
+      operationId: patch_jobs_job
+      summary: PATCH /jobs/{job}
+      x-phase: 2
+      x-feature-ids:
+      - F01
+      - F09
+      - F26
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobUpdate'
+  /jobs/{job}/activity:
+    get:
+      operationId: get_jobs_job_activity
+      summary: GET /jobs/{job}/activity
+      x-phase: 1
+      x-feature-ids:
+      - F02
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      - support_read
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+  /jobs/{job}/files:
+    get:
+      operationId: get_jobs_job_files
+      summary: GET /jobs/{job}/files
+      x-phase: 2
+      x-feature-ids:
+      - F03
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+    post:
+      operationId: post_jobs_job_files
+      summary: POST /jobs/{job}/files
+      x-phase: 2
+      x-feature-ids:
+      - F03
+      - F20
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Upload'
+  /jobs/{job}/intake:
+    post:
+      operationId: post_jobs_job_intake
+      summary: POST /jobs/{job}/intake
+      x-phase: 2
+      x-feature-ids:
+      - F03
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionCommand'
+  /jobs/{job}/files/{file}/unlock:
+    post:
+      operationId: post_jobs_job_files_file_unlock
+      summary: POST /jobs/{job}/files/{file}/unlock
+      x-phase: 2
+      x-feature-ids:
+      - F04
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/PathFile'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordCommand'
+  /jobs/{job}/files/{file}/pages/{page}:
+    get:
+      operationId: get_jobs_job_files_file_pages_page
+      summary: GET /jobs/{job}/files/{file}/pages/{page}
+      x-phase: 2
+      x-feature-ids:
+      - F09
+      - F13
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      - support_read
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: private, no-store
+              description: Private source/output must never be publicly cached.
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/PathFile'
+      - $ref: '#/components/parameters/PathPage'
+  /jobs/{job}/files/{file}/download:
+    get:
+      operationId: get_jobs_job_files_file_download
+      summary: GET /jobs/{job}/files/{file}/download
+      x-phase: 2
+      x-feature-ids:
+      - F03
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      - support_read
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: private, no-store
+              description: Private source/output must never be publicly cached.
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/PathFile'
+  /jobs/{job}/file-order:
+    put:
+      operationId: put_jobs_job_file_order
+      summary: PUT /jobs/{job}/file-order
+      x-phase: 2
+      x-feature-ids:
+      - F05
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileOrder'
+  /jobs/{job}/combine:
+    post:
+      operationId: post_jobs_job_combine
+      summary: POST /jobs/{job}/combine
+      x-phase: 2
+      x-feature-ids:
+      - F05
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionCommand'
+  /jobs/{job}/quote:
+    get:
+      operationId: get_jobs_job_quote
+      summary: GET /jobs/{job}/quote
+      x-phase: 2
+      x-feature-ids:
+      - F07
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+  /jobs/{job}/operations:
+    post:
+      operationId: post_jobs_job_operations
+      summary: POST /jobs/{job}/operations
+      x-phase: 2
+      x-feature-ids:
+      - F08
+      - F10
+      - F16
+      - F19
+      - F28
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OperationCreate'
+  /jobs/{job}/operations/{operation}:
+    get:
+      operationId: get_jobs_job_operations_operation
+      summary: GET /jobs/{job}/operations/{operation}
+      x-phase: 2
+      x-feature-ids:
+      - F08
+      - F19
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/PathOperation'
+  /jobs/{job}/operations/{operation}/cancel:
+    post:
+      operationId: post_jobs_job_operations_operation_cancel
+      summary: POST /jobs/{job}/operations/{operation}/cancel
+      x-phase: 2
+      x-feature-ids:
+      - F19
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/PathOperation'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionCommand'
+  /jobs/{job}/diagnostics:
+    get:
+      operationId: get_jobs_job_diagnostics
+      summary: GET /jobs/{job}/diagnostics
+      x-phase: 2
+      x-feature-ids:
+      - F09
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      - support_read
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+  /jobs/{job}/checks:
+    get:
+      operationId: get_jobs_job_checks
+      summary: GET /jobs/{job}/checks
+      x-phase: 3
+      x-feature-ids:
+      - F10
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      - support_read
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checks'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+  /jobs/{job}/rows:
+    get:
+      operationId: get_jobs_job_rows
+      summary: GET /jobs/{job}/rows
+      x-phase: 3
+      x-feature-ids:
+      - F11
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      - support_read
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RowList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+  /jobs/{job}/review:
+    post:
+      operationId: post_jobs_job_review
+      summary: POST /jobs/{job}/review
+      x-phase: 3
+      x-feature-ids:
+      - F11
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCommand'
+  /jobs/{job}/review-workbooks:
+    post:
+      operationId: post_jobs_job_review_workbooks
+      summary: POST /jobs/{job}/review-workbooks
+      x-phase: 3
+      x-feature-ids:
+      - F11
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionCommand'
+  /jobs/{job}/review-workbooks/apply:
+    post:
+      operationId: post_jobs_job_review_workbooks_apply
+      summary: POST /jobs/{job}/review-workbooks/apply
+      x-phase: 3
+      x-feature-ids:
+      - F11
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WorkbookApply'
+  /jobs/{job}/spotcheck:
+    get:
+      operationId: get_jobs_job_spotcheck
+      summary: GET /jobs/{job}/spotcheck
+      x-phase: 3
+      x-feature-ids:
+      - F12
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceCheck'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+    post:
+      operationId: post_jobs_job_spotcheck
+      summary: POST /jobs/{job}/spotcheck
+      x-phase: 3
+      x-feature-ids:
+      - F12
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceAttestation'
+  /jobs/{job}/ai-source:
+    get:
+      operationId: get_jobs_job_ai_source
+      summary: GET /jobs/{job}/ai-source
+      x-phase: 3
+      x-feature-ids:
+      - F13
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceCheck'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+    post:
+      operationId: post_jobs_job_ai_source
+      summary: POST /jobs/{job}/ai-source
+      x-phase: 3
+      x-feature-ids:
+      - F13
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceAttestation'
+  /jobs/{job}/exports:
+    post:
+      operationId: post_jobs_job_exports
+      summary: POST /jobs/{job}/exports
+      x-phase: 3
+      x-feature-ids:
+      - F14
+      - F15
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionCommand'
+    get:
+      operationId: get_jobs_job_exports
+      summary: GET /jobs/{job}/exports
+      x-phase: 3
+      x-feature-ids:
+      - F14
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      - support_read
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+  /jobs/{job}/exports/{artifact}/download:
+    get:
+      operationId: get_jobs_job_exports_artifact_download
+      summary: GET /jobs/{job}/exports/{artifact}/download
+      x-phase: 3
+      x-feature-ids:
+      - F14
+      - F15
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      - support_read
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: private, no-store
+              description: Private source/output must never be publicly cached.
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/PathArtifact'
+  /jobs/{job}/account-identity:
+    put:
+      operationId: put_jobs_job_account_identity
+      summary: PUT /jobs/{job}/account-identity
+      x-phase: 3
+      x-feature-ids:
+      - F15
+      - F16
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityCommand'
+  /jobs/{job}/merge-preview:
+    post:
+      operationId: post_jobs_job_merge_preview
+      summary: POST /jobs/{job}/merge-preview
+      x-phase: 3
+      x-feature-ids:
+      - F16
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergePreview'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionCommand'
+  /rules:
+    get:
+      operationId: get_rules
+      summary: GET /rules
+      x-phase: 3
+      x-feature-ids:
+      - F17
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleSet'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+    put:
+      operationId: put_rules
+      summary: PUT /rules
+      x-phase: 3
+      x-feature-ids:
+      - F17
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleSet'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleCommand'
+  /rules/preview:
+    post:
+      operationId: post_rules_preview
+      summary: POST /rules/preview
+      x-phase: 3
+      x-feature-ids:
+      - F17
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleMatch'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RulePreview'
+  /jobs/{job}/category-overrides:
+    put:
+      operationId: put_jobs_job_category_overrides
+      summary: PUT /jobs/{job}/category-overrides
+      x-phase: 3
+      x-feature-ids:
+      - F17
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryOverrides'
+  /jobs/{job}/delivery:
+    post:
+      operationId: post_jobs_job_delivery
+      summary: POST /jobs/{job}/delivery
+      x-phase: 3
+      x-feature-ids:
+      - F18
+      x-access-roles:
+      - owner
+      - editor
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionCommand'
+  /jobs/{job}/delivery/download:
+    get:
+      operationId: get_jobs_job_delivery_download
+      summary: GET /jobs/{job}/delivery/download
+      x-phase: 3
+      x-feature-ids:
+      - F18
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      - support_read
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: private, no-store
+              description: Private source/output must never be publicly cached.
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+  /jobs/{job}/data:
+    get:
+      operationId: get_jobs_job_data
+      summary: GET /jobs/{job}/data
+      x-phase: 3
+      x-feature-ids:
+      - F21
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataPolicy'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+  /jobs/{job}/close:
+    post:
+      operationId: post_jobs_job_close
+      summary: POST /jobs/{job}/close
+      x-phase: 3
+      x-feature-ids:
+      - F21
+      - F22
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseCommand'
+  /jobs/{job}/deletion-certificate:
+    get:
+      operationId: get_jobs_job_deletion_certificate
+      summary: GET /jobs/{job}/deletion-certificate
+      x-phase: 3
+      x-feature-ids:
+      - F21
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+  /usage:
+    get:
+      operationId: get_usage
+      summary: GET /usage
+      x-phase: 5
+      x-feature-ids:
+      - F23
+      - N05
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usage'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /connections:
+    get:
+      operationId: get_connections
+      summary: GET /connections
+      x-phase: 4
+      x-feature-ids:
+      - F24
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+    post:
+      operationId: post_connections
+      summary: POST /connections
+      x-phase: 4
+      x-feature-ids:
+      - F24
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '201':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectionCommand'
+  /connections/{connection}:
+    put:
+      operationId: put_connections_connection
+      summary: PUT /connections/{connection}
+      x-phase: 4
+      x-feature-ids:
+      - F24
+      - F26
+      - F27
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathConnection'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectionUpdate'
+    delete:
+      operationId: delete_connections_connection
+      summary: DELETE /connections/{connection}
+      x-phase: 4
+      x-feature-ids:
+      - F24
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '204':
+          description: Completed
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathConnection'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VersionCommand'
+  /connections/{connection}/credential:
+    put:
+      operationId: put_connections_connection_credential
+      summary: PUT /connections/{connection}/credential
+      x-phase: 4
+      x-feature-ids:
+      - F24
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '204':
+          description: Completed
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathConnection'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialCommand'
+    delete:
+      operationId: delete_connections_connection_credential
+      summary: DELETE /connections/{connection}/credential
+      x-phase: 4
+      x-feature-ids:
+      - F24
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '204':
+          description: Completed
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathConnection'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VersionCommand'
+  /connections/{connection}/models/discover:
+    post:
+      operationId: post_connections_connection_models_discover
+      summary: POST /connections/{connection}/models/discover
+      x-phase: 4
+      x-feature-ids:
+      - F25
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetadataResult'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathConnection'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VersionCommand'
+  /connections/{connection}/metadata-test:
+    post:
+      operationId: post_connections_connection_metadata_test
+      summary: POST /connections/{connection}/metadata-test
+      x-phase: 4
+      x-feature-ids:
+      - F25
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetadataResult'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathConnection'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VersionCommand'
+  /jobs/{job}/consent:
+    get:
+      operationId: get_jobs_job_consent
+      summary: GET /jobs/{job}/consent
+      x-phase: 4
+      x-feature-ids:
+      - F28
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consent'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+    post:
+      operationId: post_jobs_job_consent
+      summary: POST /jobs/{job}/consent
+      x-phase: 4
+      x-feature-ids:
+      - F28
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consent'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentCommand'
+  /settings:
+    get:
+      operationId: get_settings
+      summary: GET /settings
+      x-phase: 1
+      x-feature-ids:
+      - F32
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+    put:
+      operationId: put_settings
+      summary: PUT /settings
+      x-phase: 4
+      x-feature-ids:
+      - F32
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingsCommand'
+  /support-grants:
+    get:
+      operationId: get_support_grants
+      summary: GET /support-grants
+      x-phase: 4
+      x-feature-ids:
+      - N04
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportGrantList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+    post:
+      operationId: post_support_grants
+      summary: POST /support-grants
+      x-phase: 4
+      x-feature-ids:
+      - N04
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '201':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportGrant'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportGrantCreate'
+  /support-grants/{grant}:
+    delete:
+      operationId: delete_support_grants_grant
+      summary: DELETE /support-grants/{grant}
+      x-phase: 4
+      x-feature-ids:
+      - N04
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '204':
+          description: Completed
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathGrant'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VersionCommand'
+  /admin/support-grants/{grant}:
+    get:
+      operationId: get_admin_support_grants_grant
+      summary: GET /admin/support-grants/{grant}
+      x-phase: 4
+      x-feature-ids:
+      - N04
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportGrant'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathGrant'
+  /admin/jobs:
+    get:
+      operationId: get_admin_jobs
+      summary: GET /admin/jobs
+      x-phase: 4
+      x-feature-ids:
+      - F02
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminJobList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/QueryLimit'
+      - $ref: '#/components/parameters/QueryCursor'
+  /admin/jobs/{job}/operator-metadata:
+    patch:
+      operationId: patch_admin_jobs_job_operator_metadata
+      summary: PATCH /admin/jobs/{job}/operator-metadata
+      x-phase: 4
+      x-feature-ids:
+      - F01
+      x-access-roles:
+      - platform_admin_action_grant
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminMetadata'
+  /admin/jobs/{job}/limit-override:
+    post:
+      operationId: post_admin_jobs_job_limit_override
+      summary: POST /admin/jobs/{job}/limit-override
+      x-phase: 4
+      x-feature-ids:
+      - F06
+      x-access-roles:
+      - platform_admin_action_grant
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminOverride'
+  /admin/jobs/{job}/export-exception:
+    post:
+      operationId: post_admin_jobs_job_export_exception
+      summary: POST /admin/jobs/{job}/export-exception
+      x-phase: 4
+      x-feature-ids:
+      - F14
+      - F18
+      x-access-roles:
+      - platform_admin_action_grant
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminExportException'
+  /admin/jobs/{job}/profile-scaffolds:
+    post:
+      operationId: post_admin_jobs_job_profile_scaffolds
+      summary: POST /admin/jobs/{job}/profile-scaffolds
+      x-phase: 4
+      x-feature-ids:
+      - F29
+      x-access-roles:
+      - platform_admin_action_grant
+      x-workspace-scoped: true
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScaffoldCommand'
+  /admin/pricing:
+    get:
+      operationId: get_admin_pricing
+      summary: GET /admin/pricing
+      x-phase: 4
+      x-feature-ids:
+      - F07
+      - F32
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YamlVersion'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+    put:
+      operationId: put_admin_pricing
+      summary: PUT /admin/pricing
+      x-phase: 4
+      x-feature-ids:
+      - F07
+      - F32
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YamlVersion'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YamlCommand'
+  /admin/profiles/{profile}:
+    get:
+      operationId: get_admin_profiles_profile
+      summary: GET /admin/profiles/{profile}
+      x-phase: 4
+      x-feature-ids:
+      - F29
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YamlVersion'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathProfile'
+    put:
+      operationId: put_admin_profiles_profile
+      summary: PUT /admin/profiles/{profile}
+      x-phase: 4
+      x-feature-ids:
+      - F29
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YamlVersion'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathProfile'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YamlCommand'
+  /admin/profiles/{profile}/tests:
+    post:
+      operationId: post_admin_profiles_profile_tests
+      summary: POST /admin/profiles/{profile}/tests
+      x-phase: 4
+      x-feature-ids:
+      - F29
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemOperation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathProfile'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+  /admin/config/{section}:
+    get:
+      operationId: get_admin_config_section
+      summary: GET /admin/config/{section}
+      x-phase: 4
+      x-feature-ids:
+      - F32
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YamlVersion'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathSection'
+    put:
+      operationId: put_admin_config_section
+      summary: PUT /admin/config/{section}
+      x-phase: 4
+      x-feature-ids:
+      - F32
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YamlVersion'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathSection'
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YamlCommand'
+  /admin/health:
+    get:
+      operationId: get_admin_health
+      summary: GET /admin/health
+      x-phase: 1
+      x-feature-ids:
+      - F30
+      - N09
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /admin/metrics:
+    get:
+      operationId: get_admin_metrics
+      summary: GET /admin/metrics
+      x-phase: 4
+      x-feature-ids:
+      - F23
+      - N09
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /admin/model-maintenance:
+    post:
+      operationId: post_admin_model_maintenance
+      summary: POST /admin/model-maintenance
+      x-phase: 4
+      x-feature-ids:
+      - F30
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemOperation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelMaintenance'
+  /admin/selftests:
+    post:
+      operationId: post_admin_selftests
+      summary: POST /admin/selftests
+      x-phase: 4
+      x-feature-ids:
+      - F31
+      x-access-roles:
+      - platform_admin
+      x-workspace-scoped: false
+      responses:
+        '202':
+          description: Accepted queued operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemOperation'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+  /version:
+    get:
+      operationId: get_version
+      summary: GET /version
+      x-phase: 1
+      x-feature-ids:
+      - F33
+      x-access-roles:
+      - public
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      security: []
+  /billing:
+    get:
+      operationId: get_billing
+      summary: GET /billing
+      x-phase: 5
+      x-feature-ids:
+      - N05
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Billing'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /billing/checkout:
+    post:
+      operationId: post_billing_checkout
+      summary: POST /billing/checkout
+      x-phase: 5
+      x-feature-ids:
+      - N05
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedRedirect'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutCommand'
+  /billing/portal:
+    post:
+      operationId: post_billing_portal
+      summary: POST /billing/portal
+      x-phase: 5
+      x-feature-ids:
+      - N05
+      x-access-roles:
+      - owner
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedRedirect'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+  /privacy/requests:
+    post:
+      operationId: post_privacy_requests
+      summary: POST /privacy/requests
+      x-phase: 5
+      x-feature-ids:
+      - N07
+      x-access-roles:
+      - member
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyRequestResult'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivacyRequest'
+  /webhooks/payments/{provider}:
+    post:
+      operationId: post_webhooks_payments_provider
+      summary: POST /webhooks/payments/{provider}
+      x-phase: 5
+      x-feature-ids:
+      - N06
+      x-access-roles:
+      - payment_provider
+      x-workspace-scoped: false
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Acknowledged'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathProvider'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Webhook'
+      security:
+      - PaymentSignature: []
+components:
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: dockling_session
+      description: Opaque server session; Secure, HttpOnly, SameSite. Not an OIDC
+        access token or browser role.
+    PaymentSignature:
+      type: apiKey
+      in: header
+      name: Payment-Signature
+      description: Placeholder for the selected provider signature scheme; validate
+        raw provider bytes, timestamp and replay policy before processing.
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 80
+        message:
+          type: string
+          maxLength: 250
+        request_id: &id001
+          type: string
+          format: uuid
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+                maxLength: 120
+              code:
+                type: string
+                maxLength: 80
+            required:
+            - path
+            - code
+            additionalProperties: false
+          maxItems: 50
+      required:
+      - code
+      - message
+      - request_id
+      additionalProperties: false
+    Session:
+      type: object
+      properties:
+        user_id: *id001
+        workspace_id:
+          anyOf:
+          - *id001
+          - type: 'null'
+        role:
+          anyOf:
+          - &id002
+            type: string
+            enum:
+            - owner
+            - editor
+            - viewer
+          - type: 'null'
+        platform_admin: &id003
+          type: boolean
+        csrf_token:
+          type: string
+          maxLength: 150
+        expires_at: &id005
+          type: string
+          format: date-time
+      required:
+      - user_id
+      - workspace_id
+      - role
+      - platform_admin
+      - csrf_token
+      - expires_at
+      additionalProperties: false
+    Workspace:
+      type: object
+      properties:
+        id: *id001
+        name:
+          type: string
+          maxLength: 80
+        role: *id002
+      required:
+      - id
+      - name
+      - role
+      additionalProperties: false
+    WorkspaceList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workspace'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    WorkspaceSelect:
+      type: object
+      properties:
+        workspace_id: *id001
+      required:
+      - workspace_id
+      additionalProperties: false
+    Member:
+      type: object
+      properties:
+        id: *id001
+        display_name:
+          type: string
+          maxLength: 80
+        role: *id002
+        active: *id003
+        version: &id004
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+      required:
+      - id
+      - display_name
+      - role
+      - active
+      - version
+      additionalProperties: false
+    MemberList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    MemberCommand:
+      type: object
+      properties:
+        expected_version: *id004
+        role: *id002
+        active: *id003
+      required:
+      - expected_version
+      additionalProperties: false
+      minProperties: 2
+    Invitation:
+      type: object
+      properties:
+        id: *id001
+        role: *id002
+        expires_at: *id005
+        status:
+          type: string
+          enum:
+          - pending
+          - accepted
+          - revoked
+          - expired
+      required:
+      - id
+      - role
+      - expires_at
+      - status
+      additionalProperties: false
+    InvitationCreate:
+      type: object
+      properties:
+        email:
+          type: string
+          maxLength: 254
+          format: email
+        role:
+          type: string
+          enum:
+          - editor
+          - viewer
+      required:
+      - email
+      - role
+      additionalProperties: false
+    InvitationAccept:
+      type: object
+      properties:
+        token:
+          type: string
+          maxLength: 512
+          writeOnly: true
+      required:
+      - token
+      additionalProperties: false
+    JobOptions:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+        currency:
+          type: string
+          maxLength: 3
+          pattern: ^[A-Z]{3}$
+        date_order:
+          type: string
+          enum:
+          - auto
+          - DMY
+          - MDY
+          - YMD
+        output_date_format:
+          type: string
+          enum:
+          - ISO
+          - MM/DD/YYYY
+          - DD/MM/YYYY
+        outputs:
+          type: array
+          items: &id013
+            type: string
+            enum:
+            - excel
+            - csv
+            - qb_csv3
+            - qb_csv4
+            - xero_csv
+            - ofx
+          maxItems: 6
+        merge: *id003
+        categorize: *id003
+        combine: *id003
+        engine:
+          type: string
+          enum:
+          - auto
+          - text
+          - docling
+        profile_id:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+        pages:
+          anyOf:
+          - type: string
+            maxLength: 250
+          - type: 'null'
+        ai_selection:
+          anyOf:
+          - $ref: '#/components/schemas/AiSelection'
+          - type: 'null'
+      required:
+      - name
+      - currency
+      - date_order
+      - outputs
+      additionalProperties: false
+    JobUpdate:
+      type: object
+      properties:
+        expected_revision: *id004
+        options:
+          $ref: '#/components/schemas/JobOptions'
+      required:
+      - expected_revision
+      - options
+      additionalProperties: false
+    JobSummary:
+      type: object
+      properties:
+        id: *id001
+        name: &id006
+          type: string
+          maxLength: 120
+        status: &id007
+          type: string
+          enum:
+          - created
+          - intake_done
+          - extracted
+          - needs_review
+          - reviewed
+          - exported
+          - delivered
+          - closed
+          - failed
+        revision: *id004
+        currency: &id008
+          type: string
+          maxLength: 3
+          pattern: ^[A-Z]{3}$
+        created_at: *id005
+        deletion_state: &id009
+          type: string
+          enum:
+          - active
+          - pending
+          - partial
+          - removed
+      required:
+      - id
+      - name
+      - status
+      - revision
+      - currency
+      - created_at
+      - deletion_state
+      additionalProperties: false
+    JobList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobSummary'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    Job:
+      type: object
+      properties:
+        id: *id001
+        name: *id006
+        status: *id007
+        revision: *id004
+        currency: *id008
+        created_at: *id005
+        deletion_state: *id009
+        options:
+          $ref: '#/components/schemas/JobOptions'
+        content_digest:
+          anyOf:
+          - &id010
+            type: string
+            pattern: ^[0-9a-f]{64}$
+          - type: 'null'
+        export_revision:
+          anyOf:
+          - *id004
+          - type: 'null'
+        source_checked: *id003
+        ai_source_checked: *id003
+      required:
+      - id
+      - name
+      - status
+      - revision
+      - currency
+      - created_at
+      - deletion_state
+      - options
+      - content_digest
+      - export_revision
+      - source_checked
+      - ai_source_checked
+      additionalProperties: false
+    Event:
+      type: object
+      properties:
+        id: *id001
+        at: *id005
+        action:
+          type: string
+          maxLength: 80
+        actor_id:
+          anyOf:
+          - *id001
+          - type: 'null'
+        revision:
+          anyOf:
+          - *id004
+          - type: 'null'
+        code:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+      required:
+      - id
+      - at
+      - action
+      - actor_id
+      - revision
+      - code
+      additionalProperties: false
+    EventList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    File:
+      type: object
+      properties:
+        id: *id001
+        display_name:
+          type: string
+          maxLength: 180
+        bytes:
+          type: integer
+          minimum: 0
+        sha256: *id010
+        pages:
+          type: integer
+          minimum: 0
+        kind:
+          type: string
+          enum:
+          - pdf
+          - image
+        password_required: *id003
+        revision: *id004
+      required:
+      - id
+      - display_name
+      - bytes
+      - sha256
+      - pages
+      - kind
+      - password_required
+      - revision
+      additionalProperties: false
+    FileList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    Upload:
+      type: object
+      properties:
+        expected_revision: *id004
+        file:
+          type: string
+          format: binary
+      required:
+      - expected_revision
+      - file
+      additionalProperties: false
+    PasswordCommand:
+      type: object
+      properties:
+        expected_revision: *id004
+        password:
+          type: string
+          maxLength: 512
+          writeOnly: true
+      required:
+      - expected_revision
+      - password
+      additionalProperties: false
+    RevisionCommand:
+      type: object
+      properties:
+        expected_revision: *id004
+      required:
+      - expected_revision
+      additionalProperties: false
+    FileOrder:
+      type: object
+      properties:
+        expected_revision: *id004
+        file_ids:
+          type: array
+          items: *id001
+          maxItems: 100
+      required:
+      - expected_revision
+      - file_ids
+      additionalProperties: false
+    OperationCreate:
+      type: object
+      properties:
+        expected_revision: *id004
+        action:
+          type: string
+          enum:
+          - extract
+          - validate
+          - resume
+          - retry
+          - merge
+        retry_operation_id: *id001
+        connection_id: *id001
+        model_id:
+          type: string
+          maxLength: 200
+        effort: &id014
+          type: string
+          enum:
+          - provider_default
+          - minimal
+          - low
+          - medium
+          - high
+          - xhigh
+          - max
+      required:
+      - expected_revision
+      - action
+      additionalProperties: false
+    Operation:
+      type: object
+      properties:
+        id: *id001
+        job_id: *id001
+        input_revision: *id004
+        action:
+          type: string
+          maxLength: 80
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - awaiting_input
+          - succeeded
+          - failed
+          - cancel_requested
+          - cancelled
+          - uncertain
+        stage:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+        pages_done:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+        pages_total:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+        error_code:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+      required:
+      - id
+      - job_id
+      - input_revision
+      - action
+      - state
+      - stage
+      - pages_done
+      - pages_total
+      - error_code
+      additionalProperties: false
+    Diagnostic:
+      type: object
+      properties:
+        file_id: *id001
+        page:
+          type: integer
+          minimum: 1
+        engine:
+          type: string
+          enum:
+          - text
+          - docling
+          - ai
+        flags:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+          maxItems: 100
+        seconds:
+          anyOf:
+          - type: number
+            minimum: 0
+          - type: 'null'
+      required:
+      - file_id
+      - page
+      - engine
+      - flags
+      - seconds
+      additionalProperties: false
+    DiagnosticList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Diagnostic'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    Row:
+      type: object
+      properties:
+        id:
+          type: string
+          maxLength: 100
+        statement_id:
+          type: string
+          maxLength: 100
+        sequence:
+          type: integer
+          minimum: 0
+        date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+        description:
+          type: string
+          maxLength: 4000
+        debit:
+          anyOf:
+          - &id011
+            type: string
+            maxLength: 60
+            pattern: ^(?:0|[1-9][0-9]*)\.[0-9]{2}$
+          - type: 'null'
+        credit:
+          anyOf:
+          - *id011
+          - type: 'null'
+        balance:
+          anyOf:
+          - &id012
+            type: string
+            maxLength: 60
+            pattern: ^-?(?:0|[1-9][0-9]*)\.[0-9]{2}$
+          - type: 'null'
+        file_id: *id001
+        page:
+          type: integer
+          minimum: 1
+        engine:
+          type: string
+          enum:
+          - text
+          - docling
+          - ai
+        flags:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+          maxItems: 100
+        fixed_by:
+          anyOf:
+          - type: string
+            enum:
+            - review
+            - ai
+          - type: 'null'
+        source_reviewed: *id003
+        category:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+      required:
+      - id
+      - statement_id
+      - sequence
+      - date
+      - description
+      - debit
+      - credit
+      - balance
+      - file_id
+      - page
+      - engine
+      - flags
+      - fixed_by
+      - source_reviewed
+      - category
+      additionalProperties: false
+    RowList:
+      type: object
+      properties:
+        revision: *id004
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Row'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - revision
+      - items
+      - next_cursor
+      additionalProperties: false
+    RowChanges:
+      type: object
+      properties:
+        date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+        description:
+          type: string
+          maxLength: 4000
+        debit:
+          anyOf:
+          - *id011
+          - type: 'null'
+        credit:
+          anyOf:
+          - *id011
+          - type: 'null'
+        balance:
+          anyOf:
+          - *id012
+          - type: 'null'
+      required: []
+      additionalProperties: false
+      minProperties: 1
+    ReviewEdit:
+      type: object
+      properties:
+        row_id:
+          type: string
+          maxLength: 100
+        statement_id:
+          type: string
+          maxLength: 100
+        action:
+          type: string
+          enum:
+          - fix
+          - delete
+          - insert_after
+        changes:
+          $ref: '#/components/schemas/RowChanges'
+        note:
+          type: string
+          maxLength: 500
+      required:
+      - row_id
+      - statement_id
+      - action
+      - note
+      additionalProperties: false
+      allOf:
+      - if:
+          properties:
+            action:
+              enum:
+              - fix
+              - insert_after
+          required:
+          - action
+        then:
+          required:
+          - changes
+    ReviewCommand:
+      type: object
+      properties:
+        expected_revision: *id004
+        edits:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReviewEdit'
+          maxItems: 1000
+          minItems: 1
+      required:
+      - expected_revision
+      - edits
+      additionalProperties: false
+    WorkbookApply:
+      type: object
+      properties:
+        expected_revision: *id004
+        file:
+          type: string
+          format: binary
+      required:
+      - expected_revision
+      - file
+      additionalProperties: false
+    Check:
+      type: object
+      properties:
+        code:
+          type: string
+          maxLength: 100
+        status:
+          type: string
+          enum:
+          - pass
+          - fail
+          - unavailable
+          - warning
+        expected:
+          anyOf:
+          - *id012
+          - type: 'null'
+        actual:
+          anyOf:
+          - *id012
+          - type: 'null'
+        difference:
+          anyOf:
+          - *id012
+          - type: 'null'
+      required:
+      - code
+      - status
+      - expected
+      - actual
+      - difference
+      additionalProperties: false
+    Checks:
+      type: object
+      properties:
+        revision: *id004
+        verdict:
+          type: string
+          enum:
+          - VERIFIED
+          - VERIFIED_BY_TOTALS
+          - VERIFIED_WITH_FIXES
+          - NEEDS_REVIEW
+          - UNVERIFIABLE
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Check'
+          maxItems: 1000
+        normal_export_allowed: *id003
+      required:
+      - revision
+      - verdict
+      - items
+      - normal_export_allowed
+      additionalProperties: false
+    SourceCheck:
+      type: object
+      properties:
+        revision: *id004
+        row_ids:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+          maxItems: 2000
+        passed:
+          anyOf:
+          - *id003
+          - type: 'null'
+      required:
+      - revision
+      - row_ids
+      - passed
+      additionalProperties: false
+    SourceAttestation:
+      type: object
+      properties:
+        expected_revision: *id004
+        row_ids:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+          maxItems: 2000
+        passed: *id003
+        note:
+          type: string
+          maxLength: 500
+      required:
+      - expected_revision
+      - row_ids
+      - passed
+      - note
+      additionalProperties: false
+    Artifact:
+      type: object
+      properties:
+        id: *id001
+        kind:
+          type: string
+          maxLength: 80
+        format:
+          anyOf:
+          - *id013
+          - type: 'null'
+        revision: *id004
+        sha256: *id010
+        bytes:
+          type: integer
+          minimum: 0
+        downloadable: *id003
+      required:
+      - id
+      - kind
+      - format
+      - revision
+      - sha256
+      - bytes
+      - downloadable
+      additionalProperties: false
+    ArtifactList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Artifact'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    IdentityCommand:
+      type: object
+      properties:
+        expected_revision: *id004
+        account_group:
+          type: string
+          maxLength: 120
+          writeOnly: true
+        confirmed:
+          const: true
+          type: boolean
+      required:
+      - expected_revision
+      - account_group
+      - confirmed
+      additionalProperties: false
+    MergePreview:
+      type: object
+      properties:
+        revision: *id004
+        same_identity: *id003
+        issues:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+          maxItems: 500
+      required:
+      - revision
+      - same_identity
+      - issues
+      additionalProperties: false
+    Rule:
+      type: object
+      properties:
+        id: *id001
+        category:
+          type: string
+          maxLength: 100
+        match:
+          type: string
+          maxLength: 500
+        direction:
+          type: string
+          enum:
+          - both
+          - debit
+          - credit
+      required:
+      - id
+      - category
+      - match
+      - direction
+      additionalProperties: false
+    RuleSet:
+      type: object
+      properties:
+        version: *id004
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rule'
+          maxItems: 200
+      required:
+      - version
+      - rules
+      additionalProperties: false
+    RuleCommand:
+      type: object
+      properties:
+        expected_version: *id004
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rule'
+          maxItems: 200
+      required:
+      - expected_version
+      - rules
+      additionalProperties: false
+    RulePreview:
+      type: object
+      properties:
+        rule:
+          $ref: '#/components/schemas/Rule'
+        text:
+          type: string
+          maxLength: 4000
+        direction:
+          type: string
+          enum:
+          - debit
+          - credit
+      required:
+      - rule
+      - text
+      - direction
+      additionalProperties: false
+    RuleMatch:
+      type: object
+      properties:
+        matched: *id003
+        category:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+      required:
+      - matched
+      - category
+      additionalProperties: false
+    CategoryOverrides:
+      type: object
+      properties:
+        expected_revision: *id004
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rule'
+          maxItems: 200
+      required:
+      - expected_revision
+      - rules
+      additionalProperties: false
+    DataPolicy:
+      type: object
+      properties:
+        deletion_state:
+          type: string
+          enum:
+          - active
+          - pending
+          - partial
+          - removed
+        live_retention_days:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+        backup_expiry_days:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+        overdue: *id003
+        certificate_available: *id003
+      required:
+      - deletion_state
+      - live_retention_days
+      - backup_expiry_days
+      - overdue
+      - certificate_available
+      additionalProperties: false
+    CloseCommand:
+      type: object
+      properties:
+        expected_revision: *id004
+        abandon: *id003
+        confirm_removal:
+          type: boolean
+          const: true
+      required:
+      - expected_revision
+      - abandon
+      - confirm_removal
+      additionalProperties: false
+    Certificate:
+      type: object
+      properties:
+        job_id: *id001
+        deleted_at: *id005
+        scope:
+          type: string
+          const: verified_live_data_removal
+        objects_removed:
+          type: integer
+          minimum: 0
+        backup_expiry_policy:
+          type: string
+          maxLength: 500
+      required:
+      - job_id
+      - deleted_at
+      - scope
+      - objects_removed
+      - backup_expiry_policy
+      additionalProperties: false
+    Usage:
+      type: object
+      properties:
+        pages_used:
+          type: integer
+          minimum: 0
+        jobs_used:
+          type: integer
+          minimum: 0
+        pages_limit:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+        period_start: *id005
+        period_end: *id005
+      required:
+      - pages_used
+      - jobs_used
+      - pages_limit
+      - period_start
+      - period_end
+      additionalProperties: false
+    Metrics:
+      type: object
+      properties:
+        completed_jobs:
+          type: integer
+          minimum: 0
+        failed_jobs:
+          type: integer
+          minimum: 0
+        pages:
+          type: integer
+          minimum: 0
+      required:
+      - completed_jobs
+      - failed_jobs
+      - pages
+      additionalProperties: false
+    Model:
+      type: object
+      properties:
+        id:
+          type: string
+          maxLength: 200
+        efforts:
+          type: array
+          items: *id014
+          maxItems: 7
+        capability_source:
+          type: string
+          enum:
+          - unknown
+          - operator_documentation
+          - provider_metadata
+        reference:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+      required:
+      - id
+      - efforts
+      - capability_source
+      - reference
+      additionalProperties: false
+    Connection:
+      type: object
+      properties:
+        id: *id001
+        version: *id004
+        name:
+          type: string
+          maxLength: 80
+        url:
+          type: string
+          maxLength: 2000
+          format: uri
+          pattern: ^https://
+        style:
+          type: string
+          enum:
+          - chat
+          - responses
+        model_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+        effort: *id014
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/Model'
+          maxItems: 1000
+        has_key: *id003
+        terms_version:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+      required:
+      - id
+      - version
+      - name
+      - url
+      - style
+      - model_id
+      - effort
+      - models
+      - has_key
+      - terms_version
+      additionalProperties: false
+    ConnectionList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connection'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    ConnectionCommand:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 80
+        url:
+          type: string
+          maxLength: 2000
+          format: uri
+          pattern: ^https://
+        style:
+          type: string
+          enum:
+          - chat
+          - responses
+        model_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+        effort: *id014
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/Model'
+          maxItems: 1000
+        schema:
+          type: string
+          enum:
+          - prompt_json
+          - json_object
+          - json_schema
+        effort_style:
+          type: string
+          enum:
+          - reasoning_effort
+          - reasoning
+          - none
+        token_field:
+          type: string
+          enum:
+          - max_tokens
+          - max_completion_tokens
+          - max_output_tokens
+        models_route:
+          type: string
+          maxLength: 250
+          pattern: ^/
+        completion_route:
+          type: string
+          maxLength: 250
+          pattern: ^/
+        temperature: *id003
+      required:
+      - name
+      - url
+      - style
+      additionalProperties: false
+    ConnectionUpdate:
+      type: object
+      properties:
+        expected_version: *id004
+        configuration:
+          $ref: '#/components/schemas/ConnectionCommand'
+      required:
+      - expected_version
+      - configuration
+      additionalProperties: false
+    CredentialCommand:
+      type: object
+      properties:
+        expected_version: *id004
+        api_key:
+          type: string
+          maxLength: 4096
+          writeOnly: true
+      required:
+      - expected_version
+      - api_key
+      additionalProperties: false
+    VersionCommand:
+      type: object
+      properties:
+        expected_version: *id004
+      required:
+      - expected_version
+      additionalProperties: false
+    MetadataResult:
+      type: object
+      properties:
+        reachable: *id003
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/Model'
+          maxItems: 1000
+        code:
+          type: string
+          maxLength: 80
+      required:
+      - reachable
+      - models
+      - code
+      additionalProperties: false
+    Consent:
+      type: object
+      properties:
+        revision: *id004
+        granted: *id003
+        connection_id:
+          anyOf:
+          - *id001
+          - type: 'null'
+        model_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+        effort: *id014
+        pages_used:
+          type: integer
+          minimum: 0
+        pages_reserved:
+          type: integer
+          minimum: 0
+        page_cap:
+          type: integer
+          minimum: 0
+        binding:
+          anyOf:
+          - *id010
+          - type: 'null'
+      required:
+      - revision
+      - granted
+      - connection_id
+      - model_id
+      - effort
+      - pages_used
+      - pages_reserved
+      - page_cap
+      - binding
+      additionalProperties: false
+    ConsentCommand:
+      type: object
+      properties:
+        expected_revision: *id004
+        grant: *id003
+        connection_id: *id001
+        model_id:
+          type: string
+          maxLength: 200
+        effort: *id014
+        page_cap:
+          type: integer
+          minimum: 0
+        terms_version:
+          type: string
+          maxLength: 200
+        note:
+          type: string
+          maxLength: 500
+      required:
+      - expected_revision
+      - grant
+      - note
+      additionalProperties: false
+      allOf:
+      - if:
+          properties:
+            grant:
+              const: true
+          required:
+          - grant
+        then:
+          required:
+          - connection_id
+          - model_id
+          - effort
+          - page_cap
+          - terms_version
+    Settings:
+      type: object
+      properties:
+        version: *id004
+        currency:
+          type: string
+          maxLength: 3
+          pattern: ^[A-Z]{3}$
+        date_order:
+          type: string
+          enum:
+          - auto
+          - DMY
+          - MDY
+          - YMD
+        output_date_format:
+          type: string
+          enum:
+          - ISO
+          - MM/DD/YYYY
+          - DD/MM/YYYY
+        outputs:
+          type: array
+          items: *id013
+          maxItems: 6
+        retention_days:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+      required:
+      - version
+      - currency
+      - date_order
+      - output_date_format
+      - outputs
+      - retention_days
+      additionalProperties: false
+    SettingsCommand:
+      type: object
+      properties:
+        expected_version: *id004
+        currency:
+          type: string
+          maxLength: 3
+          pattern: ^[A-Z]{3}$
+        date_order:
+          type: string
+          enum:
+          - auto
+          - DMY
+          - MDY
+          - YMD
+        output_date_format:
+          type: string
+          enum:
+          - ISO
+          - MM/DD/YYYY
+          - DD/MM/YYYY
+        outputs:
+          type: array
+          items: *id013
+          maxItems: 6
+      required:
+      - expected_version
+      additionalProperties: false
+    AdminJob:
+      type: object
+      properties:
+        id: *id001
+        status: *id007
+        deletion_state:
+          type: string
+          enum:
+          - active
+          - pending
+          - partial
+          - removed
+        error_code:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+      required:
+      - id
+      - status
+      - deletion_state
+      - error_code
+      additionalProperties: false
+    AdminJobList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminJob'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    AdminOverride:
+      type: object
+      properties:
+        expected_revision: *id004
+        grant_id: *id001
+        reason:
+          type: string
+          maxLength: 500
+        page_limit:
+          type: integer
+          minimum: 1
+        byte_limit:
+          type: integer
+          minimum: 1
+      required:
+      - expected_revision
+      - grant_id
+      - reason
+      additionalProperties: false
+    AdminMetadata:
+      type: object
+      properties:
+        expected_revision: *id004
+        grant_id: *id001
+        reason:
+          type: string
+          maxLength: 500
+        channel:
+          type: string
+          enum:
+          - direct
+          - fiverr
+          - upwork
+        alias:
+          type: string
+          maxLength: 40
+        package:
+          type: string
+          maxLength: 80
+      required:
+      - expected_revision
+      - grant_id
+      - reason
+      additionalProperties: false
+    AdminExportException:
+      type: object
+      properties:
+        expected_revision: *id004
+        grant_id: *id001
+        reason:
+          type: string
+          maxLength: 500
+        allow_unverified: *id003
+        accept_unverifiable: *id003
+        skip_spotcheck: *id003
+      required:
+      - expected_revision
+      - grant_id
+      - reason
+      - allow_unverified
+      - accept_unverifiable
+      - skip_spotcheck
+      additionalProperties: false
+    YamlVersion:
+      type: object
+      properties:
+        version: *id004
+        yaml:
+          type: string
+          maxLength: 100000
+      required:
+      - version
+      - yaml
+      additionalProperties: false
+    YamlCommand:
+      type: object
+      properties:
+        expected_version: *id004
+        yaml:
+          type: string
+          maxLength: 100000
+        reason:
+          type: string
+          maxLength: 500
+      required:
+      - expected_version
+      - yaml
+      - reason
+      additionalProperties: false
+    ScaffoldCommand:
+      type: object
+      properties:
+        expected_revision: *id004
+        grant_id: *id001
+        file_id: *id001
+      required:
+      - expected_revision
+      - grant_id
+      - file_id
+      additionalProperties: false
+    Health:
+      type: object
+      properties:
+        database:
+          type: string
+          enum:
+          - healthy
+          - unhealthy
+          - unknown
+        storage:
+          type: string
+          enum:
+          - healthy
+          - unhealthy
+          - unknown
+        worker:
+          type: string
+          enum:
+          - healthy
+          - unhealthy
+          - unknown
+        models:
+          type: string
+          enum:
+          - verified
+          - unverified
+          - unknown
+      required:
+      - database
+      - storage
+      - worker
+      - models
+      additionalProperties: false
+    ModelMaintenance:
+      type: object
+      properties:
+        manifest_version:
+          type: string
+          maxLength: 100
+        action:
+          type: string
+          enum:
+          - verify
+          - download_pinned
+      required:
+      - manifest_version
+      - action
+      additionalProperties: false
+    SystemOperation:
+      type: object
+      properties:
+        id: *id001
+        state:
+          type: string
+          enum:
+          - queued
+          - running
+          - succeeded
+          - failed
+        error_code:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+      required:
+      - id
+      - state
+      - error_code
+      additionalProperties: false
+    Version:
+      type: object
+      properties:
+        version:
+          type: string
+          maxLength: 50
+        api_version:
+          type: string
+          const: v1
+      required:
+      - version
+      - api_version
+      additionalProperties: false
+    SupportGrant:
+      type: object
+      properties:
+        id: *id001
+        version: *id004
+        job_ids:
+          type: array
+          items: *id001
+          maxItems: 20
+        administrator_id: *id001
+        expires_at: *id005
+        data_classes:
+          type: array
+          items:
+            type: string
+            enum:
+            - source
+            - rows
+            - checks
+            - outputs
+          maxItems: 4
+        actions:
+          type: array
+          items:
+            type: string
+            enum:
+            - limit_override
+            - operator_metadata
+            - export_exception
+            - private_scaffold
+          maxItems: 4
+        active: *id003
+      required:
+      - id
+      - version
+      - job_ids
+      - administrator_id
+      - expires_at
+      - data_classes
+      - actions
+      - active
+      additionalProperties: false
+    SupportGrantCreate:
+      type: object
+      properties:
+        job_ids:
+          type: array
+          items: *id001
+          maxItems: 20
+          minItems: 1
+        administrator_id: *id001
+        expires_at: *id005
+        data_classes:
+          type: array
+          items:
+            type: string
+            enum:
+            - source
+            - rows
+            - checks
+            - outputs
+          maxItems: 4
+        actions:
+          type: array
+          items:
+            type: string
+            enum:
+            - limit_override
+            - operator_metadata
+            - export_exception
+            - private_scaffold
+          maxItems: 4
+      required:
+      - job_ids
+      - administrator_id
+      - expires_at
+      - data_classes
+      additionalProperties: false
+    SupportGrantList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportGrant'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    Billing:
+      type: object
+      properties:
+        plan_id:
+          type: string
+          maxLength: 100
+        status:
+          type: string
+          enum:
+          - trial
+          - manual_pilot
+          - active
+          - past_due
+          - cancelled
+          - none
+        renewal_at:
+          anyOf:
+          - *id005
+          - type: 'null'
+      required:
+      - plan_id
+      - status
+      - renewal_at
+      additionalProperties: false
+    CheckoutCommand:
+      type: object
+      properties:
+        plan_id:
+          type: string
+          maxLength: 100
+      required:
+      - plan_id
+      additionalProperties: false
+    HostedRedirect:
+      type: object
+      properties:
+        url:
+          type: string
+          maxLength: 2000
+          format: uri
+          pattern: ^https://
+      required:
+      - url
+      additionalProperties: false
+    PrivacyRequest:
+      type: object
+      properties:
+        scope:
+          type: string
+          enum:
+          - account
+          - workspace
+        action:
+          type: string
+          enum:
+          - access
+          - remove
+        confirm: *id003
+      required:
+      - scope
+      - action
+      - confirm
+      additionalProperties: false
+    PrivacyRequestResult:
+      type: object
+      properties:
+        id: *id001
+        state:
+          type: string
+          enum:
+          - received
+          - awaiting_verification
+          - processing
+          - completed
+          - rejected
+      required:
+      - id
+      - state
+      additionalProperties: false
+    Webhook:
+      type: object
+      properties:
+        event:
+          type: string
+          maxLength: 100000
+      required:
+      - event
+      additionalProperties: false
+    Acknowledged:
+      type: object
+      properties:
+        accepted: *id003
+      required:
+      - accepted
+      additionalProperties: false
+    Quote:
+      type: object
+      properties:
+        revision: *id004
+        pricing_version: *id004
+        currency:
+          type: string
+          maxLength: 3
+          pattern: ^[A-Z]{3}$
+        amount: *id011
+        estimate_basis:
+          type: string
+          enum:
+          - measured
+          - default
+        estimated_seconds:
+          type: number
+          minimum: 0
+        approved_offer: *id003
+      required:
+      - revision
+      - pricing_version
+      - currency
+      - amount
+      - estimate_basis
+      - estimated_seconds
+      - approved_offer
+      additionalProperties: false
+    AiSelection:
+      type: object
+      properties:
+        connection_id:
+          type: string
+          format: uuid
+        connection_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        model_id:
+          type: string
+          maxLength: 200
+        effort: *id014
+      required:
+      - connection_id
+      - connection_version
+      - model_id
+      - effort
+      additionalProperties: false
+  responses:
+    Error400:
+      description: Safe structured error without private input echo
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error401:
+      description: Safe structured error without private input echo
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error403:
+      description: Safe structured error without private input echo
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error404:
+      description: Nonrevealing missing or unauthorized private resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error409:
+      description: Revision/idempotency/state conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error413:
+      description: Safe structured error without private input echo
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error422:
+      description: Safe structured error without private input echo
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error429:
+      description: Safe structured error without private input echo
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Error503:
+      description: Dependency unavailable; no demo fallback
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    HeaderXCsrfToken:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      schema:
+        type: string
+        maxLength: 150
+    QueryLimit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    QueryCursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+        maxLength: 500
+    PathMember:
+      name: member
+      in: path
+      required: true
+      schema: *id001
+    HeaderIdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        maxLength: 128
+        minLength: 16
+      description: Scoped durable replay key; changed payload under the same key is
+        a 409 conflict.
+    PathInvitation:
+      name: invitation
+      in: path
+      required: true
+      schema: *id001
+    PathJob:
+      name: job
+      in: path
+      required: true
+      schema: *id001
+    PathFile:
+      name: file
+      in: path
+      required: true
+      schema: *id001
+    PathPage:
+      name: page
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    PathOperation:
+      name: operation
+      in: path
+      required: true
+      schema: *id001
+    PathArtifact:
+      name: artifact
+      in: path
+      required: true
+      schema: *id001
+    PathConnection:
+      name: connection
+      in: path
+      required: true
+      schema: *id001
+    PathGrant:
+      name: grant
+      in: path
+      required: true
+      schema: *id001
+    PathProfile:
+      name: profile
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 100
+    PathSection:
+      name: section
+      in: path
+      required: true
+      schema:
+        type: string
+        enum:
+        - defaults
+        - exports
+        - categories
+        - templates
+    PathProvider:
+      name: provider
+      in: path
+      required: true
+      schema:
+        type: string
+        enum:
+        - approved

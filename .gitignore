@@ -4,6 +4,11 @@
 .DS_Store
 workspace/
 vendor/
+# Keep the small, licensed offline API validation baseline in fresh clones.
+!contracts/saas/vendor/
+contracts/saas/vendor/*
+!contracts/saas/vendor/oas31-schema.json
+!contracts/saas/vendor/LICENSE-OpenAPI.txt
 explore/
 samples/private/
 models/

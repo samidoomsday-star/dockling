@@ -1,0 +1,90 @@
+{
+  "scope": "Synthetic isolated current CLI extraction capacity; not hosted load, field accuracy or a production guarantee",
+  "recorded_at": "2026-10-09T19:55:23.255231+00:00",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "logical_cpus": 5,
+  "memory_total_mib": 34088,
+  "threads": 4,
+  "case_selection": [
+    "scan-two-page"
+  ],
+  "versions": {
+    "docling": "2.133.0",
+    "torch": "2.14.1+cpu",
+    "pdfplumber": "0.11.10",
+    "pypdfium2": "5.13.0",
+    "reportlab": "5.0.1",
+    "psutil": "7.2.2"
+  },
+  "model_manifest_sha256": "c3ec397c204f9c28a094422b57a9dda43a95739f544ae39f98ff085245cf4bfd",
+  "model_bytes_verified": 733462630,
+  "model_hashes_verified": true,
+  "network": "Python socket connect/connect_ex blocked in parent and workers; not a kernel egress sandbox",
+  "memory_method": "50ms sampled process-tree RSS sum; shared pages may be double-counted and short peaks missed. Linux worker ru_maxrss supplements sampling. Fixture generation runs outside measured worker.",
+  "warm_method": "Second order in the same process; imports/page cache warm. Existing extraction recreates Docling converters per command, so this is not a retained-converter worker benchmark.",
+  "timing_method": "Intake+extraction per page exclude Python import/startup and fixture generation; subprocess wall includes cold imports and both runs. Scratch figures are post-run totals, not peak filesystem use.",
+  "passed": false,
+  "cases": [
+    {
+      "case": "scan-two-page",
+      "engine": "docling",
+      "fixture_sha256": "5b930412904b215cd5c40464b2e3a72b4521970cd1a663406476ea3412666277",
+      "input_bytes": 353471,
+      "subprocess_wall_seconds": 75.893,
+      "sampled_process_tree_peak_rss_mib": 2476.82,
+      "exit_code": 0,
+      "timed_out": false,
+      "runs": [
+        {
+          "mode": "process_cold",
+          "pages": 2,
+          "rows_expected": 12,
+          "rows_found": 12,
+          "rows_exact": 10,
+          "mismatched_fields": {
+            "date": 0,
+            "description": 2,
+            "debit": 0,
+            "credit": 0,
+            "balance": 0
+          },
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": true,
+          "intake_seconds": 0.0781,
+          "extract_seconds": 40.8353,
+          "seconds_per_page": 20.4567,
+          "work_bytes_after_run": 719117,
+          "passed": false
+        },
+        {
+          "mode": "process_warm",
+          "pages": 2,
+          "rows_expected": 12,
+          "rows_found": 12,
+          "rows_exact": 10,
+          "mismatched_fields": {
+            "date": 0,
+            "description": 2,
+            "debit": 0,
+            "credit": 0,
+            "balance": 0
+          },
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": true,
+          "intake_seconds": 0.068,
+          "extract_seconds": 32.2486,
+          "seconds_per_page": 16.1583,
+          "work_bytes_after_run": 1438232,
+          "passed": false
+        }
+      ],
+      "worker_high_water_mib": 2476.78,
+      "passed": false
+    }
+  ]
+}

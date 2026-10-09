@@ -1,8 +1,8 @@
 # Progress
 
 ## Current status
-- **Current phase:** Original Python phases 0–10 cloud development complete; Windows/field/provider acceptance pending. New SaaS Phase 0 starting-phase checklist prepared.
-- **Current task:** Owner authorized the SaaS direction one phase at a time. Follow `docs/tasks/saas-phase-0.md` for contracts, permissions, data/job design, privacy and capacity preparation. This milestone plans that work; its deliverables are not yet implemented. Stage B interactive frontend is complete; real API/worker/authentication, billing and deployment remain pending.
+- **Current phase:** Original Python phases 0–10 cloud development complete; Windows/field/provider acceptance pending. New SaaS Phase 0 technical preparation complete with explicit business/vendor decisions pending.
+- **Current task:** `saas-phase-0` contains the decision register, 33-feature/permission map, data/job/privacy contracts, validated API design, measured capacity/hosting assessment and Phase 1 task. Multi-page scan descriptions failed exact comparison despite financial reconciliation; evidence retained. Next build is `docs/tasks/saas-phase-1.md`. Stage B frontend is complete; real API/worker/authentication, billing and deployment remain pending.
 - **Last updated:** 2026-10-09 UTC (10 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
 
@@ -64,9 +64,16 @@
 
 ## Next step
 
-Implement [the SaaS Phase 0 checklist](tasks/saas-phase-0.md) in order, starting with a product decision register and complete feature/permission map. Pending business choices must not block independent synthetic technical preparation; they remain prerequisites for the related hosting, sales and customer-data actions.
+Implement [SaaS Phase 1](tasks/saas-phase-1.md) in order, using [Phase 0's completed technical preparation](tasks/saas-phase-0.md). Likely markets are the US/Europe; exact country/data region, business country, budget and customer promises remain undecided. These do not block local synthetic foundation work; they remain prerequisites for the related hosting, sales and customer-data actions.
 
 The overall direction is in [PRODUCTION-SAAS-PLAN.md](PRODUCTION-SAAS-PLAN.md). Use [OPERATOR_GUIDE.md](OPERATOR_GUIDE.md) for the existing CLI's fake delivery and daily operations, [ENVIRONMENT.md](ENVIRONMENT.md) for clone/install/update, and [BYOK_GUIDE.md](BYOK_GUIDE.md) for your own provider. Complete the Windows/field checklist before real client work. Development phases do not need further approval pauses.
+
+## SaaS Phase 0 milestone
+
+- Implemented tasks 0.1–0.7 under `docs/saas`, `contracts/saas` and `research/saas`; next task is `docs/tasks/saas-phase-1.md`. Owner's likely US/European market is recorded without inventing launch country, region or budget.
+- Offline API validation passes: 89 planned operations, 89 schemas, seven synthetic examples and all 33 existing features. An export of the staged source also validates using the existing Python environment. This is not an implemented API or an auth/isolation test.
+- Seven capacity cases ran twice. Six matched all rows; two-page OCR scan has two description differences with all dates/money/balances matching, confirmed by a focused repeat. Failed evidence/source warnings remain. Observed OCR memory approximately 2–2.5 GiB; current vendor limits checked, host selection/ARM/Windows/long-document load remain pending.
+- New-tool lint/format, relative Markdown links and Git whitespace checks pass. Existing core/frontend application code unchanged; full prior suites not rerun. No real customer data, paid provider call, hosting resource or merge.
 
 ## Phase 2 milestone
 Owner authorized remaining phases in sequence. Typed manifests, atomic writes/exclusive edits, checked transitions, confined paths, file-content intake, password-safe copies, image combination and YAML quotes implemented. All 81 state pairs tested; 120 total tests passed with none skipped. Three layouts have text/scanned, wrapped and multipage synthetic variants. Combined images use numbered filename order. Phase 10 later permits explicit abandoned cleanup from failed to closed; closed remains terminal. Windows execution remains pending.

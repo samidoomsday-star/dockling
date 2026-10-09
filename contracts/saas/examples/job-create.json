@@ -1,0 +1,9 @@
+{
+  "name": "Fictional January statement",
+  "currency": "USD",
+  "date_order": "YMD",
+  "outputs": [
+    "excel",
+    "csv"
+  ]
+}

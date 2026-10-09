@@ -1,0 +1,23 @@
+{
+  "revision": 3,
+  "items": [
+    {
+      "id": "row-1",
+      "statement_id": "s0001",
+      "sequence": 0,
+      "date": "2026-01-01",
+      "description": "Fictional shop",
+      "debit": "12.34",
+      "credit": null,
+      "balance": "987.66",
+      "file_id": "22222222-2222-4222-8222-222222222222",
+      "page": 1,
+      "engine": "text",
+      "flags": [],
+      "fixed_by": null,
+      "source_reviewed": false,
+      "category": null
+    }
+  ],
+  "next_cursor": null
+}

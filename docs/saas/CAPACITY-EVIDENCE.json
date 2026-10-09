@@ -1,0 +1,349 @@
+{
+  "scope": "Synthetic isolated current CLI extraction capacity; not hosted load, field accuracy or a production guarantee",
+  "recorded_at": "2026-10-09T19:53:21.125953+00:00",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "logical_cpus": 5,
+  "memory_total_mib": 34088,
+  "threads": 4,
+  "versions": {
+    "docling": "2.133.0",
+    "torch": "2.14.1+cpu",
+    "pdfplumber": "0.11.10",
+    "pypdfium2": "5.13.0",
+    "reportlab": "5.0.1",
+    "psutil": "7.2.2"
+  },
+  "model_manifest_sha256": "c3ec397c204f9c28a094422b57a9dda43a95739f544ae39f98ff085245cf4bfd",
+  "model_bytes_verified": 733462630,
+  "model_hashes_verified": true,
+  "network": "Python socket connect/connect_ex blocked in parent and workers; not a kernel egress sandbox",
+  "memory_method": "50ms sampled process-tree RSS sum; shared pages may be double-counted and short peaks missed. Linux worker ru_maxrss supplements sampling. Fixture generation runs outside measured worker.",
+  "warm_method": "Second order in the same process; imports/page cache warm. Existing extraction recreates Docling converters per command, so this is not a retained-converter worker benchmark.",
+  "timing_method": "Intake+extraction per page exclude Python import/startup and fixture generation; subprocess wall includes cold imports and both runs. Scratch figures are post-run totals, not peak filesystem use.",
+  "passed": false,
+  "cases": [
+    {
+      "case": "digital-two-page",
+      "engine": "text",
+      "fixture_sha256": "ca8860a4d01b918a5e9bb93923a553416b4e160c76d2820e95900caa83061f4a",
+      "input_bytes": 3032,
+      "subprocess_wall_seconds": 1.144,
+      "sampled_process_tree_peak_rss_mib": 63.18,
+      "exit_code": 0,
+      "timed_out": false,
+      "runs": [
+        {
+          "mode": "process_cold",
+          "pages": 2,
+          "rows_expected": 12,
+          "rows_found": 12,
+          "rows_exact": 12,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": false,
+          "intake_seconds": 0.1061,
+          "extract_seconds": 0.2304,
+          "seconds_per_page": 0.1682,
+          "work_bytes_after_run": 16631,
+          "passed": true
+        },
+        {
+          "mode": "process_warm",
+          "pages": 2,
+          "rows_expected": 12,
+          "rows_found": 12,
+          "rows_exact": 12,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": false,
+          "intake_seconds": 0.0885,
+          "extract_seconds": 0.0999,
+          "seconds_per_page": 0.0942,
+          "work_bytes_after_run": 33263,
+          "passed": true
+        }
+      ],
+      "worker_high_water_mib": 63.01,
+      "passed": true
+    },
+    {
+      "case": "digital-eight-page",
+      "engine": "text",
+      "fixture_sha256": "631aa82b0b5e274dd42ffb99fbb099d500ed8c36a7b4b25dd8ce32fb41a3e9e1",
+      "input_bytes": 10095,
+      "subprocess_wall_seconds": 1.862,
+      "sampled_process_tree_peak_rss_mib": 75.72,
+      "exit_code": 0,
+      "timed_out": false,
+      "runs": [
+        {
+          "mode": "process_cold",
+          "pages": 8,
+          "rows_expected": 64,
+          "rows_found": 64,
+          "rows_exact": 64,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": false,
+          "intake_seconds": 0.3261,
+          "extract_seconds": 0.3876,
+          "seconds_per_page": 0.0892,
+          "work_bytes_after_run": 64867,
+          "passed": true
+        },
+        {
+          "mode": "process_warm",
+          "pages": 8,
+          "rows_expected": 64,
+          "rows_found": 64,
+          "rows_exact": 64,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": false,
+          "intake_seconds": 0.2921,
+          "extract_seconds": 0.2219,
+          "seconds_per_page": 0.0643,
+          "work_bytes_after_run": 129733,
+          "passed": true
+        }
+      ],
+      "worker_high_water_mib": 75.53,
+      "passed": true
+    },
+    {
+      "case": "digital-card",
+      "engine": "text",
+      "fixture_sha256": "84b6c4814fbc7dc619c8a3940d98faf2affeee4d54ec99e18df441ce604b9cb0",
+      "input_bytes": 2839,
+      "subprocess_wall_seconds": 0.83,
+      "sampled_process_tree_peak_rss_mib": 61.09,
+      "exit_code": 0,
+      "timed_out": false,
+      "runs": [
+        {
+          "mode": "process_cold",
+          "pages": 2,
+          "rows_expected": 12,
+          "rows_found": 12,
+          "rows_exact": 12,
+          "verdicts": [
+            "VERIFIED_BY_TOTALS"
+          ],
+          "source_check_required": false,
+          "intake_seconds": 0.077,
+          "extract_seconds": 0.1559,
+          "seconds_per_page": 0.1165,
+          "work_bytes_after_run": 16120,
+          "passed": true
+        },
+        {
+          "mode": "process_warm",
+          "pages": 2,
+          "rows_expected": 12,
+          "rows_found": 12,
+          "rows_exact": 12,
+          "verdicts": [
+            "VERIFIED_BY_TOTALS"
+          ],
+          "source_check_required": false,
+          "intake_seconds": 0.0518,
+          "extract_seconds": 0.0634,
+          "seconds_per_page": 0.0576,
+          "work_bytes_after_run": 32239,
+          "passed": true
+        }
+      ],
+      "worker_high_water_mib": 61.01,
+      "passed": true
+    },
+    {
+      "case": "digital-borderless",
+      "engine": "text",
+      "fixture_sha256": "a42932fc00adeb560ff1ff817d614fdbaef892e5bb889a27290811bd34ba16e4",
+      "input_bytes": 2732,
+      "subprocess_wall_seconds": 0.781,
+      "sampled_process_tree_peak_rss_mib": 61.91,
+      "exit_code": 0,
+      "timed_out": false,
+      "runs": [
+        {
+          "mode": "process_cold",
+          "pages": 2,
+          "rows_expected": 12,
+          "rows_found": 12,
+          "rows_exact": 12,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": false,
+          "intake_seconds": 0.0747,
+          "extract_seconds": 0.1593,
+          "seconds_per_page": 0.117,
+          "work_bytes_after_run": 16016,
+          "passed": true
+        },
+        {
+          "mode": "process_warm",
+          "pages": 2,
+          "rows_expected": 12,
+          "rows_found": 12,
+          "rows_exact": 12,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": false,
+          "intake_seconds": 0.0562,
+          "extract_seconds": 0.0746,
+          "seconds_per_page": 0.0654,
+          "work_bytes_after_run": 32034,
+          "passed": true
+        }
+      ],
+      "worker_high_water_mib": 61.75,
+      "passed": true
+    },
+    {
+      "case": "scan-one-page",
+      "engine": "docling",
+      "fixture_sha256": "60977d0550d621fe572224bf211e4a3e76438469053cee4af39796484156f72c",
+      "input_bytes": 163009,
+      "subprocess_wall_seconds": 38.254,
+      "sampled_process_tree_peak_rss_mib": 2106.12,
+      "exit_code": 0,
+      "timed_out": false,
+      "runs": [
+        {
+          "mode": "process_cold",
+          "pages": 1,
+          "rows_expected": 5,
+          "rows_found": 5,
+          "rows_exact": 5,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": true,
+          "intake_seconds": 0.1361,
+          "extract_seconds": 24.37,
+          "seconds_per_page": 24.5061,
+          "work_bytes_after_run": 332838,
+          "passed": true
+        },
+        {
+          "mode": "process_warm",
+          "pages": 1,
+          "rows_expected": 5,
+          "rows_found": 5,
+          "rows_exact": 5,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": true,
+          "intake_seconds": 0.038,
+          "extract_seconds": 11.8877,
+          "seconds_per_page": 11.9257,
+          "work_bytes_after_run": 665677,
+          "passed": true
+        }
+      ],
+      "worker_high_water_mib": 2119.37,
+      "passed": true
+    },
+    {
+      "case": "scan-two-page",
+      "engine": "docling",
+      "fixture_sha256": "bacae6e96c241a19ba7c6fbed0e5d21546c5483193b5251ebc8d9a445001f23c",
+      "input_bytes": 353471,
+      "subprocess_wall_seconds": 61.123,
+      "sampled_process_tree_peak_rss_mib": 2560.31,
+      "exit_code": 0,
+      "timed_out": false,
+      "runs": [
+        {
+          "mode": "process_cold",
+          "pages": 2,
+          "rows_expected": 12,
+          "rows_found": 12,
+          "rows_exact": 10,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": true,
+          "intake_seconds": 0.0775,
+          "extract_seconds": 30.6349,
+          "seconds_per_page": 15.3562,
+          "work_bytes_after_run": 719120,
+          "passed": false
+        },
+        {
+          "mode": "process_warm",
+          "pages": 2,
+          "rows_expected": 12,
+          "rows_found": 12,
+          "rows_exact": 10,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": true,
+          "intake_seconds": 0.0923,
+          "extract_seconds": 28.4655,
+          "seconds_per_page": 14.2789,
+          "work_bytes_after_run": 1438238,
+          "passed": false
+        }
+      ],
+      "worker_high_water_mib": 2559.7,
+      "passed": false
+    },
+    {
+      "case": "simulated-photo",
+      "engine": "docling",
+      "fixture_sha256": "2ab160ebe4acc440d386ae9246854b77863ba9e3cb7af93bae5616a226b5aa34",
+      "input_bytes": 204177,
+      "subprocess_wall_seconds": 32.207,
+      "sampled_process_tree_peak_rss_mib": 2070.24,
+      "exit_code": 0,
+      "timed_out": false,
+      "runs": [
+        {
+          "mode": "process_cold",
+          "pages": 1,
+          "rows_expected": 5,
+          "rows_found": 5,
+          "rows_exact": 5,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": true,
+          "intake_seconds": 0.1179,
+          "extract_seconds": 19.3673,
+          "seconds_per_page": 19.4852,
+          "work_bytes_after_run": 373575,
+          "passed": true
+        },
+        {
+          "mode": "process_warm",
+          "pages": 1,
+          "rows_expected": 5,
+          "rows_found": 5,
+          "rows_exact": 5,
+          "verdicts": [
+            "VERIFIED"
+          ],
+          "source_check_required": true,
+          "intake_seconds": 0.0811,
+          "extract_seconds": 10.5108,
+          "seconds_per_page": 10.5919,
+          "work_bytes_after_run": 747149,
+          "passed": true
+        }
+      ],
+      "worker_high_water_mib": 2116.13,
+      "passed": true
+    }
+  ]
+}

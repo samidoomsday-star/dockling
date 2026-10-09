@@ -1,0 +1,22 @@
+{
+  "id": "11111111-1111-4111-8111-111111111111",
+  "version": 1,
+  "name": "Fictional compatible provider",
+  "url": "https://provider.example/v1",
+  "style": "chat",
+  "model_id": "documented-model",
+  "effort": "max",
+  "models": [
+    {
+      "id": "documented-model",
+      "efforts": [
+        "provider_default",
+        "max"
+      ],
+      "capability_source": "operator_documentation",
+      "reference": "https://provider.example/capabilities"
+    }
+  ],
+  "has_key": true,
+  "terms_version": "synthetic-terms-1"
+}
