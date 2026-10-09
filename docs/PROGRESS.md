@@ -2,7 +2,7 @@
 
 ## Current status
 - **Current phase:** Phases 0–10 cloud development complete; Windows/field/provider acceptance pending.
-- **Current task:** final GitHub handoff and reusable environment snapshot; device acceptance next.
+- **Current task:** proposed customer web-app UI plan for owner review; implementation awaits acceptance.
 - **Last updated:** 2026-10-04 UTC (5 October in the client's timezone).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
 
@@ -107,3 +107,9 @@ Cloned the pushed development-phases-2-10 branch into a separate `/tmp` checkout
 ## Receiving-device setup guidance — 2026-10-05
 
 Added DEVICE_SETUP.md with a copyable owner request and receiving-assistant protocol: OS/Python/branch inspection, preserving local settings/jobs, the documented CPU installer, model hash verification, doctor/full checks/selftest, actual synthetic CLI delivery/close, and truthful reporting of device checks. Root AGENTS.md and the start/install guides direct new-device setup there. Covers optional custom BYOK model/effort setup and explicitly records that there is no graphical UI server. Documentation links and whitespace checked; no application code changed or additional Windows checks claimed.
+
+## Web-app proposal — 9 October 2026 (Asia/Dhaka)
+
+Owner requested an audit and UI/frontend plan for review before implementation, and selected customer self-service plus owner/admin tools. WEB-APP-PLAN.md maps existing CLI/services/configuration to web screens, states, permissions, integration work and staged acceptance. Includes all six formats, Excel/browser review, merge/categories, BYOK/model/effort/consent/budget, operational profiles/models/stats, delivery and deletion. WEB-APP-WIREFRAME.html illustrates seven major screens with synthetic data and no processing/network/key storage; it is not a web application. No backend/frontend application dependencies or behavior were changed. Proposal acceptance, branding/style edits, commercial/payment scope and hosting selection remain open; no publication or application implementation authorized by this planning request.
+
+Planning artifact checks: local links, HTML screen IDs/navigation targets/input labels, absence of remote assets, JavaScript syntax and git whitespace checks passed. Headless Chromium screenshot attempts timed out in this environment; no screenshot or completed browser/viewport validation is claimed. Full application gates were not rerun for this documentation/design-only change.

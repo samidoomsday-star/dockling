@@ -11,6 +11,8 @@ The complete development version is on **`development-phases-2-10`**. `main` rem
 - [Phase evidence and remaining device checks](docs/PROGRESS.md)
 - [Synthetic cloud acceptance](docs/PHASE10-SYNTHETIC-ACCEPTANCE.json)
 - [Original specification](docs/SPEC.md)
+- [Proposed customer web-app plan — awaiting review](docs/WEB-APP-PLAN.md)
+- [Offline visual wireframe — open the HTML file in a browser](docs/WEB-APP-WIREFRAME.html)
 
 For cloud development: `bash scripts/install-linux.sh`, `.venv/bin/python -m stmtconv models download`, `.venv/bin/python -m stmtconv doctor`, `.venv/bin/python scripts/check.py`, then `.venv/bin/python -m stmtconv selftest`.
 
