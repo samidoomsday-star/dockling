@@ -14,6 +14,7 @@ Windows operator CLI (`stmtconv`) for a done-for-you statement conversion servic
 - Routine implementation within an approved task needs no repeated approval. Ask about changes to agreed scope or genuinely missing prerequisites, after finishing independent work.
 
 ## Document map
+- `docs/PRODUCTION-SAAS-PLAN.md`: proposed production architecture, phases 0–8, sellable-release gates and owner business decisions. Review status; no hosted backend or billing has been implemented. For multi-customer SaaS this supersedes the single-server SQLite recommendation in WEB-APP-PLAN.md, once accepted.
 - `docs/WEB-APP-PLAN.md`: customer web-app plan, feature coverage and new hosted requirements; owner endorsed the direction and requested a modern color refinement. Stage B interactive synthetic frontend is implemented on `web-frontend`; real web backend/auth/worker integration and deployment remain pending. See `frontend/README.md`, `frontend/AGENTS.md` and `docs/FRONTEND-COVERAGE.md`. `docs/WEB-APP-WIREFRAME.html` is a synthetic planning illustration only.
 - `docs/DEVICE_SETUP.md`: receiving-assistant setup protocol and owner copy/paste prompt for a new device.
 - `docs/SPEC.md`: requirements and original phase sequence.

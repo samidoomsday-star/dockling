@@ -169,6 +169,8 @@ Hosted custom endpoint validation must block private/internal/link-local/metadat
 
 ## 8. New architecture needed to make the screens real
 
+**Planning update, 10 October 2026:** The SQLite/local-filesystem design below describes a limited single-server pilot. The proposed [production SaaS plan](PRODUCTION-SAAS-PLAN.md) recommends PostgreSQL and private object storage from the first multi-customer hosted build; it also adds a phase-by-phase release scorecard. Review that proposal before implementing the hosted backend.
+
 Recommended frontend: **React + TypeScript + Vite**, Tailwind-based design tokens, accessible headless components, a typed API client/query cache, forms with shared schema validation, virtualized grid, and a locally bundled PDF.js viewer plus image preview. Confirm actual package versions/licenses when approved; do not install a frontend stack during this planning task. Keep marketing and app in the same codebase initially.
 
 Recommended backend: **FastAPI** adapters calling Python services directly, a durable background worker and SQLite metadata/jobs for a single-server pilot. Reuse file-based per-order artifacts behind the existing store, organized under verified per-workspace roots. Database maps account/workspace ownership to opaque order IDs and durable jobs; it does not replace financial core rules. Serialize Decimal values as exact strings; JavaScript displays/formats amounts and never computes the authoritative reconciliation.
