@@ -627,6 +627,7 @@ footer {
   flex: 1;
 }
 .table-scroll {
+  position: relative;
   overflow: auto;
   max-width: 100%;
 }

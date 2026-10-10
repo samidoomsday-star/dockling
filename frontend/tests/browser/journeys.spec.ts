@@ -217,6 +217,27 @@ for (const width of [1440, 375])
         });
     }
   });
+test('wide conversions table stays within the phone and its final column is reachable', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 950 });
+  await page.goto('/app');
+  const region = page.getByRole('region', { name: 'Conversions table' });
+  await expect(region).toBeVisible();
+  // Wide columns also exercise absolutely positioned screen-reader-only headers.
+  await page.addStyleTag({ content: '.table-scroll table { min-width: 750px; }' });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  expect(await region.evaluate((node) => node.scrollWidth > node.clientWidth)).toBe(true);
+  await region.evaluate((node) => {
+    node.scrollLeft = node.scrollWidth;
+  });
+  const open = region.getByRole('link', { name: 'Open January · bank account 1234' });
+  await expect(open).toBeInViewport();
+  await open.click();
+  await expect(page).toHaveURL(/\/app\/jobs\/sample-review/);
+});
 test('mobile menu opens and review tab persists on refresh', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/app');
