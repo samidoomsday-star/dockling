@@ -10,6 +10,8 @@
 !config/**
 !profiles/
 !profiles/**
+!templates/
+!templates/**
 !docs/
 !docs/PHASE0-MODEL-MANIFEST.json
 !Dockerfile.worker

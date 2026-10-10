@@ -5,7 +5,7 @@ import hmac
 import json
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, cast
 from uuid import UUID
 
 from itsdangerous import BadSignature, URLSafeTimedSerializer
@@ -46,9 +46,9 @@ def job_json(job: Job) -> Json:
         "deletion_state": job.deletion_state,
         "options": job.options,
         "content_digest": job.content_digest,
-        "export_revision": None,
-        "source_checked": False,
-        "ai_source_checked": False,
+        "export_revision": job.export_manifest.get("revision"),
+        "source_checked": bool(cast(Json, job.review_state.get("spotcheck", {})).get("passed")),
+        "ai_source_checked": bool(cast(Json, job.review_state.get("ai_source", {})).get("passed")),
     }
 
 

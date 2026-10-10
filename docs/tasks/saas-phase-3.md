@@ -27,15 +27,3 @@ Next: Phase 4 hosted optional BYOK/custom OpenAI-compatible connection, model di
 Windows receiving-device verification, accounting software imports, chosen-host backup expiry, independent security/load/restore review and public deployment remain later release gates. Known OCR description accuracy limits still require source comparison. Existing legacy unreferenced upload objects are handled separately by the conservative sweeper; the live certificate covers verified inventoried job scope.
 
 Next authorized by owner: implement Phase 4 without another phase approval. Paid inference, publishing, main merge and commercial billing are not part of this milestone.
-
-
-## SaaS Phase 3 — review, exports and live removal
-
-Implemented on `saas-phase-3`: shared browser/Excel fix/delete/insert/clear commands, revision/source invalidation and private history, deterministic source sample/all fixed rows, separate AI-source gate, six actual writers, QB/date/account/merge rules, ordered categories, verified delivery ZIPs and owner close/abandon with partial retry/scratch receipts/live-scope certificates. Original CLI remains compatible. See `docs/saas/PHASE3-IMPLEMENTATION.md` and `docs/tasks/saas-phase-3.md` for evidence and precise limits.
-
-Local gates: 315 original Python tests; 59 real PG/storage tests; 42 frontend unit tests; 19 explicit demo journeys; genuine restricted-worker/Keycloak review→six outputs→package→removal plus six extraction cases, role/tenant/MFA/mobile/axe checks passed. No real client documents, paid AI requests, email, public deployment or main merge. Owner authorized continuing Phase 4, with own BYOK and capability-based Max.
-
-
-### SaaS Phase 3 runtime update
-
-F10–F22 now have real local review/output/privacy adapters as described in PHASE3-IMPLEMENTATION.md. Browser/Excel share commands; no fictional download fallback exists in real mode. Financial/source gates and artifact revision/hash membership precede downloads. Owner removal can remain partial and never issues a premature certificate. Customer verification overrides remain unavailable; scoped MFA support/owner operations belong to Phase 4. Payment/email, backup expiry, production-scale recovery and accounting-software field imports remain explicit release gates.

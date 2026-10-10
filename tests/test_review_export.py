@@ -209,3 +209,67 @@ def test_review_allows_negative_balances_but_not_negative_debits():
     assert service.fix_money("-10.50", negative=True) == Decimal("-10.50")
     with pytest.raises(ValueError):
         service.fix_money("-10.50")
+
+
+def test_browser_batch_and_excel_adapter_share_decimal_insert_clear_and_atomicity():
+    from decimal import Decimal
+    from io import BytesIO
+
+    from openpyxl import load_workbook
+
+    from stmtconv.config import Settings
+    from stmtconv.core.models import Statement, StatementSummary, Transaction
+    from stmtconv.errors import StmtconvError
+    from stmtconv.review.commands import ReviewEdit, RowChanges, apply_edits
+    from stmtconv.review.workbook import read_edits
+    from stmtconv.web.workflow import review_book
+
+    original = Statement(
+        id="s",
+        summary=StatementSummary(opening=Decimal("10.00"), closing=Decimal("8.00")),
+        transactions=[
+            Transaction(
+                id="r",
+                date=__import__("datetime").date(2026, 1, 1),
+                description="Fictional",
+                debit=Decimal("2.00"),
+                balance=Decimal("8.00"),
+                source_file="fake",
+                raw_text="Fictional source row",
+                page=1,
+                engine="text",
+            )
+        ],
+    )
+    edit = ReviewEdit(
+        statement_id="s",
+        row_id="r",
+        action="fix",
+        changes=RowChanges(description="Corrected", balance=None),
+    )
+    expected = apply_edits([original], [edit], Settings())[0]
+    binding = ["fictional", "s", "digest"]
+    book = load_workbook(BytesIO(review_book(original, binding)))
+    book["Review"]["N2"] = "Corrected"
+    book["Review"]["Q2"] = "clear"
+    book["Review"]["R2"] = "fix"
+    stream = BytesIO()
+    book.save(stream)
+    actual = apply_edits([original], read_edits(stream.getvalue(), original, binding), Settings())[
+        0
+    ]
+    assert actual == expected and actual.transactions[0].balance is None
+    assert original.transactions[0].balance == Decimal("8.00")
+    insert = ReviewEdit(
+        statement_id="s",
+        row_id="r",
+        action="insert_after",
+        changes=RowChanges(description="Missing", debit="1.00"),
+    )
+    with pytest.raises(StmtconvError):
+        apply_edits([original], [insert], Settings())
+    book["Review"]["N2"] = '=HYPERLINK("https://example.invalid","fake")'
+    stream = BytesIO()
+    book.save(stream)
+    with pytest.raises(StmtconvError):
+        read_edits(stream.getvalue(), original, binding)

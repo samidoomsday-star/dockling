@@ -8,6 +8,7 @@ COPY --chmod=0755 src /app/src
 COPY --chmod=0644 docs/PHASE0-MODEL-MANIFEST.json /app/src/stmtconv/_model-manifest.json
 COPY --chmod=0755 config /app/config
 COPY --chmod=0755 profiles /app/profiles
+COPY --chmod=0755 templates /app/templates
 WORKDIR /app
 ENV PYTHONPATH=/app/src PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 USER 1000:1000

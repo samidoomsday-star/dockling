@@ -3,6 +3,7 @@ import { Link, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FoundationApi, FoundationError, type ServerSession } from './lib/foundation';
 import PipelineJob from './PipelineJob';
+import { hasUnsavedCorrections } from './ReviewWorkspace';
 const api = new FoundationApi();
 const explain = (e: unknown) =>
   e instanceof FoundationError ? e.message : 'The service is unavailable. Please try again.';
@@ -27,6 +28,11 @@ export default function FoundationApp() {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   async function act(action: () => Promise<unknown>, next?: string) {
+    if (
+      hasUnsavedCorrections() &&
+      !window.confirm('You have an unsaved correction. Discard it and continue?')
+    )
+      return;
     setBusy(true);
     setMessage('');
     try {
@@ -59,8 +65,8 @@ export default function FoundationApp() {
           <h1>A clearer place to prepare your financial documents.</h1>
           <p>Sign in to upload statements, run conversion and compare results with the source.</p>
           <p>
-            Synthetic development preview. Review editing, final exports and billing are being
-            connected in upcoming phases.
+            Synthetic development preview with review and private downloads. Billing and public
+            hosting remain later phases.
           </p>
           <a className="button primary" href="/auth/login">
             Sign in securely

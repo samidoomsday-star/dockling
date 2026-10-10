@@ -85,8 +85,13 @@ Failures must be reported as failures. Do not substitute demo fixtures, bypass a
 
 ## Abandoned staging-object cleanup
 
-Run `.venv/bin/python scripts/saas-local.py reap` for a bounded maintenance pass. It deletes only abandoned opaque pipeline/upload objects older than one hour, preserves all active/original/referenced objects and live attempts, and frees their staged inventory quota. Repeat passes to cover a large bucket; the private continuation checkpoint is retained. A storage/database failure reports an incomplete pass and can be retried. This is **not** customer close/retention/deletion certification; those workflows and backup expiry belong to later release phases.
+Run `.venv/bin/python scripts/saas-local.py reap` for a bounded maintenance pass. It deletes only abandoned opaque pipeline/upload objects older than one hour, preserves all active/original/referenced objects and live attempts, and frees their staged inventory quota. Repeat passes to cover a large bucket; the private continuation checkpoint is retained. A storage/database failure reports an incomplete pass and can be retried. This sweeper is separate from Phase 3 owner close/abandon and its verified live-removal certificate. Backup expiry remains a later hosting policy.
 
 ## Hosting later
 
 This Compose file is a loopback-only **local development** setup. Keycloak runs in development mode; its S3 volume size and count are deliberately small. It is not a public SaaS deployment. Production needs HTTPS, a chosen identity service with MFA, PostgreSQL with verified TLS/backups, durable private S3-compatible storage, an isolated OCR worker, domain/routing, quotas, monitoring and the release gates in `docs/PRODUCTION-SAAS-PLAN.md`. Customer region and business country are still undecided. Free tiers have limits, particularly for OCR memory and persistent storage; those must be measured before selecting staging hosting.
+
+
+## Phase 3 review and downloads
+
+Use [the Phase 3 guide](PHASE3-IMPLEMENTATION.md) after conversion. Run the real browser verification with `node scripts/saas-browser.mjs --phase3`; it exercises corrections, six formats, delivery and live removal as well as genuine OCR inputs. Keep the API-mode build while running this journey; run demo builds/journeys separately, then rebuild with `npm run build:api --prefix frontend`. Preserve all credentials and volumes when updating; run setup for forward migrations and worker-build/worker for the new image.

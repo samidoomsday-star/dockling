@@ -38,7 +38,9 @@ from stmtconv.web.database import PostgresUnitOfWork, UnitOfWork, database
 from stmtconv.web.errors import WebError, missing
 from stmtconv.web.models import Event, Invitation, Job, Membership, User, WebSession, Workspace
 from stmtconv.web.pipeline_api import register_pipeline
+from stmtconv.web.privacy_api import register_privacy
 from stmtconv.web.repository import Cursors, HostedMetadata, Json, job_json, membership, replay
+from stmtconv.web.review_api import register_review
 from stmtconv.web.schemas import (
     InvitationAccept,
     InvitationCreate,
@@ -117,7 +119,13 @@ def create_app(config: HostedSettings) -> FastAPI:
                     config.upload_bytes
                     if (
                         request.method == "POST"
-                        and re.fullmatch(r"/api/v1/jobs/[0-9a-fA-F-]{36}/files", request.url.path)
+                        and (
+                            re.fullmatch(r"/api/v1/jobs/[0-9a-fA-F-]{36}/files", request.url.path)
+                            or re.fullmatch(
+                                r"/api/v1/jobs/[0-9a-fA-F-]{36}/review-workbooks/[0-9a-fA-F-]{36}/apply",
+                                request.url.path,
+                            )
+                        )
                     )
                     else 65536
                 )
@@ -586,6 +594,8 @@ def create_app(config: HostedSettings) -> FastAPI:
         }
 
     register_pipeline(app, config, get_db, scoped, key, store, broker, cursors)
+    register_review(app, config, get_db, scoped, key, store)
+    register_privacy(app, config, get_db, scoped, key)
 
     # API is registered before the SPA. Unknown API/auth URLs cannot serve HTML or fixtures.
     @app.api_route("/api/{remaining:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])

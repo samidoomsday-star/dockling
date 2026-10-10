@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { FoundationApi, FoundationError, type ServerSession } from './lib/foundation';
+import ReviewWorkspace, { Correction, PrivacyPanel } from './ReviewWorkspace';
 const api = new FoundationApi();
 const explain = (e: unknown) =>
   e instanceof FoundationError ? e.message : 'The service is unavailable. Please try again.';
@@ -52,6 +53,10 @@ export default function PipelineJob({ session, id }: { session: ServerSession; i
   const [source, setSource] = useState<{ file: string; page: number } | null>(null);
   const attempts = useRef(new Map<File, { key: string; revision: number }>());
   const fileInput = useRef<HTMLInputElement>(null);
+  const sourcePanel = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (source) sourcePanel.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [source]);
   useEffect(() => {
     setCursor(null);
     void client.invalidateQueries({ queryKey: ['foundation', session.workspace_id, 'job', id] });
@@ -93,13 +98,26 @@ export default function PipelineJob({ session, id }: { session: ServerSession; i
     });
   }
   if (q.isPending) return <p>Opening your job…</p>;
-  if (q.isError) return <p role="alert">{explain(q.error)}</p>;
+  if (q.isError)
+    return (
+      <>
+        <p role="alert">{explain(q.error)}</p>
+        <PrivacyPanel
+          session={session}
+          id={id}
+          refresh={async () => {
+            await client.cancelQueries({ queryKey: prefix });
+            client.removeQueries({ queryKey: prefix });
+          }}
+        />
+      </>
+    );
   const job = q.data;
   const writable = session.role !== 'viewer';
   const canUpload = ['created', 'intake_done'].includes(job.status) && !running;
   return (
     <>
-      <div className="page-heading">
+      <div className="page-heading" data-job-revision={job.revision}>
         <div>
           <span className="eyebrow">Your document workspace</span>
           <h1>{job.name}</h1>
@@ -329,7 +347,7 @@ export default function PipelineJob({ session, id }: { session: ServerSession; i
         <h2>3. Results and source comparison</h2>
         <p>
           Financial reconciliation checks amounts and balances. Dates and descriptions still require
-          source review. Editing and final exports arrive in Phase 3.
+          source review. Corrections and source confirmation are required before final downloads.
         </p>
         {statements.data?.items.map((s) => (
           <div className="notice" key={s.id}>
@@ -337,7 +355,10 @@ export default function PipelineJob({ session, id }: { session: ServerSession; i
               <strong>
                 Statement {s.id} · {s.rows} rows
               </strong>
-              <p>Financial verdict: {human(s.verdict)} · Source review: required</p>
+              <p>
+                Financial verdict: {human(s.verdict)} · Source review:{' '}
+                {s.source_checked ? 'sample confirmed' : 'required'}
+              </p>
               <details>
                 <summary>Financial check details</summary>
                 <dl>
@@ -364,7 +385,7 @@ export default function PipelineJob({ session, id }: { session: ServerSession; i
           >
             <table>
               <caption className="sr-only">
-                Read-only extracted rows, with links to their source pages
+                Extracted rows, with corrections and links to source pages
               </caption>
               <thead>
                 <tr>
@@ -374,6 +395,7 @@ export default function PipelineJob({ session, id }: { session: ServerSession; i
                   <th>Credit</th>
                   <th>Balance</th>
                   <th>Source</th>
+                  {writable && <th>Correction</th>}
                 </tr>
               </thead>
               <tbody>
@@ -392,6 +414,27 @@ export default function PipelineJob({ session, id }: { session: ServerSession; i
                         Page {row.page} · {row.engine}
                       </button>
                     </td>
+                    {writable && (
+                      <td>
+                        <Correction
+                          key={row.id}
+                          row={row}
+                          revision={job.revision}
+                          disabled={busy || running}
+                          save={async (action, changes, expectedRevision) => {
+                            await api.editRows(session, id, expectedRevision, [
+                              {
+                                statement_id: row.statement_id,
+                                row_id: row.id,
+                                action,
+                                ...(changes ? { changes } : {}),
+                              },
+                            ]);
+                            await client.invalidateQueries({ queryKey: prefix });
+                          }}
+                        />
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -409,8 +452,28 @@ export default function PipelineJob({ session, id }: { session: ServerSession; i
           <button onClick={() => setCursor(rows.data!.next_cursor)}>Next rows</button>
         )}
       </section>
+      {!!statements.data?.items.length && (
+        <ReviewWorkspace
+          key={job.revision}
+          session={session}
+          job={job}
+          running={running || busy}
+          act={act}
+          showSource={(file, page) => setSource({ file, page })}
+        />
+      )}
+      <PrivacyPanel
+        session={session}
+        id={id}
+        refresh={async () => {
+          setSource(null);
+          await client.cancelQueries({ queryKey: prefix });
+          client.removeQueries({ queryKey: prefix });
+          await q.refetch();
+        }}
+      />
       {source && (
-        <section className="card section">
+        <section ref={sourcePanel} className="card section">
           <div className="spread">
             <h2>Source page {source.page}</h2>
             <button onClick={() => setSource(null)}>Close source</button>

@@ -2,21 +2,20 @@
 
 import hashlib
 import random
-from datetime import date, datetime
-from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from time import perf_counter
 
-from openpyxl import Workbook, load_workbook
+from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 
 from stmtconv.config import Settings
 from stmtconv.core.models import Statement, Transaction
 from stmtconv.core.validate import validate
-from stmtconv.errors import StmtconvError
 from stmtconv.export.csv_writer import safe_text
 from stmtconv.extract.service import persist, read_statements, version
 from stmtconv.orders import store
+from stmtconv.review.commands import apply_edits, fix_date, fix_money  # noqa: F401
+from stmtconv.review.workbook import read_edits
 
 HEADERS = [
     "Row ID",
@@ -102,189 +101,31 @@ def write(settings: Settings, order_id: str) -> list[Path]:
     return paths
 
 
-def fix_money(value: object, negative: bool = False) -> Decimal | None:
-    if value in {None, ""}:
-        return None
-    if isinstance(value, bool) or not isinstance(value, (int, float, Decimal, str)):
-        raise ValueError("use numeric money")
-    if isinstance(value, str) and value.strip() == "clear":
-        return None
-    try:
-        parsed = Decimal(str(value))
-        if (
-            not parsed.is_finite()
-            or (parsed < 0 and not negative)
-            or parsed != parsed.quantize(Decimal("0.01"))
-        ):
-            raise ValueError("nonnegative two-decimal money required")
-        return parsed
-    except InvalidOperation as exc:
-        raise ValueError("invalid money") from exc
-
-
-def fix_date(value: object) -> date:
-    if isinstance(value, datetime):
-        return value.date()
-    if isinstance(value, date):
-        return value
-    if isinstance(value, str):
-        return date.fromisoformat(value)
-    raise ValueError("use an Excel date or YYYY-MM-DD")
-
-
 def apply(settings: Settings, order_id: str, confirm_ai_source: bool = False) -> list[Statement]:
     started = perf_counter()
     with store.edit(settings.workspace, order_id) as order:
         store.require(order, {"needs_review", "reviewed"})
         originals = read_statements(settings, order_id)
-        changed: list[Statement] = []
-        fixes = 0
+        edits = []
         for original in originals:
             path = store.child(
                 store.root(settings.workspace, order_id), f"review/{original.id}-review.xlsx"
             )
-            workbook = load_workbook(path, data_only=False)
-            if "_Metadata" not in workbook or list(workbook["_Metadata"].values)[0] != (
-                order_id,
-                original.id,
-                digest(original),
-            ):
-                raise StmtconvError(
-                    "REVIEW_STALE",
-                    "Review workbook is stale or belongs to another statement.",
-                    "Generate a fresh review workbook.",
-                )
-            sheet = workbook["Review"]
-            if list(next(sheet.values)) != HEADERS:
-                raise StmtconvError("REVIEW_COLUMNS", "Review column headings were changed.")
-            existing = {row.id: row for row in original.transactions}
-            seen: set[str] = set()
-            rows: list[Transaction] = []
-            result = original.model_copy(deep=True)
-            local_fixes = 0
-            for number, values in enumerate(list(sheet.values)[1:], 2):
-                if all(v is None for v in values):
-                    continue
-                data = dict(zip(HEADERS, values, strict=True))
-                row_id = str(data["Row ID"])
-                if row_id not in existing or row_id in seen:
-                    raise StmtconvError(
-                        "REVIEW_ROW", f"Unknown or duplicate row ID at sheet row {number}."
-                    )
-                seen.add(row_id)
-                action = data["Action"] or "keep"
-                if action not in {"keep", "fix", "delete", "insert_after"}:
-                    raise StmtconvError("REVIEW_ACTION", f"Invalid Action at sheet row {number}.")
-                row = existing[row_id].model_copy(deep=True)
-                if action == "delete":
-                    fixes += 1
-                    local_fixes += 1
-                    result.review_history.append({"row_id": row_id, "action": "delete"})
-                    continue
-                if action == "insert_after":
-                    rows.append(row)
-                    row = row.model_copy(
-                        update={
-                            "id": hashlib.sha256(
-                                f"{row_id}|insert|{digest(original)}".encode()
-                            ).hexdigest()[:16],
-                            "debit": None,
-                            "credit": None,
-                            "balance": None,
-                            "flags": [],
-                        },
-                        deep=True,
-                    )
-                edited = False
-                try:
-                    for field in ["Date", "Description", "Debit", "Credit", "Balance"]:
-                        value = data["Fix " + field]
-                        if value is None or value == "":
-                            continue
-                        if action == "keep":
-                            raise ValueError("choose fix or insert_after")
-                        if field == "Date":
-                            row.date = fix_date(value)
-                            row.flags = [
-                                f
-                                for f in row.flags
-                                if f
-                                not in {
-                                    "DATE_ORDER_AMBIGUOUS",
-                                    "DATE_UNPARSABLE",
-                                    "YEAR_UNKNOWN",
-                                    "DATE_OUT_OF_PERIOD",
-                                }
-                            ]
-                            from stmtconv.core.dates import parse_date
-
-                            _, flags = parse_date(
-                                row.date.isoformat(),
-                                "YMD",
-                                original.summary.period_start,
-                                original.summary.period_end,
-                                allowance_days=settings.date_out_of_period_days,
-                            )
-                            row.flags.extend(flags)
-                        elif field == "Description":
-                            if (
-                                not isinstance(value, str)
-                                or not value.strip()
-                                or value.startswith("=")
-                            ):
-                                raise ValueError("plain text required")
-                            row.description = value.strip()
-                            row.flags = [f for f in row.flags if f != "DESC_NUMERIC"]
-                            if row.description.isdigit():
-                                row.flags.append("DESC_NUMERIC")
-                        else:
-                            setattr(row, field.lower(), fix_money(value, field == "Balance"))
-                            cleared = {"MONEY_" + field.upper() + "_UNPARSABLE"}
-                            if field in {"Debit", "Credit"}:
-                                cleared |= {"MONEY_MOVEMENT_MISSING", "MONEY_AMOUNT_UNPARSABLE"}
-                            row.flags = [f for f in row.flags if f not in cleared]
-                            if not any(f.startswith("MONEY_") for f in row.flags):
-                                row.flags = [f for f in row.flags if f != "AMOUNT_UNPARSABLE"]
-                        edited = True
-                    if action == "insert_after" and (
-                        not data["Fix Date"]
-                        or not data["Fix Description"]
-                        or (row.debit is None and row.credit is None)
-                    ):
-                        raise ValueError("insert needs date, description and amount")
-                    if action == "fix" and not edited:
-                        raise ValueError("fix needs at least one changed field")
-                except (ValueError, TypeError) as exc:
-                    raise StmtconvError(
-                        "REVIEW_CELL",
-                        f"Invalid fix at sheet row {number}.",
-                        "Use dates, plain descriptions, nonnegative two-decimal numbers, or clear for blank money.",
-                    ) from exc
-                if edited:
-                    row.fixed_by = "review"
-                    fixes += 1
-                    local_fixes += 1
-                    result.review_history.append(
-                        {"row_id": row_id, "action": str(action), "note": str(data["Note"] or "")}
-                    )
-                rows.append(row)
-            if seen != set(existing):
-                raise StmtconvError(
-                    "REVIEW_MISSING", "Rows were removed from the sheet; use Action=delete instead."
-                )
-            result.transactions = rows
-            result.manual_fixes += local_fixes
-            if confirm_ai_source and "AI_RESULT_UNTRUSTED" in result.flags:
-                result.flags = [f for f in result.flags if f != "AI_RESULT_UNTRUSTED"]
+            edits.extend(
+                read_edits(path.read_bytes(), original, [order_id, original.id, digest(original)])
+            )
+        changed = apply_edits(originals, edits, settings)
+        if confirm_ai_source:
+            for result in changed:
                 for row in result.transactions:
                     if row.engine == "ai":
                         row.source_reviewed = True
-                result.review_history.append({"action": "confirm_ai_source"})
-            if not any("DATE_ORDER_AMBIGUOUS" in t.flags for t in rows):
-                result.flags = [f for f in result.flags if f != "DATE_ORDER_AMBIGUOUS"]
-            changed.append(validate(result, settings.balance_tolerance))
+                        row.fixed_by = row.fixed_by or "ai"
+                        row.flags = [f for f in row.flags if f != "AI_RESULT_UNTRUSTED"]
+                result.flags = [f for f in result.flags if f != "AI_RESULT_UNTRUSTED"]
+            changed = [validate(result, settings.balance_tolerance) for result in changed]
         persist(settings, order_id, changed)
-        order.manual_fixes += fixes
+        order.manual_fixes += len(edits)
         order.timings["review"] = order.timings.get("review", 0) + perf_counter() - started
         order.spot_check = type(order.spot_check)()
         for fact, statement in zip(order.statements, changed, strict=True):

@@ -2,10 +2,10 @@ openapi: 3.1.0
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Dockling hosted API contract
-  version: 0.2.0
-  description: Versioned SaaS design. Phases 1 and 2 are implemented for synthetic local testing; later-phase
-    operations remain planned. Phase 2 upload uses bounded raw bytes with revision/name/synthetic-confirmation
-    headers.
+  version: 0.3.0
+  description: Versioned SaaS design. Hosted Phases 1–3 are implemented for synthetic local testing.
+    Operations marked x-implementation implemented describe current routes; other routes remain planned.
+    Upload and workbook apply use bounded raw bytes with revision headers.
 servers:
 - url: /api/v1
 security:
@@ -694,9 +694,10 @@ paths:
               type: string
               format: binary
               maxLength: 8388608
-      description: One file per request, maximum 8 MiB by default. The filename is URL-encoded UTF-8 data,
-        never a storage path. The upload remains quarantined until the isolated worker verifies PDF/image
-        structure. Reuse the same idempotency key and exact payload when the response is lost.
+      description: One file per request, maximum 8 MiB by default. The filename is
+        URL-encoded UTF-8 data, never a storage path. The upload remains quarantined
+        until the isolated worker verifies PDF/image structure. Reuse the same idempotency
+        key and exact payload when the response is lost.
   /jobs/{job}/intake:
     post:
       operationId: post_jobs_job_intake
@@ -1069,8 +1070,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/OperationCreate'
-      description: Phase 2 implements extract and retry only. Other action enum values remain planned
-        for later phases and are rejected by the Phase 2 server.
+      description: Phase 2 implements extract and retry only. Other action enum values
+        remain planned for later phases and are rejected by the Phase 2 server.
     get:
       operationId: get_jobs_job_operations
       summary: GET /jobs/{job}/operations
@@ -1110,8 +1111,8 @@ paths:
           $ref: '#/components/responses/Error503'
       parameters:
       - $ref: '#/components/parameters/PathJob'
-      description: Latest 30 operations, newest first. This bounded recent-history view always returns
-        null next_cursor.
+      description: Latest 30 operations, newest first. This bounded recent-history
+        view always returns null next_cursor.
   /jobs/{job}/operations/{operation}:
     get:
       operationId: get_jobs_job_operations_operation
@@ -1244,24 +1245,27 @@ paths:
       - $ref: '#/components/parameters/QueryCursor'
   /jobs/{job}/checks:
     get:
-      operationId: get_jobs_job_checks
-      summary: GET /jobs/{job}/checks
-      x-phase: 3
-      x-feature-ids:
-      - F10
-      x-access-roles:
-      - owner
-      - editor
-      - viewer
-      - support_read
-      x-workspace-scoped: true
+      summary: Checks
+      operationId: hosted_get__jobs_job_checks
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
       responses:
         '200':
-          description: Successful authorized result
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Checks'
+                type: object
+                additionalProperties: true
+                title: Response Checks Api V1 Jobs  Jid  Checks Get
+        '422':
+          $ref: '#/components/responses/Error422'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -1274,14 +1278,20 @@ paths:
           $ref: '#/components/responses/Error409'
         '413':
           $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/PathJob'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F11
+      - F12
   /jobs/{job}/rows:
     get:
       operationId: get_jobs_job_rows
@@ -1324,9 +1334,9 @@ paths:
       - $ref: '#/components/parameters/PathJob'
       - $ref: '#/components/parameters/QueryLimit'
       - $ref: '#/components/parameters/QueryCursor'
-      description: Read-only source-linked canonical rows at the current revision. Monetary values remain
-        exact decimal strings; raw text and full account identity are excluded. Editing/export remains
-        Phase 3.
+      description: Read-only source-linked canonical rows at the current revision.
+        Monetary values remain exact decimal strings; raw text and full account identity
+        are excluded. Editing/export remains Phase 3.
   /jobs/{job}/review:
     post:
       operationId: post_jobs_job_review
@@ -1373,24 +1383,37 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReviewCommand'
-  /jobs/{job}/review-workbooks:
-    post:
-      operationId: post_jobs_job_review_workbooks
-      summary: POST /jobs/{job}/review-workbooks
-      x-phase: 3
-      x-feature-ids:
-      - F11
-      x-access-roles:
-      - owner
-      - editor
-      x-workspace-scoped: true
+      x-implementation: planned; use documented hosted routes for implemented capability
+    patch:
+      summary: Edit
+      operationId: hosted_patch__jobs_job_review
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedEditCommand'
       responses:
-        '202':
-          description: Accepted queued operation
+        '200':
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Operation'
+                type: object
+                additionalProperties: true
+                title: Response Edit Api V1 Jobs  Jid  Review Patch
+        '422':
+          $ref: '#/components/responses/Error422'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -1403,14 +1426,31 @@ paths:
           $ref: '#/components/responses/Error409'
         '413':
           $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F11
+      - F12
+  /jobs/{job}/review-workbooks:
+    post:
+      summary: Prepare
+      operationId: hosted_post__jobs_job_review_workbooks
       parameters:
-      - $ref: '#/components/parameters/PathJob'
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
       - $ref: '#/components/parameters/HeaderXCsrfToken'
       - $ref: '#/components/parameters/HeaderIdempotencyKey'
       requestBody:
@@ -1418,7 +1458,91 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RevisionCommand'
+              $ref: '#/components/schemas/HostedRevisionCommand'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Prepare Api V1 Jobs  Jid  Review Workbooks Post
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F11
+      - F12
+    get:
+      summary: Outputs
+      operationId: hosted_get__jobs_job_review_workbooks
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Outputs Api V1 Jobs  Jid  Review Workbooks Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F11
+      - F12
   /jobs/{job}/review-workbooks/apply:
     post:
       operationId: post_jobs_job_review_workbooks_apply
@@ -1465,213 +1589,72 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/WorkbookApply'
+      x-implementation: planned; use documented hosted routes for implemented capability
   /jobs/{job}/spotcheck:
     get:
-      operationId: get_jobs_job_spotcheck
-      summary: GET /jobs/{job}/spotcheck
+      summary: Source Check
+      operationId: hosted_get__jobs_job_spotcheck
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Source Check Api V1 Jobs  Jid  Spotcheck Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
       x-phase: 3
-      x-feature-ids:
-      - F12
+      x-implementation: implemented
+      x-workspace-scoped: true
       x-access-roles:
       - owner
       - editor
       - viewer
-      x-workspace-scoped: true
-      responses:
-        '200':
-          description: Successful authorized result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SourceCheck'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/PathJob'
-    post:
-      operationId: post_jobs_job_spotcheck
-      summary: POST /jobs/{job}/spotcheck
-      x-phase: 3
-      x-feature-ids:
-      - F12
-      x-access-roles:
-      - owner
-      - editor
-      x-workspace-scoped: true
-      responses:
-        '200':
-          description: Successful authorized result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Job'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/PathJob'
-      - $ref: '#/components/parameters/HeaderXCsrfToken'
-      - $ref: '#/components/parameters/HeaderIdempotencyKey'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SourceAttestation'
-  /jobs/{job}/ai-source:
-    get:
-      operationId: get_jobs_job_ai_source
-      summary: GET /jobs/{job}/ai-source
-      x-phase: 3
       x-feature-ids:
       - F13
-      x-access-roles:
-      - owner
-      - editor
-      - viewer
-      x-workspace-scoped: true
-      responses:
-        '200':
-          description: Successful authorized result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SourceCheck'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/PathJob'
-    post:
-      operationId: post_jobs_job_ai_source
-      summary: POST /jobs/{job}/ai-source
-      x-phase: 3
-      x-feature-ids:
-      - F13
-      x-access-roles:
-      - owner
-      - editor
-      x-workspace-scoped: true
-      responses:
-        '200':
-          description: Successful authorized result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Job'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/PathJob'
-      - $ref: '#/components/parameters/HeaderXCsrfToken'
-      - $ref: '#/components/parameters/HeaderIdempotencyKey'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SourceAttestation'
-  /jobs/{job}/exports:
-    post:
-      operationId: post_jobs_job_exports
-      summary: POST /jobs/{job}/exports
-      x-phase: 3
-      x-feature-ids:
       - F14
       - F15
-      x-access-roles:
-      - owner
-      - editor
-      x-workspace-scoped: true
-      responses:
-        '202':
-          description: Accepted queued operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Operation'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
+      - F17
+      - F18
+      - F19
+      - F20
+    post:
+      summary: Confirm
+      operationId: hosted_post__jobs_job_spotcheck
       parameters:
-      - $ref: '#/components/parameters/PathJob'
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
       - $ref: '#/components/parameters/HeaderXCsrfToken'
       - $ref: '#/components/parameters/HeaderIdempotencyKey'
       requestBody:
@@ -1679,26 +1662,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RevisionCommand'
-    get:
-      operationId: get_jobs_job_exports
-      summary: GET /jobs/{job}/exports
-      x-phase: 3
-      x-feature-ids:
-      - F14
-      x-access-roles:
-      - owner
-      - editor
-      - viewer
-      - support_read
-      x-workspace-scoped: true
+              $ref: '#/components/schemas/HostedSourceCommand'
       responses:
         '200':
-          description: Successful authorized result
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArtifactList'
+                type: object
+                additionalProperties: true
+                title: Response Confirm Api V1 Jobs  Jid  Spotcheck Post
+        '422':
+          $ref: '#/components/responses/Error422'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -1711,16 +1686,252 @@ paths:
           $ref: '#/components/responses/Error409'
         '413':
           $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F13
+      - F14
+      - F15
+      - F17
+      - F18
+      - F19
+      - F20
+  /jobs/{job}/ai-source:
+    get:
+      summary: Source Check
+      operationId: hosted_get__jobs_job_ai_source
       parameters:
-      - $ref: '#/components/parameters/PathJob'
-      - $ref: '#/components/parameters/QueryLimit'
-      - $ref: '#/components/parameters/QueryCursor'
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Source Check Api V1 Jobs  Jid  Ai Source Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F13
+      - F14
+      - F15
+      - F17
+      - F18
+      - F19
+      - F20
+    post:
+      summary: Confirm
+      operationId: hosted_post__jobs_job_ai_source
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedSourceCommand'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Confirm Api V1 Jobs  Jid  Ai Source Post
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F13
+      - F14
+      - F15
+      - F17
+      - F18
+      - F19
+      - F20
+  /jobs/{job}/exports:
+    post:
+      summary: Prepare
+      operationId: hosted_post__jobs_job_exports
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRevisionCommand'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Prepare Api V1 Jobs  Jid  Exports Post
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F13
+      - F14
+      - F15
+      - F17
+      - F18
+      - F19
+      - F20
+    get:
+      summary: Outputs
+      operationId: hosted_get__jobs_job_exports
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Outputs Api V1 Jobs  Jid  Exports Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F13
+      - F14
+      - F15
+      - F17
+      - F18
+      - F19
+      - F20
   /jobs/{job}/exports/{artifact}/download:
     get:
       operationId: get_jobs_job_exports_artifact_download
@@ -1770,6 +1981,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/PathJob'
       - $ref: '#/components/parameters/PathArtifact'
+      x-implementation: planned; use documented hosted routes for implemented capability
   /jobs/{job}/account-identity:
     put:
       operationId: put_jobs_job_account_identity
@@ -1817,24 +2029,38 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/IdentityCommand'
+      x-implementation: planned; use documented hosted routes for implemented capability
   /jobs/{job}/merge-preview:
     post:
-      operationId: post_jobs_job_merge_preview
-      summary: POST /jobs/{job}/merge-preview
-      x-phase: 3
-      x-feature-ids:
-      - F16
-      x-access-roles:
-      - owner
-      - editor
-      x-workspace-scoped: true
+      summary: Merge Preview
+      operationId: hosted_post__jobs_job_merge_preview
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRevisionCommand'
       responses:
         '200':
-          description: Successful authorized result
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MergePreview'
+                type: object
+                additionalProperties: true
+                title: Response Merge Preview Api V1 Jobs  Jid  Merge Preview Post
+        '422':
+          $ref: '#/components/responses/Error422'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -1847,22 +2073,19 @@ paths:
           $ref: '#/components/responses/Error409'
         '413':
           $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/PathJob'
-      - $ref: '#/components/parameters/HeaderXCsrfToken'
-      - $ref: '#/components/parameters/HeaderIdempotencyKey'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RevisionCommand'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F11
+      - F12
   /rules:
     get:
       operationId: get_rules
@@ -1900,6 +2123,7 @@ paths:
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
+      x-implementation: planned; use documented hosted routes for implemented capability
     put:
       operationId: put_rules
       summary: PUT /rules
@@ -1944,6 +2168,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RuleCommand'
+      x-implementation: planned; use documented hosted routes for implemented capability
   /rules/preview:
     post:
       operationId: post_rules_preview
@@ -1989,6 +2214,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RulePreview'
+      x-implementation: planned; use documented hosted routes for implemented capability
   /jobs/{job}/category-overrides:
     put:
       operationId: put_jobs_job_category_overrides
@@ -2035,24 +2261,38 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CategoryOverrides'
+      x-implementation: planned; use documented hosted routes for implemented capability
   /jobs/{job}/delivery:
     post:
-      operationId: post_jobs_job_delivery
-      summary: POST /jobs/{job}/delivery
-      x-phase: 3
-      x-feature-ids:
-      - F18
-      x-access-roles:
-      - owner
-      - editor
-      x-workspace-scoped: true
+      summary: Prepare
+      operationId: hosted_post__jobs_job_delivery
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRevisionCommand'
       responses:
         '202':
-          description: Accepted queued operation
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Operation'
+                type: object
+                additionalProperties: true
+                title: Response Prepare Api V1 Jobs  Jid  Delivery Post
+        '422':
+          $ref: '#/components/responses/Error422'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -2065,22 +2305,77 @@ paths:
           $ref: '#/components/responses/Error409'
         '413':
           $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F13
+      - F14
+      - F15
+      - F17
+      - F18
+      - F19
+      - F20
+    get:
+      summary: Outputs
+      operationId: hosted_get__jobs_job_delivery
       parameters:
-      - $ref: '#/components/parameters/PathJob'
-      - $ref: '#/components/parameters/HeaderXCsrfToken'
-      - $ref: '#/components/parameters/HeaderIdempotencyKey'
-      requestBody:
+      - name: job
+        in: path
         required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RevisionCommand'
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Outputs Api V1 Jobs  Jid  Delivery Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F13
+      - F14
+      - F15
+      - F17
+      - F18
+      - F19
+      - F20
   /jobs/{job}/delivery/download:
     get:
       operationId: get_jobs_job_delivery_download
@@ -2128,6 +2423,7 @@ paths:
           $ref: '#/components/responses/Error503'
       parameters:
       - $ref: '#/components/parameters/PathJob'
+      x-implementation: planned; use documented hosted routes for implemented capability
   /jobs/{job}/data:
     get:
       operationId: get_jobs_job_data
@@ -2167,24 +2463,38 @@ paths:
           $ref: '#/components/responses/Error503'
       parameters:
       - $ref: '#/components/parameters/PathJob'
+      x-implementation: planned; use documented hosted routes for implemented capability
   /jobs/{job}/close:
     post:
-      operationId: post_jobs_job_close
-      summary: POST /jobs/{job}/close
-      x-phase: 3
-      x-feature-ids:
-      - F21
-      - F22
-      x-access-roles:
-      - owner
-      x-workspace-scoped: true
+      summary: Close
+      operationId: hosted_post__jobs_job_close
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRemovalCommand'
       responses:
         '202':
-          description: Accepted queued operation
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Operation'
+                type: object
+                additionalProperties: true
+                title: Response Close Api V1 Jobs  Jid  Close Post
+        '422':
+          $ref: '#/components/responses/Error422'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -2197,22 +2507,18 @@ paths:
           $ref: '#/components/responses/Error409'
         '413':
           $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/PathJob'
-      - $ref: '#/components/parameters/HeaderXCsrfToken'
-      - $ref: '#/components/parameters/HeaderIdempotencyKey'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CloseCommand'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F21
+      - F22
   /jobs/{job}/deletion-certificate:
     get:
       operationId: get_jobs_job_deletion_certificate
@@ -2252,6 +2558,7 @@ paths:
           $ref: '#/components/responses/Error503'
       parameters:
       - $ref: '#/components/parameters/PathJob'
+      x-implementation: planned; use documented hosted routes for implemented capability
   /usage:
     get:
       operationId: get_usage
@@ -3929,20 +4236,658 @@ paths:
           $ref: '#/components/responses/Error503'
       parameters:
       - $ref: '#/components/parameters/PathJob'
+  /jobs/{job}/recheck:
+    post:
+      summary: Recheck
+      operationId: hosted_post__jobs_job_recheck
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRevisionCommand'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Recheck Api V1 Jobs  Jid  Recheck Post
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F11
+      - F12
+  /jobs/{job}/review-history:
+    get:
+      summary: History
+      operationId: hosted_get__jobs_job_review_history
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response History Api V1 Jobs  Jid  Review History Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F11
+      - F12
+  /jobs/{job}/categories/preview:
+    post:
+      summary: Category Preview
+      operationId: hosted_post__jobs_job_categories_preview
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRuleCommand'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Category Preview Api V1 Jobs  Jid  Categories Preview
+                  Post
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F11
+      - F12
+  /jobs/{job}/output-options:
+    patch:
+      summary: Options
+      operationId: hosted_patch__jobs_job_output_options
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedExportOptions'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Options Api V1 Jobs  Jid  Output Options Patch
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F13
+      - F14
+      - F15
+      - F17
+      - F18
+      - F19
+      - F20
+  /jobs/{job}/account-group:
+    post:
+      summary: Account
+      operationId: hosted_post__jobs_job_account_group
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedAccountGroup'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Account Api V1 Jobs  Jid  Account Group Post
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F13
+      - F14
+      - F15
+      - F17
+      - F18
+      - F19
+      - F20
+  /categories:
+    get:
+      summary: Categories
+      operationId: hosted_get__categories
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Categories Api V1 Categories Get
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F16
+    put:
+      summary: Category Write
+      operationId: hosted_put__categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRuleCommand'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Category Write Api V1 Categories Put
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F16
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+  /jobs/{job}/categories:
+    put:
+      summary: Overrides
+      operationId: hosted_put__jobs_job_categories
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRuleCommand'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Overrides Api V1 Jobs  Jid  Categories Put
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F16
+    get:
+      summary: Job Rules
+      operationId: hosted_get__jobs_job_categories
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Job Rules Api V1 Jobs  Jid  Categories Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F16
+  /jobs/{job}/artifacts/{artifact}/download:
+    get:
+      summary: Download
+      operationId: hosted_get__jobs_job_artifacts_artifact_download
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - name: artifact
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F13
+      - F14
+      - F15
+      - F17
+      - F18
+      - F19
+      - F20
+  /jobs/{job}/review-workbooks/{artifact}/apply:
+    post:
+      summary: Workbook Apply
+      operationId: hosted_post__jobs_job_review_workbooks_artifact_apply
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - name: artifact
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Workbook Apply Api V1 Jobs  Jid  Review Workbooks  Aid  Apply
+                  Post
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F11
+      - F12
+  /jobs/{job}/privacy:
+    get:
+      summary: Policy
+      operationId: hosted_get__jobs_job_privacy
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Policy Api V1 Jobs  Jid  Privacy Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 3
+      x-implementation: implemented
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F21
+      - F22
 components:
   securitySchemes:
     SessionCookie:
       type: apiKey
       in: cookie
       name: dockling_session
-      description: Opaque server session; Secure, HttpOnly, SameSite. Not an OIDC access token or browser
-        role.
+      description: Opaque server session; Secure, HttpOnly, SameSite. Not an OIDC
+        access token or browser role.
     PaymentSignature:
       type: apiKey
       in: header
       name: Payment-Signature
-      description: Placeholder for the selected provider signature scheme; validate raw provider bytes,
-        timestamp and replay policy before processing.
+      description: Placeholder for the selected provider signature scheme; validate
+        raw provider bytes, timestamp and replay policy before processing.
   schemas:
     Error:
       type: object
@@ -4138,8 +5083,8 @@ components:
           type: string
           format: uri
           maxLength: 1000
-          description: Owner-only invitation link. Token is carried in the fragment; do not log or persist
-            this response in browser storage.
+          description: Owner-only invitation link. Token is carried in the fragment;
+            do not log or persist this response in browser storage.
       required:
       - id
       - role
@@ -6078,6 +7023,494 @@ components:
       - next_cursor
       - revision
       additionalProperties: false
+    HostedAccountGroup:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        confirmed:
+          type: boolean
+          title: Confirmed
+        private_group:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Private Group
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - confirmed
+      - private_group
+      title: AccountGroup
+    HostedEditCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        edits:
+          items:
+            $ref: '#/components/schemas/HostedReviewEdit'
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Edits
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - edits
+      title: EditCommand
+    HostedExportOptions:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        outputs:
+          items:
+            type: string
+            enum:
+            - excel
+            - csv
+            - qb_csv3
+            - qb_csv4
+            - xero_csv
+            - ofx
+          type: array
+          maxItems: 6
+          minItems: 1
+          title: Outputs
+        output_date_format:
+          type: string
+          enum:
+          - ISO
+          - MM/DD/YYYY
+          - DD/MM/YYYY
+          title: Output Date Format
+        merge:
+          type: boolean
+          title: Merge
+        categorize:
+          type: boolean
+          title: Categorize
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - outputs
+      - output_date_format
+      - merge
+      - categorize
+      title: ExportOptions
+    HostedFileOrderCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        file_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 30
+          minItems: 1
+          title: File Ids
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - file_ids
+      title: FileOrderCommand
+    HostedHTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/HostedValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HostedInvitationAccept:
+      properties:
+        token:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Token
+      additionalProperties: false
+      type: object
+      required:
+      - token
+      title: InvitationAccept
+    HostedInvitationCreate:
+      properties:
+        email:
+          type: string
+          maxLength: 254
+          minLength: 3
+          pattern: ^[^\s@]+@[^\s@]+\.[^\s@]+$
+          title: Email
+        role:
+          type: string
+          enum:
+          - editor
+          - viewer
+          title: Role
+      additionalProperties: false
+      type: object
+      required:
+      - email
+      - role
+      title: InvitationCreate
+    HostedJobOptions:
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          title: Currency
+        date_order:
+          type: string
+          enum:
+          - auto
+          - DMY
+          - MDY
+          - YMD
+          title: Date Order
+        output_date_format:
+          type: string
+          enum:
+          - ISO
+          - MM/DD/YYYY
+          - DD/MM/YYYY
+          title: Output Date Format
+          default: ISO
+        outputs:
+          items:
+            type: string
+            enum:
+            - excel
+            - csv
+            - qb_csv3
+            - qb_csv4
+            - xero_csv
+            - ofx
+          type: array
+          maxItems: 6
+          minItems: 1
+          title: Outputs
+        merge:
+          type: boolean
+          title: Merge
+          default: false
+        categorize:
+          type: boolean
+          title: Categorize
+          default: false
+        combine:
+          type: boolean
+          title: Combine
+          default: false
+        engine:
+          type: string
+          enum:
+          - auto
+          - text
+          - docling
+          title: Engine
+          default: auto
+        profile_id:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Profile Id
+        pages:
+          anyOf:
+          - type: string
+            maxLength: 250
+          - type: 'null'
+          title: Pages
+        ai_selection:
+          type: 'null'
+          title: Ai Selection
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - currency
+      - date_order
+      - outputs
+      title: JobOptions
+    HostedMemberCommand:
+      properties:
+        expected_version:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Version
+        role:
+          anyOf:
+          - type: string
+            enum:
+            - owner
+            - editor
+            - viewer
+          - type: 'null'
+          title: Role
+        active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Active
+      additionalProperties: false
+      type: object
+      required:
+      - expected_version
+      title: MemberCommand
+    HostedPasswordCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        password:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Password
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - password
+      title: PasswordCommand
+    HostedPipelineCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        action:
+          type: string
+          enum:
+          - extract
+          - retry
+          title: Action
+        retry_operation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Retry Operation Id
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - action
+      title: PipelineCommand
+    HostedRemovalCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        confirm_removal:
+          type: boolean
+          title: Confirm Removal
+        abandon_unfinished:
+          type: boolean
+          title: Abandon Unfinished
+          default: false
+        reason:
+          type: string
+          maxLength: 250
+          title: Reason
+          default: ''
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - confirm_removal
+      title: RemovalCommand
+    HostedReviewEdit:
+      properties:
+        statement_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Statement Id
+        row_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Row Id
+        action:
+          type: string
+          enum:
+          - fix
+          - delete
+          - insert_after
+          title: Action
+        changes:
+          anyOf:
+          - $ref: '#/components/schemas/HostedRowChanges'
+          - type: 'null'
+        note:
+          type: string
+          maxLength: 500
+          title: Note
+          default: ''
+      additionalProperties: false
+      type: object
+      required:
+      - statement_id
+      - row_id
+      - action
+      title: ReviewEdit
+    HostedRevisionCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      title: RevisionCommand
+    HostedRowChanges:
+      properties:
+        date:
+          anyOf:
+          - type: string
+            maxLength: 10
+          - type: 'null'
+          title: Date
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2000
+            minLength: 1
+          - type: 'null'
+          title: Description
+        debit:
+          anyOf:
+          - type: string
+            maxLength: 24
+          - type: 'null'
+          title: Debit
+        credit:
+          anyOf:
+          - type: string
+            maxLength: 24
+          - type: 'null'
+          title: Credit
+        balance:
+          anyOf:
+          - type: string
+            maxLength: 24
+          - type: 'null'
+          title: Balance
+      additionalProperties: false
+      type: object
+      title: RowChanges
+    HostedRuleCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        rules:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          maxItems: 100
+          title: Rules
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - rules
+      title: RuleCommand
+    HostedSourceCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        row_ids:
+          items:
+            type: string
+          type: array
+          maxItems: 10000
+          title: Row Ids
+        passed:
+          type: boolean
+          title: Passed
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - row_ids
+      - passed
+      title: SourceCommand
+    HostedValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HostedWorkspaceSelect:
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+          title: Workspace Id
+      additionalProperties: false
+      type: object
+      required:
+      - workspace_id
+      title: WorkspaceSelect
   responses:
     Error400:
       description: Safe structured error without private input echo
@@ -6168,7 +7601,8 @@ components:
         type: string
         maxLength: 128
         minLength: 16
-      description: Scoped durable replay key; changed payload under the same key is a 409 conflict.
+      description: Scoped durable replay key; changed payload under the same key is
+        a 409 conflict.
     PathInvitation:
       name: invitation
       in: path

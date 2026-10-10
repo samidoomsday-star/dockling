@@ -19,7 +19,7 @@ from sqlalchemy import func, select
 from stmtconv.config import HostedSettings
 from stmtconv.web.database import PostgresUnitOfWork
 from stmtconv.web.errors import WebError
-from stmtconv.web.models import Artifact, Job, Membership, Operation, Workspace
+from stmtconv.web.models import Artifact, Job, Membership, Operation, ScratchAttempt, Workspace
 from stmtconv.web.pipeline import ArtifactBundle, PipelineTask
 from stmtconv.web.storage import ObjectStore
 
@@ -53,8 +53,18 @@ class Broker:
         token_hash = hashlib.sha256(str(value["token"]).encode()).hexdigest()
         with self.uow.transaction() as db:
             operation = db.get(Operation, oid)
+            if operation is not None and value["action"] == "scratch_end":
+                attempt = db.get(ScratchAttempt, (oid, generation))
+                if attempt is None or not hmac.compare_digest(attempt.cleanup_hash, token_hash):
+                    raise ValueError
+                attempt.completed = True
+                return {"cleaned": True}
             if operation is None or operation.lease_hash is None:
                 raise ValueError
+            db.scalar(
+                select(Workspace).where(Workspace.id == operation.workspace_id).with_for_update()
+            )
+            db.refresh(operation)
             from stmtconv.web.models import now
 
             job = db.scalar(
@@ -77,11 +87,38 @@ class Broker:
                 or operation.lease_until is None
                 or operation.lease_until <= now()
                 or job is None
-                or job.deletion_state != "active"
+                or (
+                    job.deletion_state != "active"
+                    and not (
+                        operation.action == "close" and job.deletion_state in {"pending", "partial"}
+                    )
+                )
                 or job.revision != operation.input_revision
                 or member is None
             ):
                 raise ValueError
+            if value["action"] == "close":
+                if operation.action != "close" or member.role != "owner":
+                    raise ValueError
+                from stmtconv.web.privacy import remove_live
+
+                return remove_live(db, job, operation, self.store)
+            if value["action"] == "scratch_begin":
+                if operation.action == "close":
+                    raise ValueError
+                old = db.get(ScratchAttempt, (oid, generation))
+                if old is not None:
+                    raise ValueError
+                db.add(
+                    ScratchAttempt(
+                        operation_id=oid,
+                        generation=generation,
+                        workspace_id=operation.workspace_id,
+                        job_id=operation.job_id,
+                        cleanup_hash=token_hash,
+                    )
+                )
+                return {"tracked": True}
             if value["action"] == "passwords":
                 return {"passwords": self.passwords.take(oid)}
             aid = UUID(str(value["artifact"]))
@@ -92,15 +129,48 @@ class Broker:
                         Artifact.workspace_id == operation.workspace_id,
                         Artifact.job_id == operation.job_id,
                         Artifact.state == "active",
-                        Artifact.kind.in_(["original", "normalized"]),
+                        Artifact.kind.in_(["original", "normalized", "export", "review_upload"]),
                         Artifact.revision == operation.input_revision,
                     )
                 )
                 if artifact is None:
                     raise ValueError
+                if artifact.kind == "export" and (
+                    operation.action != "delivery"
+                    or str(aid)
+                    not in {
+                        i["id"]
+                        for i in cast(list[dict[str, object]], operation.payload.get("exports", []))
+                    }
+                ):
+                    raise ValueError
+                if artifact.kind == "review_upload" and (
+                    operation.action != "review_apply"
+                    or str(aid) != operation.payload.get("upload_id")
+                ):
+                    raise ValueError
+                if artifact.kind in {"original", "normalized"} and operation.action not in {
+                    "intake",
+                    "extract",
+                }:
+                    raise ValueError
                 data = self.store.verified(artifact)
                 return {"data": base64.b64encode(data).decode()}
-            if value["action"] != "stage" or value["kind"] not in {"normalized", "page"}:
+            if value["action"] != "stage" or value["kind"] not in {
+                "normalized",
+                "page",
+                "review_workbook",
+                "export",
+                "delivery",
+            }:
+                raise ValueError
+            permitted = {
+                "intake": {"normalized", "page"},
+                "review_workbook": {"review_workbook"},
+                "export": {"export"},
+                "delivery": {"delivery"},
+            }
+            if value["kind"] not in permitted.get(operation.action, set()):
                 raise ValueError
             db.scalar(
                 select(Workspace).where(Workspace.id == operation.workspace_id).with_for_update()

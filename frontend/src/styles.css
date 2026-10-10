@@ -1378,3 +1378,19 @@ li {
   font-size: clamp(1.4rem, 3vw, 2rem);
   overflow-wrap: anywhere;
 }
+
+.review-editor {
+  min-width: 240px;
+  max-width: 400px;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: #f7fafc;
+}
+.source-review-item {
+  padding: 1rem;
+  margin: 1rem 0;
+  background: #fff;
+  border: 1px solid #c4ded2;
+  border-radius: 1rem;
+}

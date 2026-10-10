@@ -84,6 +84,8 @@ const rowSchema = z
     category: z.string().nullable(),
   })
   .strict();
+export type ServerRow = z.infer<typeof rowSchema>;
+export type CurrentJob = Awaited<ReturnType<FoundationApi['job']>>;
 export type ServerFile = z.infer<typeof fileSchema>;
 export type ServerOperation = z.infer<typeof operationSchema>;
 export class FoundationError extends Error {
@@ -310,6 +312,137 @@ export class FoundationApi {
       'PUT',
     );
   }
+  workflow(id: string, path: string) {
+    return this.request('/jobs/' + id + '/' + path, artifactList);
+  }
+  prepare(session: ServerSession, id: string, path: string, expected_revision: number) {
+    return this.request(
+      '/jobs/' + id + '/' + path,
+      operationSchema,
+      session,
+      { expected_revision },
+      'POST',
+    );
+  }
+  editRows(session: ServerSession, id: string, expected_revision: number, edits: unknown[]) {
+    return this.request(
+      '/jobs/' + id + '/review',
+      z.object({ revision: z.number().int() }).passthrough(),
+      session,
+      { expected_revision, edits },
+      'PATCH',
+    );
+  }
+  sourceCheck(id: string, ai = false) {
+    return this.request('/jobs/' + id + (ai ? '/ai-source' : '/spotcheck'), sourceSample);
+  }
+  confirmSource(
+    session: ServerSession,
+    id: string,
+    expected_revision: number,
+    row_ids: string[],
+    passed: boolean,
+    ai = false,
+  ) {
+    return this.request(
+      '/jobs/' + id + (ai ? '/ai-source' : '/spotcheck'),
+      z.object({ revision: z.number().int() }).passthrough(),
+      session,
+      { expected_revision, row_ids, passed },
+      'POST',
+    );
+  }
+  outputOptions(
+    session: ServerSession,
+    id: string,
+    expected_revision: number,
+    options: Record<string, unknown>,
+  ) {
+    return this.request(
+      '/jobs/' + id + '/output-options',
+      z.object({ revision: z.number().int() }).passthrough(),
+      session,
+      { expected_revision, ...options },
+      'PATCH',
+    );
+  }
+  accountGroup(
+    session: ServerSession,
+    id: string,
+    expected_revision: number,
+    private_group: string,
+  ) {
+    return this.request(
+      '/jobs/' + id + '/account-group',
+      z.object({ revision: z.number().int() }).passthrough(),
+      session,
+      { expected_revision, private_group, confirmed: true },
+      'POST',
+    );
+  }
+  privacy(id: string) {
+    return this.request('/jobs/' + id + '/privacy', privacySchema);
+  }
+  close(
+    session: ServerSession,
+    id: string,
+    expected_revision: number,
+    abandon_unfinished: boolean,
+  ) {
+    return this.request(
+      '/jobs/' + id + '/close',
+      operationSchema,
+      session,
+      { expected_revision, confirm_removal: true, abandon_unfinished },
+      'POST',
+    );
+  }
+  rules(id?: string) {
+    return this.request(
+      id ? '/jobs/' + id + '/categories' : '/categories',
+      z.object({ version: z.number().int(), rules: z.array(categoryRule) }).strict(),
+    );
+  }
+  saveRules(session: ServerSession, id: string, expected_revision: number, rules: unknown[]) {
+    return this.request(
+      '/jobs/' + id + '/categories',
+      z.object({ revision: z.number().int() }).passthrough(),
+      session,
+      { expected_revision, rules },
+      'PUT',
+    );
+  }
+  async applyWorkbook(
+    session: ServerSession,
+    id: string,
+    workbook: string,
+    revision: number,
+    file: File,
+  ) {
+    const response = await fetch(
+      '/api/v1/jobs/' + id + '/review-workbooks/' + workbook + '/apply',
+      {
+        method: 'POST',
+        credentials: 'same-origin',
+        cache: 'no-store',
+        body: file,
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'X-CSRF-Token': session.csrf_token,
+          'Idempotency-Key': crypto.randomUUID(),
+          'X-Expected-Revision': String(revision),
+        },
+      },
+    );
+    if (!response.ok)
+      throw new FoundationError(
+        response.status,
+        response.status === 409
+          ? 'The workbook or job changed. Download a fresh workbook.'
+          : 'The workbook could not be accepted. Check the file and try again.',
+      );
+    return operationSchema.parse(await response.json());
+  }
   switch(session: ServerSession, workspace_id: string) {
     return this.request('/session/workspace', sessionSchema, session, { workspace_id }, 'POST');
   }
@@ -391,3 +524,77 @@ export class FoundationApi {
     );
   }
 }
+
+const artifactList = z
+  .object({
+    revision: z.number().int(),
+    items: z.array(
+      z
+        .object({
+          id: uuid,
+          name: z.string(),
+          kind: z.string(),
+          sha256: z.string(),
+          bytes: z.number().int(),
+          format: z.string().optional(),
+          statement_id: z.string().optional(),
+          binding: z.array(z.union([z.string(), z.number()])).optional(),
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+const sourceSample = z
+  .object({
+    revision: z.number().int(),
+    row_ids: z.array(z.string()),
+    passed: z.boolean(),
+    items: z.array(
+      z
+        .object({
+          id: z.string(),
+          statement_id: z.string(),
+          row_id: z.string(),
+          file_id: uuid,
+          page: z.number().int(),
+          date: z.string().nullable(),
+          description: z.string(),
+          debit: money,
+          credit: money,
+          balance: money,
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+const privacySchema = z
+  .object({
+    job_id: uuid,
+    revision: z.number().int(),
+    deletion_state: z.enum(['active', 'pending', 'partial', 'removed']),
+    certificate: z
+      .object({
+        job_id: uuid,
+        scope: z.literal('verified_live_data_removal'),
+        completed_at: z.string(),
+        object_versions_removed: z.number().int(),
+        inventory_digest: z.string(),
+        worker_scratch_verified: z.boolean(),
+        backup_expiry_verified: z.boolean(),
+      })
+      .strict()
+      .nullable(),
+    operation: operationSchema.nullable(),
+    retention_days: z.number().nullable(),
+    backup_expiry_days: z.number().nullable(),
+    scope: z.string(),
+    automatic_retention: z.boolean(),
+  })
+  .strict();
+const categoryRule = z
+  .object({
+    category: z.string(),
+    match: z.array(z.string()),
+    direction: z.enum(['debit', 'credit', 'any']),
+  })
+  .strict();

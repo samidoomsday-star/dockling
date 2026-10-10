@@ -95,3 +95,91 @@ def reap(
                     artifact.state = "removed"
                 counts["deleted"] += 1
     return counts, next_cursors
+
+
+def schedule_retention(
+    uow: PostgresUnitOfWork, days: int, *, apply: bool = False
+) -> dict[str, int]:
+    """Explicit local owner maintenance, not a published hosted retention guarantee."""
+    from stmtconv.web.models import Event, Job, Membership
+
+    if not 1 <= days <= 365:
+        raise ValueError("Choose a retention interval from 1 to 365 days")
+    cutoff = now() - timedelta(days=days)
+    counts = {"eligible": 0, "queued": 0}
+    with uow.transaction() as db:
+        jobs = list(
+            db.scalars(
+                select(Job)
+                .where(Job.status == "delivered", Job.deletion_state == "active")
+                .order_by(Job.workspace_id, Job.id)
+            )
+        )
+        for candidate in jobs:
+            db.scalar(
+                select(Workspace).where(Workspace.id == candidate.workspace_id).with_for_update()
+            )
+            db.refresh(candidate, with_for_update=True)
+            if candidate.deletion_state != "active" or candidate.status != "delivered":
+                continue
+            delivered = db.scalar(
+                select(Event.at)
+                .where(
+                    Event.workspace_id == candidate.workspace_id,
+                    Event.job_id == candidate.id,
+                    Event.action == "job.delivery.completed",
+                )
+                .order_by(Event.at.desc())
+                .limit(1)
+            )
+            if not delivered or delivered >= cutoff:
+                continue
+            counts["eligible"] += 1
+            if not apply:
+                continue
+            if db.scalar(
+                select(Operation.id)
+                .where(
+                    Operation.workspace_id == candidate.workspace_id,
+                    Operation.job_id == candidate.id,
+                    Operation.state.in_(["queued", "running", "cancel_requested"]),
+                )
+                .limit(1)
+            ):
+                continue
+            owner = db.scalar(
+                select(Membership)
+                .where(
+                    Membership.workspace_id == candidate.workspace_id,
+                    Membership.active.is_(True),
+                    Membership.role == "owner",
+                )
+                .order_by(Membership.id)
+                .limit(1)
+            )
+            if owner is None:
+                continue
+            candidate.revision += 1
+            candidate.deletion_state = "pending"
+            candidate.export_manifest, candidate.delivery_manifest = {}, {}
+            candidate.removal = {"requested_at": now().isoformat(), "retention_days": days}
+            db.add(
+                Operation(
+                    workspace_id=candidate.workspace_id,
+                    job_id=candidate.id,
+                    actor_id=owner.user_id,
+                    input_revision=candidate.revision,
+                    action="close",
+                )
+            )
+            db.add(
+                Event(
+                    workspace_id=candidate.workspace_id,
+                    job_id=candidate.id,
+                    actor_id=None,
+                    revision=candidate.revision,
+                    action="job.retention.requested",
+                )
+            )
+            counts["queued"] += 1
+    return counts

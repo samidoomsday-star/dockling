@@ -426,10 +426,34 @@ def main() -> None:
             "worker",
             "worker-build",
             "reap",
+            "retention",
             "verification-workspace",
         ],
     )
+    parser.add_argument("--retention-days", type=int)
+    parser.add_argument("--apply-retention", action="store_true")
     args = parser.parse_args()
+    if args.command == "retention":
+        from stmtconv.config import load_hosted_settings
+        from stmtconv.web.database import PostgresUnitOfWork, database
+        from stmtconv.web.maintenance import schedule_retention
+
+        config = load_hosted_settings(LOCAL / "server.env")
+        if config.mode != "local" or args.retention_days is None:
+            raise SystemExit(
+                "Local maintenance requires --retention-days 1..365; default is dry run."
+            )
+        try:
+            counts = schedule_retention(
+                PostgresUnitOfWork(database(config)),
+                args.retention_days,
+                apply=args.apply_retention,
+            )
+        except ValueError:
+            raise SystemExit("Choose --retention-days from 1 to 365.") from None
+        print(
+            f"Retention: {counts['eligible']} eligible, {counts['queued']} cleanup operations queued. No deletion is claimed until verified."
+        )
     if args.command == "verification-workspace":
         verification_workspace()
     if args.command in {"init", "up", "setup"}:

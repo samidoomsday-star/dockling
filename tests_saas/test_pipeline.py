@@ -125,7 +125,7 @@ def test_actual_upload_intake_conversion_and_private_sources(world, worker, tmp_
     other = c.get(f"/api/v1/jobs/{jid}/rows", params={"cursor": rows["next_cursor"]}).json()
     assert len(other["items"]) == 1 and other["next_cursor"] is None
     assert c.get(f"/api/v1/jobs/{jid}/statements").json()["items"][0]["rows"] == 2
-    assert c.post(f"/api/v1/jobs/{jid}/exports", json={}).status_code == 404
+    assert c.post(f"/api/v1/jobs/{jid}/exports", json={"expected_revision": 4}).status_code == 409
 
 
 @pytest.mark.parametrize("name", ["owner1", "editor1", "viewer1", "admin"])

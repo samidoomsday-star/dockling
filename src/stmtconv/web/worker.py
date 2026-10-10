@@ -77,7 +77,7 @@ def decode_result(data: bytes) -> PipelineResult:
         if (
             not isinstance(a, dict)
             or set(a) != {"id", "kind", "data"}
-            or a["kind"] not in {"normalized", "page"}
+            or a["kind"] not in {"normalized", "page", "review_workbook", "export", "delivery"}
         ):
             raise ValueError("Invalid parser artifact")
         content = base64.b64decode(a["data"], validate=True)
@@ -180,7 +180,17 @@ def process_one(operations: PipelineOperations, cfg: WorkerSettings) -> bool:
     parser: BaseProcess | None = None
     receive: Connection | None = None
     scratch = tempfile.TemporaryDirectory(prefix="parse-", dir="/tmp")
+    tracked = False
+    if task.action == "close":
+        scratch.cleanup()
+        try:
+            artifacts.call("close")
+        except Exception:
+            operations.publish(task, token, {"state": "failed", "code": "REMOVAL_PARTIAL"})
+        return True
     try:
+        artifacts.call("scratch_begin")
+        tracked = True
         if not operations.heartbeat(
             task, token, "inspecting" if task.action == "intake" else "converting", 0
         ):
@@ -193,6 +203,13 @@ def process_one(operations: PipelineOperations, cfg: WorkerSettings) -> bool:
             )
             for f in task.files
         }
+        if task.action == "review_apply":
+            documents = {"workbook": artifacts.read(UUID(str(task.payload["upload_id"])))}
+        elif task.action == "delivery":
+            documents = {
+                str(i["id"]): artifacts.read(UUID(str(i["id"])))
+                for i in cast(list[dict[str, object]], task.payload["exports"])
+            }
         passwords = artifacts.passwords() if task.action == "intake" else {}
         context = multiprocessing.get_context("spawn")
         receive, send = context.Pipe(duplex=False)
@@ -277,6 +294,11 @@ def process_one(operations: PipelineOperations, cfg: WorkerSettings) -> bool:
         if receive:
             receive.close()
         scratch.cleanup()
+        if tracked:
+            try:
+                artifacts.call("scratch_end")
+            except Exception:
+                pass  # A certificate remains withheld until verified worker recovery.
     return True
 
 
@@ -298,6 +320,23 @@ def main() -> None:
         hide_parameters=True,
         connect_args={"timeout": 5},
     )
+    # One worker/container is the supported initial topology. Hold a session lock.
+    # Docker stops the complete PID namespace on PID 1 death/restart; orphan scratch
+    # is cleaned before receipts can be acknowledged. Host-launched workers cannot
+    # acknowledge crash recovery because another old parser may still hold copies.
+    guard = engine.connect()
+    if not guard.scalar(text("SELECT pg_try_advisory_lock(7319321)")):
+        raise SystemExit("Another conversion worker is active.")
+    if os.getpid() == 1:
+        import shutil
+
+        for path in Path("/tmp").glob("parse-*"):
+            if path.is_symlink() or not path.is_dir():
+                raise SystemExit("Scratch recovery requires inspection.")
+            shutil.rmtree(path)
+        if not guard.scalar(text("SELECT dockling_scratch_recovered()")):
+            raise SystemExit("Scratch recovery acknowledgement failed.")
+        guard.commit()
     operations: PipelineOperations = LeasedPostgres(engine)
     print("Restricted offline conversion worker started.", flush=True)
     while True:

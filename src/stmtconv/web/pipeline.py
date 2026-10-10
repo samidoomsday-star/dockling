@@ -47,6 +47,9 @@ class PipelineTask(BaseModel):
     action: str
     options: dict[str, object]
     files: list[PipelineFile] = Field(max_length=30)
+    payload: dict[str, object] = Field(default_factory=dict)
+    statements: list[dict[str, object]] = Field(default_factory=list)
+    review_state: dict[str, object] = Field(default_factory=dict)
 
 
 @dataclass
@@ -120,6 +123,10 @@ def compute(
     progress: Callable[[int], None] | None = None,
 ) -> PipelineResult:
     """Disposable scratch only. No Order UUID bypass or authoritative order.json."""
+    if task.action not in {"intake", "extract"}:
+        from stmtconv.web.workflow import compute_workflow
+
+        return compute_workflow(task, documents, scratch, settings)
     settings.offline = True
     max_pages = min(max_pages, task.page_limit)
     paths: list[Path] = []

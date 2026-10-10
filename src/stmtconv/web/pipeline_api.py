@@ -5,7 +5,7 @@ import hmac
 from collections.abc import Callable, Iterator
 from datetime import timedelta
 from decimal import Decimal
-from typing import Annotated, Protocol
+from typing import Annotated, Protocol, cast
 from urllib.parse import unquote
 from uuid import UUID, uuid4
 
@@ -261,7 +261,7 @@ def register_pipeline(
                 id=aid,
                 workspace_id=workspace,
                 job_id=job.id,
-                object_key="uploads/" + str(uuid4()) + "/" + str(aid),
+                object_key="jobs/" + str(job.id) + "/uploads/" + str(aid),
                 bytes=len(data),
                 sha256=hashlib.sha256(data).hexdigest(),
                 revision=job.revision + 1,
@@ -390,7 +390,26 @@ def register_pipeline(
                 if old.state not in {"failed", "cancelled"}:
                     raise WebError(409, "RETRY_STATE", "This operation cannot be retried.")
                 action = old.action
-            return enqueue(db, config, job, user.id, action)
+            if body.action == "retry":
+                assert old is not None
+            if (
+                body.action == "retry"
+                and old is not None
+                and action not in {"intake", "extract"}
+                and old.input_revision != job.revision
+            ):
+                raise WebError(
+                    409,
+                    "REVISION_CONFLICT",
+                    "Prepare the operation again for the current revision.",
+                )
+            result = enqueue(db, config, job, user.id, action)
+            if body.action == "retry":
+                queued = db.get(Operation, UUID(str(result["id"])))
+                assert queued is not None
+                assert old is not None
+                queued.payload = old.payload
+            return result
 
         return replay(
             db,
@@ -662,7 +681,9 @@ def register_pipeline(
                     "flags": domain.flags,
                     "checks": domain.checks,
                     "version": stored["version"],
-                    "source_checked": False,
+                    "source_checked": bool(
+                        cast(Json, job.review_state.get("spotcheck", {})).get("passed")
+                    ),
                 }
             )
         return {"revision": job.revision, "items": items, "next_cursor": None}

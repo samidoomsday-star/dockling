@@ -120,6 +120,43 @@ try {
   await a.page.screenshot({path:new URL('../.local-saas/screenshots/pipeline-mobile.png',import.meta.url).pathname,fullPage:true});
   await a.page.setViewportSize({width:1440,height:1000});
   await a.page.screenshot({path:new URL('../.local-saas/screenshots/pipeline-desktop.png',import.meta.url).pathname,fullPage:true});
+  if (process.argv.includes('--phase3')) {
+    await a.page.getByRole('button',{name:/Correct Synthetic purchase 000/}).click();
+    await a.page.getByLabel('Description',{exact:true}).fill('Reviewed fictional purchase');
+    await a.page.getByRole('button',{name:'Save correction',exact:true}).click();
+    await a.page.getByText('Reviewed fictional purchase',{exact:true}).first().waitFor();
+    await a.page.getByText('Account confirmation for OFX and merging',{exact:true}).click();
+    await a.page.getByLabel('Your private account label').fill('Fictional browser account');
+    await a.page.getByLabel('I checked that these statements belong to the same account.').check();
+    const [accountSaved]=await Promise.all([a.page.waitForResponse(r=>r.url().endsWith('/account-group')&&r.status()===200),a.page.getByRole('button',{name:'Confirm account',exact:true}).click()]);
+    const accountRevision=(await accountSaved.json()).revision;
+    await a.page.waitForFunction(revision=>document.querySelector('[data-job-revision]')?.getAttribute('data-job-revision')===String(revision),accountRevision);
+    await a.page.waitForFunction(()=>!document.querySelector('fieldset')?.matches(':disabled'));
+    for(const label of ['Excel','CSV','QuickBooks (3 columns)','QuickBooks (4 columns)','Xero','OFX']) {console.log('Checking format:',label); await a.page.getByLabel(label,{exact:true}).check();}
+    await a.page.getByLabel('Import date format',{exact:true}).selectOption('MM/DD/YYYY');
+    const [optionsSaved]=await Promise.all([a.page.waitForResponse(r=>r.url().endsWith('/output-options')&&r.status()===200),a.page.getByRole('button',{name:'Save download options',exact:true}).click()]);
+    const optionsRevision=(await optionsSaved.json()).revision;
+    await a.page.waitForFunction(revision=>document.querySelector('[data-job-revision]')?.getAttribute('data-job-revision')===String(revision),optionsRevision);
+    await a.page.waitForFunction(()=>!document.querySelector('fieldset')?.matches(':disabled'));
+    const confirmations=a.page.getByLabel('I compared this row with the source.',{exact:true});
+    assert.equal(await confirmations.count(),2);
+    for(const box of await confirmations.all())await box.check();
+    await a.page.getByRole('button',{name:'Confirm source check',exact:true}).click();
+    await a.page.getByRole('button',{name:'Generate downloads',exact:true}).waitFor();
+    await a.page.waitForFunction(()=>[...document.querySelectorAll('button')].some(b=>b.textContent==='Generate downloads'&&!b.disabled));
+    await a.page.getByRole('button',{name:'Generate downloads',exact:true}).click();
+    await a.page.getByRole('link',{name:'Download s0001.ofx',exact:true}).waitFor({timeout:90000});
+    const manifest=await(await a.context.request.get(origin+'/api/v1/jobs/'+id+'/exports')).json();assert.equal(manifest.items.length,6);
+    await a.page.getByRole('button',{name:'Prepare delivery ZIP',exact:true}).click();
+    await a.page.getByRole('link',{name:'Download reviewed-outputs.zip',exact:true}).waitFor({timeout:90000});
+    const axe=await new AxeBuilder({page:a.page}).analyze();assert.deepEqual(axe.violations.map(v=>v.id),[]);
+    await a.page.screenshot({path:new URL('../.local-saas/screenshots/review-desktop.png',import.meta.url).pathname,fullPage:true});
+    await a.page.setViewportSize({width:375,height:1000});
+    assert(await a.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
+    await a.page.screenshot({path:new URL('../.local-saas/screenshots/review-mobile.png',import.meta.url).pathname,fullPage:true});
+    await a.page.setViewportSize({width:1440,height:1000});
+    console.log('PASS: browser correction → account confirmation → six current outputs → actual delivery ZIP; mobile layout and accessibility.');
+  }
   const viewer=await signIn('viewer-a');await viewer.page.goto(origin+'/app/jobs/'+id);
   await viewer.page.getByText('Statement s0001 · 2 rows',{exact:true}).waitFor();
   assert.equal(await viewer.page.getByRole('button',{name:'Upload files',exact:true}).count(),0);
@@ -171,6 +208,16 @@ try {
   await b.page.screenshot({path:new URL('../.local-saas/screenshots/jobs-mobile.png',import.meta.url).pathname,fullPage:true});
   await a.page.goto(origin+'/app/jobs');await a.page.getByRole('heading',{name:'Your jobs'}).waitFor();
   await a.page.screenshot({path:new URL('../.local-saas/screenshots/jobs-desktop.png',import.meta.url).pathname,fullPage:true});
+  if(process.argv.includes('--phase3')) {
+    await a.page.goto(origin+'/app/jobs/'+id);
+    await a.page.getByLabel('I confirm permanent live data removal.').check();
+    await a.page.getByRole('button',{name:'Remove live data',exact:true}).click();
+    await a.page.getByText('Live removal verified',{exact:true}).waitFor({timeout:90000});
+    const privacy=await(await a.context.request.get(origin+'/api/v1/jobs/'+id+'/privacy')).json();
+    assert.equal(privacy.deletion_state,'removed');assert.equal(privacy.certificate.worker_scratch_verified,true);
+    assert.equal((await a.context.request.get(origin+'/api/v1/jobs/'+id+'/rows')).status(),404);
+    console.log('PASS: real restricted worker removal, live certificate and blocked source/result access.');
+  }
   await a.page.getByRole('button',{name:'Sign out'}).click();await a.page.getByRole('link',{name:'Sign in securely'}).waitFor();
   assert.equal((await a.context.request.get(origin+'/api/v1/session')).status(),401);
   let admin=await signIn('operator');

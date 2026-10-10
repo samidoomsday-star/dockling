@@ -42,6 +42,13 @@ class Workspace(Base):
     version: Mapped[int] = mapped_column(BigInteger, default=1)
 
 
+class CategoryRules(Base):
+    __tablename__ = "web_category_rules"
+    workspace_id: Mapped[UUID] = mapped_column(ForeignKey("web_workspaces.id"), primary_key=True)
+    version: Mapped[int] = mapped_column(BigInteger, default=1)
+    rules: Mapped[list[dict[str, object]]] = mapped_column(JSONB, default=list)
+
+
 class Membership(Base):
     __tablename__ = "web_memberships"
     __table_args__ = (
@@ -88,6 +95,10 @@ class Job(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
     deletion_state: Mapped[str] = mapped_column(String(12), default="active")
     content_digest: Mapped[str | None] = mapped_column(String(64))
+    review_state: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
+    export_manifest: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
+    delivery_manifest: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
+    removal: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
 
 
 class Event(Base):
@@ -152,6 +163,36 @@ class Artifact(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
+class ReviewRevision(Base):
+    __tablename__ = "web_review_revisions"
+    __table_args__ = (
+        ForeignKeyConstraint(["workspace_id", "job_id"], ["web_jobs.workspace_id", "web_jobs.id"]),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    job_id: Mapped[UUID]
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+    revision: Mapped[int] = mapped_column(BigInteger)
+    command: Mapped[dict[str, object]] = mapped_column(JSONB)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class ScratchAttempt(Base):
+    __tablename__ = "web_scratch_attempts"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "job_id", "operation_id"],
+            ["web_operations.workspace_id", "web_operations.job_id", "web_operations.id"],
+        ),
+    )
+    operation_id: Mapped[UUID] = mapped_column(primary_key=True)
+    generation: Mapped[int] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID]
+    job_id: Mapped[UUID]
+    cleanup_hash: Mapped[str] = mapped_column(String(64))
+    completed: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
 class Operation(Base):
     __tablename__ = "web_operations"
     __table_args__ = (
@@ -164,6 +205,7 @@ class Operation(Base):
     input_revision: Mapped[int] = mapped_column(BigInteger)
     state: Mapped[str] = mapped_column(String(20), default="queued")
     action: Mapped[str] = mapped_column(String(40))
+    payload: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
     lease_generation: Mapped[int] = mapped_column(default=0)
     actor_id: Mapped[UUID | None] = mapped_column(ForeignKey("web_users.id"))
     lease_hash: Mapped[str | None] = mapped_column(String(64))
