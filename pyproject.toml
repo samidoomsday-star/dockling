@@ -16,6 +16,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+web = [
+  "fastapi==0.143.0", "SQLAlchemy==2.1.4", "pg8000==1.31.5",
+  "alembic==1.20.0", "Authlib==1.8.0", "boto3==1.43.111",
+  "uvicorn==0.54.0", "itsdangerous==2.2.0", "cryptography==50.0.2",
+]
 dev = [
   "pytest==9.1.1", "pytest-cov==7.1.0", "hypothesis==6.168.3",
   "reportlab==5.0.1", "ruff==0.16.10", "mypy==2.4.0",
@@ -52,7 +57,7 @@ files = ["src/stmtconv"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["docling.*", "huggingface_hub.*", "pypdfium2.*", "reportlab.*", "openpyxl.*"]
+module = ["docling.*", "huggingface_hub.*", "pypdfium2.*", "reportlab.*", "openpyxl.*", "authlib.*", "boto3.*", "botocore.*", "pg8000.*"]
 # Upstream packages have incomplete typing; our own boundaries remain typed.
 follow_untyped_imports = false
 ignore_missing_imports = true

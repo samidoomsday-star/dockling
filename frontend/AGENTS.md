@@ -1,10 +1,11 @@
 # Dockling frontend
 
-Stage B interactive frontend: React/TypeScript/Vite with synthetic fixtures. Read `docs/FRONTEND-IMPLEMENTATION.md` and `docs/FRONTEND-COVERAGE.md` before changes. Stage C/D backend integration is separate work.
+Stage B interactive frontend: React/TypeScript/Vite with synthetic fixtures. Read `docs/FRONTEND-IMPLEMENTATION.md` and `docs/FRONTEND-COVERAGE.md` before changes. SaaS Phase 1 adds `FoundationApp`/`FoundationApi` for real sign-in and persisted metadata; read `docs/saas/LOCAL-SETUP.md` and `PHASE1-IMPLEMENTATION.md`. Upload/review/BYOK/billing integration remains later work.
 
 - Keep the explicit preview banner and truthful labels. Never substitute fixtures for API failures, claim real uploads/processing/authentication or collect real keys in demo mode.
 - Money is exact text here; financial arithmetic/reconciliation and authorization belong to the existing Python core and future server. Financial verdicts and source checking stay separate.
-- Use the `Api` interface; demo state stays in memory with no localStorage secrets. Provider requests and key handling must be server-side, consent-bound and budgeted. Unknown model capabilities permit provider default only.
+- Real mode uses the `FoundationApi` session/paginated contract and server-authoritative membership; it must never render the demo role picker or snapshot fallback.
+- Use the `Api` interface for the explicit demo; demo state stays in memory with no localStorage secrets. Provider requests and key handling must be server-side, consent-bound and budgeted. Unknown model capabilities permit provider default only.
 - Preserve keyboard focus, accessible labels, semantic tables and small-screen layouts. Warn about unsaved edits; revision changes invalidate checks and exports.
 - Use pinned dependencies and `npm ci`. Check dependency terms before adding packages. Do not weaken test assertions or accessibility checks.
 - `npm run check` runs lint/format/type/build, meaningful adapter tests and browser journeys. Install Playwright Chromium first. Existing Python gate remains independent.

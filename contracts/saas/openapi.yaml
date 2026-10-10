@@ -2,7 +2,7 @@ openapi: 3.1.0
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Dockling hosted API contract
-  version: 0.1.0
+  version: 0.1.1
   description: Phase 0 implementation contract. Phase 1 foundation schemas are the
     initial baseline; later-phase schemas are planned and subject to domain contract
     review. No route is implemented by this document. All private routes enforce membership/grants
@@ -260,7 +260,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invitation'
+                $ref: '#/components/schemas/InvitationDelivery'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -407,6 +407,12 @@ paths:
       parameters:
       - $ref: '#/components/parameters/QueryLimit'
       - $ref: '#/components/parameters/QueryCursor'
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 100
     post:
       operationId: post_jobs
       summary: POST /jobs
@@ -3957,6 +3963,28 @@ components:
       - expires_at
       - status
       additionalProperties: false
+    InvitationDelivery:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [editor, viewer]
+        expires_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, accepted, revoked, expired]
+        accept_url:
+          type: string
+          format: uri
+          maxLength: 1000
+          description: Owner-only invitation link. Token is carried in the fragment; do not log or persist this response in browser storage.
+      required: [id, role, expires_at, status, accept_url]
+      additionalProperties: false
     InvitationCreate:
       type: object
       properties:
@@ -3988,6 +4016,7 @@ components:
       properties:
         name:
           type: string
+          minLength: 1
           maxLength: 120
         currency:
           type: string
@@ -4018,6 +4047,8 @@ components:
             - xero_csv
             - ofx
           maxItems: 6
+          minItems: 1
+          uniqueItems: true
         merge: *id003
         categorize: *id003
         combine: *id003

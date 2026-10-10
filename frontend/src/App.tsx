@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import FoundationApp from './FoundationApp';
 import { Routes, Route, Link } from 'react-router-dom';
 import { AppLayout, PublicLayout } from './components/layout';
 import { Home, Demo, Pricing, Help, Access } from './pages/public';
@@ -10,6 +11,7 @@ const Connections = lazy(() =>
 import { Categories, Settings } from './pages/settings';
 const Admin = lazy(() => import('./pages/admin').then((m) => ({ default: m.Admin })));
 export default function App() {
+  if (import.meta.env.VITE_APP_MODE === 'api') return <FoundationApp />;
   return (
     <>
       <a className="skip-link" href="#main">

@@ -1303,3 +1303,45 @@ li {
     box-shadow: -2px 0 5px #21354209;
   }
 }
+
+.foundation-shell .app-header {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.foundation-shell form {
+  display: grid;
+  gap: 16px;
+  max-width: 520px;
+}
+.foundation-shell label {
+  display: grid;
+  gap: 6px;
+}
+.team-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--line);
+}
+@media (max-width: 760px) {
+  .foundation-shell .sidebar {
+    display: block;
+    position: static;
+    width: 100%;
+    min-height: auto;
+  }
+  .foundation-shell .sidebar nav {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .foundation-shell .sidebar-note {
+    display: none;
+  }
+  .foundation-shell .app-header select {
+    max-width: 250px;
+  }
+}

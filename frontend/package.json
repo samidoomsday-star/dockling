@@ -16,7 +16,8 @@
     "format:check": "prettier --check src tests *.json *.ts *.js index.html",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "check": "npm run lint && npm run format:check && npm run build && npm test && npm run test:e2e"
+    "check": "npm run lint && npm run format:check && npm run build && npm test && npm run test:e2e",
+    "build:api": "tsc --noEmit && vite build --mode saas"
   },
   "dependencies": {
     "react": "19.3.0",

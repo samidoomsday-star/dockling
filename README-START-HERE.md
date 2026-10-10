@@ -1,5 +1,8 @@
 # Dockling — start here
 
+**Want the web app?** The `saas-phase-1` branch includes real sign-in, customer workspaces and saved job records. Start with [the beginner web setup guide](docs/saas/LOCAL-SETUP.md). Upload/conversion, web review/exports, hosted BYOK and billing will be connected in the next phases. This foundation is for local synthetic testing.
+
+
 Dockling now includes the cloud-developed phases 1–10: local order intake, text/OCR extraction, financial checks, Excel review, CSV/Excel/OFX exports, merging/categories, delivery/cleanup, and optional custom OpenAI-compatible BYOK models with supported effort choices up to Max.
 
 The frontend plus completed Python version is on **`web-frontend`**. The Python-only milestone remains on **`development-phases-2-10`**. `main` remains the original starter; no merge has been performed. Think of this branch as your saved IDE project. GitHub carries source and setup instructions, while Python, dependencies, local OCR models, job data and API keys are installed/kept separately on each device.

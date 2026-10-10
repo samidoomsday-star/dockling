@@ -4,15 +4,15 @@ This is the starting guide for an AI coding assistant with access to your local 
 
 ## What the owner should do
 
-For the browser preview plus the completed Python work, clone the frontend branch:
+For the current SaaS foundation plus the completed Python work, clone the SaaS branch:
 
 ```text
-git clone --branch web-frontend https://github.com/samidoomsday-star/dockling.git
+git clone --branch saas-phase-1 https://github.com/samidoomsday-star/dockling.git
 ```
 
 Open that `dockling` folder in your coding assistant/IDE. Give it this message:
 
-> Set up this existing Dockling clone for development and synthetic testing on this device. If frontend/package.json exists, start with frontend/README.md and set up the browser preview with Node 24, npm ci and the frontend checks; explain its synthetic-only limits. Also set up the Python converter as described below. Read AGENTS.md and docs/DEVICE_SETUP.md, then follow the appropriate OS instructions in docs/ENVIRONMENT.md. Install the required dependencies and local models, run doctor, the full checks and selftest, and complete the synthetic first-delivery workflow in docs/OPERATOR_GUIDE.md. Continue through routine setup without asking me about each step. Preserve my settings, keys and existing jobs. Keep optional AI off; guide me through private BYOK setup only if I request it. Report what passed, what remains untested and exactly how I can start using the app.
+> First read docs/saas/LOCAL-SETUP.md and set up the real SaaS foundation with Docker Desktop/Compose, PostgreSQL, Keycloak, private storage and the API-mode React build. Preserve .local-saas credentials/volumes; never use demo fixtures as an API fallback. Run the SaaS integration and real OIDC browser checks, then leave the API build ready and give me the exact local start command. Next, set up this existing Dockling clone for development and synthetic testing on this device. If frontend/package.json exists, start with frontend/README.md and set up the browser preview with Node 24, npm ci and the frontend checks; explain its synthetic-only limits. Also set up the Python converter as described below. Read AGENTS.md and docs/DEVICE_SETUP.md, then follow the appropriate OS instructions in docs/ENVIRONMENT.md. Install the required dependencies and local models, run doctor, the full checks and selftest, and complete the synthetic first-delivery workflow in docs/OPERATOR_GUIDE.md. Continue through routine setup without asking me about each step. Preserve my settings, keys and existing jobs. Keep optional AI off; guide me through private BYOK setup only if I request it. Report what passed, what remains untested and exactly how I can start using the app.
 
 The assistant may need you to install Git/Python, approve an OS installer, or enter a private key later. Those device permissions and secrets cannot travel through GitHub. Normal statement processing needs no LLM key.
 
@@ -21,9 +21,9 @@ The assistant may need you to install Git/Python, approve an OS installer, or en
 ### Inspect before installing
 
 1. Read root/scoped AGENTS.md, docs/PROGRESS.md and docs/ENVIRONMENT.md. OPERATOR_GUIDE.md describes daily operation; BYOK_GUIDE.md describes the optional additions. Historical phase notes are not the current implementation status.
-2. Identify OS, architecture, available disk, Git, and **64-bit Python 3.12**. Record the checked-out branch/commit and `git status --short`. The frontend plus completed Python version is on `web-frontend`; the Python-only milestone remains on `development-phases-2-10`; `main` still contains the starter until a merge is explicitly authorized.
+2. Identify OS, architecture, available disk, Git, and **64-bit Python 3.12**. Record the checked-out branch/commit and `git status --short`. The real SaaS foundation is on `saas-phase-1`; the earlier demo plus completed Python version is on `web-frontend`; the Python-only milestone remains on `development-phases-2-10`; `main` still contains the starter until a merge is explicitly authorized.
 3. Reuse this clone. Preserve tracked changes, `.env`, ignored workspace/model files and private provider settings. Never reset, clean, overwrite settings or switch branches through conflicting local work. If the wrong branch is checked out, explain it and switch only when local work can be preserved safely.
-4. Choose a project/workspace outside automatic cloud-sync folders. Do not print environment values or credential files. Check tool availability without dumping secrets. No GPU, Docker, Tesseract, LLM account or background server is needed for the default flow.
+4. Choose a project/workspace outside automatic cloud-sync folders. Do not print environment values or credential files. Check tool availability without dumping secrets. The offline CLI needs no GPU, Docker, Tesseract, LLM account or background server. The SaaS foundation needs Docker/Compose and a running web server; use its separate setup guide.
 
 ### Execute the documented setup
 

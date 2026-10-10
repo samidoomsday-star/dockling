@@ -1,0 +1,42 @@
+name: dockling-saas
+services:
+  postgres:
+    image: postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    env_file: .local-saas/postgres.env
+    ports: ["127.0.0.1:55432:5432"]
+    volumes:
+      - saas-postgres:/var/lib/postgresql/data
+      - ./.local-saas/init.sql:/docker-entrypoint-initdb.d/10-dockling.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  identity:
+    image: quay.io/keycloak/keycloak@sha256:b0f60d489d51c5d113390bdf5461d4c06e6051be026c05549f2e1e10ec352bcc
+    command: ["start-dev", "--import-realm"]
+    env_file: .local-saas/keycloak.env
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_HOSTNAME: http://127.0.0.1:8085
+      KC_HEALTH_ENABLED: "true"
+    ports: ["127.0.0.1:8085:8080"]
+    volumes: ["./.local-saas/realm.json:/opt/keycloak/data/import/dockling.json:ro"]
+    depends_on:
+      postgres: {condition: service_healthy}
+  storage:
+    image: chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    command: ["server", "-ip=127.0.0.1", "-ip.bind=0.0.0.0", "-dir=/data", "-volume.max=16", "-master.volumeSizeLimitMB=64", "-filer", "-s3", "-s3.config=/etc/seaweedfs/s3.json"]
+    ports: ["127.0.0.1:8333:8333"]
+    volumes:
+      - saas-storage:/data
+      - ./.local-saas/s3.json:/etc/seaweedfs/s3.json:ro
+    networks: [storage-private]
+volumes:
+  saas-postgres:
+  saas-storage:
+networks:
+  storage-private:
+    driver: bridge  # local loopback S3 port; worker egress policy arrives in Phase 2

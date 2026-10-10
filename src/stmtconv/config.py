@@ -7,10 +7,17 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from decimal import Decimal
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Self
 
 import yaml
-from pydantic import AliasChoices, Field, SecretStr, ValidationError, field_validator
+from pydantic import (
+    AliasChoices,
+    Field,
+    SecretStr,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
@@ -212,3 +219,59 @@ def model_download_environment(cache_dir: Path | None = None) -> Iterator[None]:
             constants.__dict__["HF_HUB_OFFLINE"] = (
                 old_cached if old_cached is not None else previous["HF_HUB_OFFLINE"] == "1"
             )
+
+
+class HostedSettings(BaseSettings):
+    """Optional web configuration; the CLI still uses Settings above."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="STMTCONV_WEB_", extra="ignore", env_ignore_empty=True
+    )
+    mode: Literal["local", "production"] = "local"
+    database_url: SecretStr
+    session_key: SecretStr
+    base_url: str = "http://127.0.0.1:8000"
+    oidc_issuer: str
+    oidc_client_id: str = "dockling-web"
+    oidc_client_secret: SecretStr = Field(min_length=16)
+    admin_subjects: list[str] = Field(default_factory=list)
+    mfa_amr: list[str] = Field(default=["otp", "mfa", "hwk"], min_length=1)
+    s3_endpoint: str
+    s3_access_key: SecretStr = Field(min_length=8)
+    s3_secret_key: SecretStr = Field(min_length=16)
+    s3_bucket: str = "dockling-private"
+    session_hours: int = Field(default=8, ge=1, le=24)
+    frontend_dist: Path = Path("frontend/dist")
+
+    @model_validator(mode="after")
+    def secure_boundaries(self) -> Self:
+        from urllib.parse import urlsplit
+
+        if not self.database_url.get_secret_value().startswith("postgresql+pg8000://"):
+            raise ValueError("The web application requires PostgreSQL with the selected driver")
+        if len(self.session_key.get_secret_value()) < 32:
+            raise ValueError("A generated session signing key is required")
+        for value in [self.base_url, self.oidc_issuer, self.s3_endpoint]:
+            parsed = urlsplit(value)
+            if parsed.username or parsed.password or parsed.query or parsed.fragment:
+                raise ValueError("Service URLs must not embed credentials or query data")
+            if self.mode == "production" and parsed.scheme != "https":
+                raise ValueError("Production services require HTTPS")
+            if self.mode == "local" and (
+                parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost"}
+            ):
+                raise ValueError("Local test services must use a loopback origin")
+        if urlsplit(self.base_url).path not in {"", "/"}:
+            raise ValueError("The application origin must not include a path")
+        self.base_url = self.base_url.rstrip("/")
+        self.oidc_issuer = self.oidc_issuer.rstrip("/")
+        return self
+
+
+def load_hosted_settings(path: Path = Path(".local-saas/server.env")) -> HostedSettings:
+    try:
+        return HostedSettings(_env_file=path)
+    except ValidationError:
+        raise ConfigurationError(
+            "WEB_CONFIG", "Web settings are missing or invalid; no credential values are shown."
+        ) from None

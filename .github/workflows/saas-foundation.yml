@@ -1,0 +1,41 @@
+name: SaaS foundation checks
+on:
+  push:
+    paths: ['src/**', 'tests_saas/**', 'scripts/**', 'requirements/**', 'compose.saas.yaml', 'contracts/**', 'frontend/**', 'pyproject.toml', '.github/workflows/saas-foundation.yml']
+  pull_request:
+    paths: ['src/**', 'tests_saas/**', 'scripts/**', 'requirements/**', 'compose.saas.yaml', 'contracts/**', 'frontend/**', 'pyproject.toml', '.github/workflows/saas-foundation.yml']
+permissions:
+  contents: read
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements/phase1-linux.txt
+            requirements/saas-linux.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.node-version
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: bash scripts/install-saas-linux.sh
+      - run: .venv/bin/python scripts/check-saas-contract.py
+      - run: .venv/bin/python -m ruff check src tests scripts tests_saas research/phase0 tools/synth
+      - run: .venv/bin/python -m ruff format --check src tests scripts tests_saas research/phase0 tools/synth
+      - run: .venv/bin/python -m mypy
+      - run: .venv/bin/python -m pytest tests_saas -q
+      - run: npm exec --prefix frontend -- playwright install --with-deps chromium
+      - name: Real OIDC browser journey
+        run: |
+          .venv/bin/python scripts/saas-local.py run > /tmp/dockling-server.log 2>&1 &
+          node scripts/saas-browser.mjs
+      - name: Stop services and preserve volumes
+        if: always()
+        run: docker compose -f compose.saas.yaml down
+# Never upload .local-saas/, identity screens/traces or server logs as CI artifacts.

@@ -1,6 +1,6 @@
 # SaaS capability and permission map
 
-**Status:** Phase 0 task 0.2 implemented as an engineering contract. All endpoints below are proposed `/api/v1` routes, not working servers. The OpenAPI document is task 0.4. Feature IDs F01–F33 preserve the order of [WEB-APP-PLAN section 6](../WEB-APP-PLAN.md#6-full-existing-feature-coverage-map); the [frontend ledger](../FRONTEND-COVERAGE.md) still describes current synthetic controls.
+**Status:** Phase 0 task 0.2 implemented as an engineering contract. The `/api/v1` blueprint spans all phases. Phase 1 session/workspace/team/job-metadata/settings-read/version/admin-health routes now work in the local foundation; later routes remain planned. Invitation creation returns an owner-only fragment link; tokens are hashed and accepted only by the invited verified email. See [implementation evidence](PHASE1-IMPLEMENTATION.md). The OpenAPI document is task 0.4. Feature IDs F01–F33 preserve the order of [WEB-APP-PLAN section 6](../WEB-APP-PLAN.md#6-full-existing-feature-coverage-map); the [frontend ledger](../FRONTEND-COVERAGE.md) still describes current synthetic controls.
 
 ## Access rules used by every route
 

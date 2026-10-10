@@ -1,6 +1,6 @@
-# Dockling hosted API: Phase 0 contract
+# Dockling hosted API contract
 
-`openapi.yaml` is the versioned API design; it does not start a server. Version 0.1.0 fixes the initial Phase 1 foundation and describes the planned later-phase boundaries. Domain/compatibility review may refine later schemas before their implementation; document versioned changes rather than silently changing clients. Root URL is same-origin `/api/v1`.
+`openapi.yaml` is the versioned API design; it does not start a server. Version 0.1.1 adds the owner-only `InvitationDelivery.accept_url` response for the implemented Phase 1 manual invitation flow. Version 0.1.0 fixed the initial Phase 1 foundation and describes the planned later-phase boundaries. Phase 1 routes are now implemented and checked against this contract; later-phase routes remain planned. Domain/compatibility review may refine later schemas before their implementation; document versioned changes rather than silently changing clients. Root URL is same-origin `/api/v1`.
 
 Run from the repository root, using the configured Python 3.12 environment:
 

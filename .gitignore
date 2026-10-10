@@ -14,6 +14,7 @@ samples/private/
 models/
 inbox/
 .venv/
+.local-saas/
 __pycache__/
 .pytest_cache/
 .mypy_cache/
@@ -40,3 +41,6 @@ frontend/.npm-cache/
 frontend/playwright-report/
 frontend/test-results/
 !frontend/public/samples/**
+
+# Nonsecret frontend build mode is required on fresh clones.
+!frontend/.env.saas

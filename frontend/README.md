@@ -1,5 +1,8 @@
 # Dockling web frontend
 
+**Real SaaS foundation:** `saas-phase-1` now provides OIDC sign-in, saved job metadata, workspace isolation and owner team tools. Follow [the setup guide](../docs/saas/LOCAL-SETUP.md) and build with `npm run build:api`. The description below applies to the separate explicit demo. Upload/conversion/review/hosted BYOK/billing are not connected yet.
+
+
 An interactive, responsive **Stage B preview**, with customer self-service and owner/admin screens. Forest teal, peach, dusty blue and lavender follow the approved visual plan. This folder does not replace the Python converter.
 
 **Everything uses synthetic fixtures by default.** No real upload/OCR, login, secret storage, model request, payment or hosting occurs. State is held in memory and resets on reload. Never select real client files or enter real keys here. Reference downloads are fixed synthetic files generated with the original Python writers; they do not reflect selected documents or UI edits.
