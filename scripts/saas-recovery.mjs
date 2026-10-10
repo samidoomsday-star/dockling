@@ -10,6 +10,13 @@ const {chromium}=require('@playwright/test');
 const fixture=JSON.parse(await readFile(new URL('../.local-saas/bootstrap.json',import.meta.url),'utf8'));
 const user=fixture.users.find(u=>u.username==='owner-a');
 const origin='http://127.0.0.1:8000';
+// A restarted API needs time to import/start its broker and gateway. Do not
+// confuse that startup interval with a failed recovery or retry paid work.
+for (let attempt=0; attempt<60; attempt++) {
+  try { if ((await fetch(origin+'/api/v1/version')).ok) break; } catch {}
+  if (attempt===59) throw new Error('Local API did not become ready for worker recovery.');
+  await new Promise(resolve=>setTimeout(resolve,500));
+}
 const verification=JSON.parse(execFileSync(fileURLToPath(new URL('../.venv/bin/python',import.meta.url)),
   [fileURLToPath(new URL('./saas-local.py',import.meta.url)),'verification-workspace'],{encoding:'utf8'}));
 const browser=await chromium.launch({headless:true});
