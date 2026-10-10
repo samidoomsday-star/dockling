@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
 const require = createRequire(new URL('../frontend/package.json', import.meta.url));
-const { chromium } = require('@playwright/test');
+const { chromium, expect } = require('@playwright/test');
 const { AxeBuilder } = require('@axe-core/playwright');
 const fixturePath = new URL('../.local-saas/bootstrap.json', import.meta.url);
 const realmPath = new URL('../.local-saas/realm.json', import.meta.url);
@@ -243,7 +243,9 @@ try {
     await a.page.waitForFunction(revision=>document.querySelector('[data-job-revision]')?.getAttribute('data-job-revision')===String(revision),optionsRevision);
     await a.page.waitForFunction(()=>!document.querySelector('fieldset')?.matches(':disabled'));
     const confirmations=a.page.getByLabel('I compared this row with the source.',{exact:true});
-    assert.equal(await confirmations.count(),process.argv.includes('--phase4-ai') ? 4 : 2);
+    // The job revision renders before its separate source-plan queries complete.
+    // Still require every ordinary and AI row; wait for the current plans to render.
+    await expect(confirmations).toHaveCount(process.argv.includes('--phase4-ai') ? 4 : 2);
     for(const box of await confirmations.all())await box.check();
     for(let i=0;i<(process.argv.includes('--phase4-ai') ? 2 : 1);i++) {
       await a.page.getByRole('button',{name:'Confirm source check',exact:true}).first().click();
