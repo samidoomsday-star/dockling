@@ -34,6 +34,7 @@ from stmtconv.web.auth import (
     validate_write,
 )
 from stmtconv.web.broker import Broker
+from stmtconv.web.connections import register_connections
 from stmtconv.web.database import PostgresUnitOfWork, UnitOfWork, database
 from stmtconv.web.errors import WebError, missing
 from stmtconv.web.models import Event, Invitation, Job, Membership, User, WebSession, Workspace
@@ -596,6 +597,7 @@ def create_app(config: HostedSettings) -> FastAPI:
     register_pipeline(app, config, get_db, scoped, key, store, broker, cursors)
     register_review(app, config, get_db, scoped, key, store)
     register_privacy(app, config, get_db, scoped, key)
+    register_connections(app, config, get_db, scoped, key)
 
     # API is registered before the SPA. Unknown API/auth URLs cannot serve HTML or fixtures.
     @app.api_route("/api/{remaining:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])

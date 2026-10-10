@@ -257,3 +257,21 @@ class CanonicalSnapshot(Base):
     revision: Mapped[int] = mapped_column(BigInteger)
     digest: Mapped[str] = mapped_column(String(64))
     statements: Mapped[list[dict[str, object]]] = mapped_column(JSONB)
+
+
+class Connection(Base):
+    __tablename__ = "web_connections"
+    __table_args__ = (UniqueConstraint("workspace_id", "id"),)
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID] = mapped_column(ForeignKey("web_workspaces.id"), index=True)
+    name: Mapped[str] = mapped_column(String(80))
+    version: Mapped[int] = mapped_column(BigInteger, default=1)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    ciphertext: Mapped[str | None] = mapped_column(String(6000))
+    config: Mapped[dict[str, object]] = mapped_column(JSONB)
+    models: Mapped[list[dict[str, object]]] = mapped_column(JSONB, default=list)
+    selected_model: Mapped[str | None] = mapped_column(String(200))
+    effort: Mapped[str] = mapped_column(String(30), default="provider_default")
+    terms_version: Mapped[str | None] = mapped_column(String(200))
+    tested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    test_code: Mapped[str | None] = mapped_column(String(80))

@@ -31,3 +31,6 @@ Replace `HttpApi.snapshot()` with session/workspace context, paginated job summa
 The old `/process` action becomes a durable `/operations` request; the adapter translates atomic review commands and source attestations; output/close commands return tracked operations. Connection credentials use a separate write-only action. Expected Decimal strings, null values, server provenance, row statement identity and content version mappings need contract fixtures before real-mode UI integration.
 
 Phase 3 extends the contract with accurate `Hosted*` input schemas and explicit implemented route annotations. Planned earlier spellings remain design references; use PHASE3-IMPLEMENTATION.md and FoundationApi for current URLs. The full inventory still includes later-phase capabilities; schema validation is separate from runtime tests.
+
+
+Version **0.4.0** implements hosted `/connections` list/create/read, `PUT /connections/{connection}/key`, and POST `revoke`, `models`, `test`, `models/manual`, `selection`, `terms`. `HostedConnectionRead` rejects credential fields; owner mutations use CSRF/idempotency and expected revision. Earlier edit/delete/discovery spellings remain planned annotations. Consent/AI dispatch and owner operation routes remain planned; recording provider terms alone does not enable processing. See PHASE4-CONNECTIONS.md.

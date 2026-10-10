@@ -47,3 +47,8 @@ UI filters persist through URL parameters where implemented; demo content/prefer
 ### SaaS Phase 3 runtime update
 
 F10–F22 now have real local review/output/privacy adapters as described in PHASE3-IMPLEMENTATION.md. Browser/Excel share commands; no fictional download fallback exists in real mode. Financial/source gates and artifact revision/hash membership precede downloads. Owner removal can remain partial and never issues a premature certificate. Customer verification overrides remain unavailable; scoped MFA support/owner operations belong to Phase 4. Payment/email, backup expiry, production-scale recovery and accounting-software field imports remain explicit release gates.
+
+
+### SaaS Phase 4 connection milestone
+
+F24–F27 now have real workspace connection setup: encrypted key save/replace/revoke, custom public HTTPS compatibility settings, model-list discovery/test, manual model IDs and highest-supported/default/advertised effort choices. Owner changes and sanitized editor/viewer reads are server-enforced. Terms recording is available; F28 per-job consent/reservations/AI dispatch and F29–F32 owner operations remain pending. See PHASE4-CONNECTIONS.md.

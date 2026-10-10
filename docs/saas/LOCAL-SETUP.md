@@ -48,10 +48,10 @@ Open the ignored **`.local-saas/bootstrap.json`** file in your editor. Under `us
 
 1. Create a job with a name and three-letter currency. **Conversion options** lets you choose text/Docling/automatic engines, a published layout, date order, page groups and ordered-image combination. The job is saved in PostgreSQL.
 2. Generate fictional samples with `.venv/bin/python scripts/saas-fixtures.py`. Select `.local-saas/browser-fixtures/text.pdf` in the job, confirm the fictional-data checkbox, and click **Upload files → Inspect documents → Convert statements**. Compare the two extracted rows with **View source**. Try `scan.pdf`, `photo.png` and `encrypted.pdf` in separate jobs. The protected sample password is `fictional-browser-password` (only for this deliberately fictional fixture).
-3. The worker shows actual queued/running stages and completed-page counts; no invented percentage. A password prompt uses memory once, expires after five minutes and is not persisted. A server restart/claim crash can require re-entry. You can cancel or retry a failed operation. Inputs are limited to 8 MB/file, 12 files and 40 pages/job by default; workspace storage/queue limits also apply. Financial verdicts do not certify dates/descriptions. Results stay **needs review** and read-only until Phase 3 editing/source checks/exports are implemented.
+3. The worker shows actual queued/running stages and completed-page counts; no invented percentage. A password prompt uses memory once, expires after five minutes and is not persisted. A server restart/claim crash can require re-entry. You can cancel or retry a failed operation. Inputs are limited to 8 MB/file, 12 files and 40 pages/job by default; workspace storage/queue limits also apply. Financial verdicts do not certify dates/descriptions. Results stay **needs review** until you complete the Phase 3 corrections/source-check workflow described below.
 4. Open **Team** as an owner. Change editor/viewer permissions, or create an invitation link for another synthetic verified account (for example `owner-b@example.test`). No email is sent. A link expires after two days. The receiving user signs in first and reopens the link to accept it.
 5. Use a separate browser/private window to sign in as `owner-b`; A's jobs must not appear. A viewer can read jobs and cannot create them.
-6. Stop/restart the server and services; saved jobs stay. The last active owner cannot be removed. BYOK and preferences editing are not active yet.
+6. Stop/restart the server and services; saved jobs stay. The last active owner cannot be removed. Phase 4 adds optional AI connection setup; statement AI dispatch and general preferences editing are not active yet.
 
 The older interactive feature demo is still available with `npm run dev --prefix frontend` in its **explicit demo mode**. It uses fictional data and does not sign in or process files. `npm run build` creates that demo; `npm run build:api` creates the real foundation UI. The Python server refuses to serve a demo build as its real UI. Rebuild with `build:api` after running demo build checks, then restart the server.
 
@@ -81,7 +81,7 @@ After setup, run `.venv/bin/python -m pytest tests_saas -q` against the dedicate
 
 Each browser or recovery run provisions a new fictional verification workspace for the existing A test accounts using the local setup helper, then uses genuine sign-in and the authorized workspace-switch API. Original workspaces, jobs and quotas are preserved. This allows repeat checks without hitting the original workspace's 30-operations/hour test limit. These workspaces remain local test data; the helper refuses production mode. B accounts and the operator receive no membership in them.
 
-Failures must be reported as failures. Do not substitute demo fixtures, bypass authentication, publish test credentials or claim the Windows path/GitHub workflow passed unless actually run. Model downloads and the original 314-test CLI gate follow the separate device instructions.
+Failures must be reported as failures. Do not substitute demo fixtures, bypass authentication, publish test credentials or claim the Windows path/GitHub workflow passed unless actually run. Model downloads and the original 315-test CLI gate follow the separate device instructions.
 
 ## Abandoned staging-object cleanup
 
@@ -95,3 +95,8 @@ This Compose file is a loopback-only **local development** setup. Keycloak runs 
 ## Phase 3 review and downloads
 
 Use [the Phase 3 guide](PHASE3-IMPLEMENTATION.md) after conversion. Run the real browser verification with `node scripts/saas-browser.mjs --phase3`; it exercises corrections, six formats, delivery and live removal as well as genuine OCR inputs. Keep the API-mode build while running this journey; run demo builds/journeys separately, then rebuild with `npm run build:api --prefix frontend`. Preserve all credentials and volumes when updating; run setup for forward migrations and worker-build/worker for the new image.
+
+
+## Phase 4 connection setup
+
+On `saas-phase-4`, run setup/migrate to apply the connection table and preserve/create the dedicated ignored `.local-saas/ai-key.env`. Restart the API after upgrading. Keep this key file with the matching private database backup; never regenerate it for existing encrypted credentials. Read [the connection guide](PHASE4-CONNECTIONS.md). The real browser check is `node scripts/saas-browser.mjs --phase3 --phase4`; it saves/revokes fictional keys without contacting a provider. Consent, AI inference and remaining owner tools are pending. Optional keys are never prerequisites for offline conversion.

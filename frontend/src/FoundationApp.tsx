@@ -3,6 +3,7 @@ import { Link, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FoundationApi, FoundationError, type ServerSession } from './lib/foundation';
 import PipelineJob from './PipelineJob';
+import ConnectionsWorkspace from './ConnectionsWorkspace';
 import { hasUnsavedCorrections } from './ReviewWorkspace';
 const api = new FoundationApi();
 const explain = (e: unknown) =>
@@ -96,6 +97,7 @@ export default function FoundationApp() {
             <Link to="/app">Overview</Link>
             <Link to="/app/jobs">Your jobs</Link>
             <Link to="/app/settings">Preferences</Link>
+            <Link to="/app/connections">AI connections</Link>
             {s.role === 'owner' && <Link to="/app/team">Team</Link>}
             {s.platform_admin && <Link to="/admin">Service health</Link>}
           </nav>
@@ -156,6 +158,10 @@ export default function FoundationApp() {
                   <Route path="/app/new" element={<NewJob session={s} act={act} busy={busy} />} />
                   <Route path="/app/jobs/:id" element={<Job session={s} />} />
                   <Route path="/app/settings" element={<Settings session={s} />} />
+                  <Route
+                    path="/app/connections"
+                    element={<ConnectionsWorkspace key={s.workspace_id} session={s} />}
+                  />
                   <Route
                     path="/app/team"
                     element={<Team key={s.workspace_id} session={s} act={act} busy={busy} />}

@@ -2,7 +2,7 @@
 
 ## Current status
 - **Current phase:** Original Python phases 0–10 and Stage B demo remain complete cloud milestones. SaaS Phases 1–3 local foundation, conversion, review and private delivery/removal are implemented; production vendor/business/device/field acceptance remains pending.
-- **Current task:** `saas-phase-2` adds private uploads, durable fenced operations, a restricted CPU text/OCR worker, real source previews and read-only canonical results to the Phase 1 sign-in/workspace UI. Phase 3 review/outputs/removal is implemented on saas-phase-3; Phase 4 BYOK/model capabilities and owner tools is next. Billing and deployment remain later work. The Phase 0 scan-description mismatch and source-review requirement remain visible.
+- **Current task:** Phase 3 review/outputs/removal is complete on `saas-phase-3`. Phase 4 is in progress on `saas-phase-4`: its first milestone implements encrypted BYOK connections, custom endpoints, discovery/manual models and highest supported effort. Per-job consent, budgeted AI dispatch and owner tools are next. Billing and deployment remain later work. The Phase 0 scan-description mismatch and source-review requirement remain visible.
 - **Last updated:** 2026-10-10 (Asia/Dhaka).
 - **Owner decisions:** “Start Phase 1” accepted Phase 0 findings and authorized the foundation. Continue original phases 0–10, with GitHub versions, beginner guidance and optional OpenAI-compatible BYOK model/effort selection up to supported Max.
 
@@ -176,3 +176,10 @@ Final local rerun with the public model cache and fresh verification workspace p
 Implemented on `saas-phase-3`: shared browser/Excel fix/delete/insert/clear commands, revision/source invalidation and private history, deterministic source sample/all fixed rows, separate AI-source gate, six actual writers, QB/date/account/merge rules, ordered categories, verified delivery ZIPs and owner close/abandon with partial retry/scratch receipts/live-scope certificates. Original CLI remains compatible. See `docs/saas/PHASE3-IMPLEMENTATION.md` and `docs/tasks/saas-phase-3.md` for evidence and precise limits.
 
 Local gates: 315 original Python tests; 59 real PG/storage tests; 42 frontend unit tests; 19 explicit demo journeys; genuine restricted-worker/Keycloak review→six outputs→package→removal plus six extraction cases, role/tenant/MFA/mobile/axe checks passed. No real client documents, paid AI requests, email, public deployment or main merge. Owner authorized continuing Phase 4, with own BYOK and capability-based Max.
+
+
+## SaaS Phase 4 — connection milestone
+
+Implemented workspace-bound encrypted keys with dedicated vault backup requirements, owner-only connection/key/model/terms changes, safe public HTTPS metadata egress and a real calm-color React connection screen. Unknown capabilities use provider default; supported Max is selectable; catalog changes preserve previous choices with a warning. No hosted document inference is enabled. See `saas/PHASE4-CONNECTIONS.md` and `tasks/saas-phase-4.md`. Phase 4 remains in progress, with consent/reservation/dispatch and owner operations pending. Phase 3 GitHub SaaS and frontend checks passed.
+
+Phase 4 connection milestone local evidence: 315 original Python tests, 84 real PostgreSQL/storage/API tests (25 connection cases), 42 frontend unit tests and 19 demo journeys passed; genuine Phase 3/4 browser journey with six extraction inputs and worker-isolation checks passed. Consent/dispatch and owner operations remain pending.

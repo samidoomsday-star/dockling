@@ -443,6 +443,27 @@ export class FoundationApi {
       );
     return operationSchema.parse(await response.json());
   }
+  connections() {
+    return this.request('/connections', page(connectionSchema));
+  }
+  createConnection(session: ServerSession, values: Record<string, unknown>) {
+    return this.request('/connections', connectionSchema, session, values, 'POST');
+  }
+  connectionAction(
+    session: ServerSession,
+    id: string,
+    version: number,
+    action: string,
+    fields: Record<string, unknown> = {},
+  ) {
+    return this.request(
+      '/connections/' + id + '/' + action,
+      connectionSchema,
+      session,
+      { expected_revision: version, ...fields },
+      action === 'key' ? 'PUT' : 'POST',
+    );
+  }
   switch(session: ServerSession, workspace_id: string) {
     return this.request('/session/workspace', sessionSchema, session, { workspace_id }, 'POST');
   }
@@ -598,3 +619,36 @@ const categoryRule = z
     direction: z.enum(['debit', 'credit', 'any']),
   })
   .strict();
+
+const modelSchema = z
+  .object({
+    id: z.string(),
+    efforts: z.array(
+      z.enum(['provider_default', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max']),
+    ),
+    manual: z.boolean(),
+    capability_source: z.enum(['unknown', 'provider_metadata', 'operator_documentation']),
+    capability_reference: z.string().nullable(),
+  })
+  .strict();
+const connectionSchema = z
+  .object({
+    id: uuid,
+    name: z.string(),
+    version: z.number().int(),
+    active: z.boolean(),
+    has_key: z.boolean(),
+    base_url: z.string(),
+    requires_key: z.boolean(),
+    api_style: z.enum(['chat', 'responses']),
+    effort_style: z.enum(['reasoning_effort', 'reasoning', 'none']),
+    models: z.array(modelSchema),
+    selected_model: z.string().nullable(),
+    effort: z.string(),
+    terms_confirmed: z.boolean(),
+    terms_version: z.string().nullable(),
+    tested_at: z.string().nullable(),
+    test_code: z.string().nullable(),
+  })
+  .strict();
+export type ServerConnection = z.infer<typeof connectionSchema>;

@@ -2,10 +2,11 @@ openapi: 3.1.0
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Dockling hosted API contract
-  version: 0.3.0
-  description: Versioned SaaS design. Hosted Phases 1–3 are implemented for synthetic local testing.
-    Operations marked x-implementation implemented describe current routes; other routes remain planned.
-    Upload and workbook apply use bounded raw bytes with revision headers.
+  version: 0.4.0
+  description: Versioned SaaS design. Hosted Phases 1–3 are implemented for synthetic
+    local testing. Operations marked x-implementation implemented describe current
+    routes; other routes remain planned. Upload and workbook apply use bounded raw
+    bytes with revision headers.
 servers:
 - url: /api/v1
 security:
@@ -2599,87 +2600,90 @@ paths:
           $ref: '#/components/responses/Error503'
   /connections:
     get:
-      operationId: get_connections
-      summary: GET /connections
+      summary: Connections
+      operationId: hosted_get__connections
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedConnectionList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-feature-ids:
-      - F24
+      x-implementation: 'implemented: connection setup only; consent and AI dispatch
+        remain pending'
+      x-workspace-scoped: true
       x-access-roles:
       - owner
       - editor
       - viewer
-      x-workspace-scoped: true
-      responses:
-        '200':
-          description: Successful authorized result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConnectionList'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/QueryLimit'
-      - $ref: '#/components/parameters/QueryCursor'
-    post:
-      operationId: post_connections
-      summary: POST /connections
-      x-phase: 4
       x-feature-ids:
       - F24
-      x-access-roles:
-      - owner
-      x-workspace-scoped: true
-      responses:
-        '201':
-          description: Successful authorized result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Connection'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/HeaderXCsrfToken'
-      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      - F25
+      - F26
+      - F27
+    post:
+      summary: Create
+      operationId: hosted_post__connections
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConnectionCommand'
+              $ref: '#/components/schemas/HostedConnectionCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedConnectionRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: connection setup only; consent and AI dispatch
+        remain pending'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F24
+      - F25
+      - F26
+      - F27
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
   /connections/{connection}:
     put:
       operationId: put_connections_connection
@@ -2727,6 +2731,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ConnectionUpdate'
+      x-implementation: planned; see implemented hosted connection routes
     delete:
       operationId: delete_connections_connection
       summary: DELETE /connections/{connection}
@@ -2767,6 +2772,54 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/VersionCommand'
+      x-implementation: planned; see implemented hosted connection routes
+    get:
+      summary: Connection
+      operationId: hosted_get__connections_connection
+      parameters:
+      - name: connection
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Identifier
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedConnectionRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: connection setup only; consent and AI dispatch
+        remain pending'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F24
+      - F25
+      - F26
+      - F27
   /connections/{connection}/credential:
     put:
       operationId: put_connections_connection_credential
@@ -2808,6 +2861,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CredentialCommand'
+      x-implementation: planned; see implemented hosted connection routes
     delete:
       operationId: delete_connections_connection_credential
       summary: DELETE /connections/{connection}/credential
@@ -2848,6 +2902,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/VersionCommand'
+      x-implementation: planned; see implemented hosted connection routes
   /connections/{connection}/models/discover:
     post:
       operationId: post_connections_connection_models_discover
@@ -2893,6 +2948,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/VersionCommand'
+      x-implementation: planned; see implemented hosted connection routes
   /connections/{connection}/metadata-test:
     post:
       operationId: post_connections_connection_metadata_test
@@ -2938,6 +2994,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/VersionCommand'
+      x-implementation: planned; see implemented hosted connection routes
   /jobs/{job}/consent:
     get:
       operationId: get_jobs_job_consent
@@ -4874,6 +4931,384 @@ paths:
       x-feature-ids:
       - F21
       - F22
+  /connections/{connection}/key:
+    put:
+      summary: Replace Key
+      operationId: hosted_put__connections_connection_key
+      parameters:
+      - name: connection
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Identifier
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedKeyCommand'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedConnectionRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: connection setup only; consent and AI dispatch
+        remain pending'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F24
+      - F25
+      - F26
+      - F27
+  /connections/{connection}/revoke:
+    post:
+      summary: Revoke
+      operationId: hosted_post__connections_connection_revoke
+      parameters:
+      - name: connection
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Identifier
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRevisionCommand'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedConnectionRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: connection setup only; consent and AI dispatch
+        remain pending'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F24
+      - F25
+      - F26
+      - F27
+  /connections/{connection}/test:
+    post:
+      summary: Models
+      operationId: hosted_post__connections_connection_test
+      parameters:
+      - name: connection
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Identifier
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRevisionCommand'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedConnectionRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: connection setup only; consent and AI dispatch
+        remain pending'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F24
+      - F25
+      - F26
+      - F27
+  /connections/{connection}/models:
+    post:
+      summary: Models
+      operationId: hosted_post__connections_connection_models
+      parameters:
+      - name: connection
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Identifier
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRevisionCommand'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedConnectionRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: connection setup only; consent and AI dispatch
+        remain pending'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F24
+      - F25
+      - F26
+      - F27
+  /connections/{connection}/models/manual:
+    post:
+      summary: Manual
+      operationId: hosted_post__connections_connection_models_manual
+      parameters:
+      - name: connection
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Identifier
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedManualModel'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedConnectionRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: connection setup only; consent and AI dispatch
+        remain pending'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F24
+      - F25
+      - F26
+      - F27
+  /connections/{connection}/selection:
+    post:
+      summary: Selection
+      operationId: hosted_post__connections_connection_selection
+      parameters:
+      - name: connection
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Identifier
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedSelection'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedConnectionRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: connection setup only; consent and AI dispatch
+        remain pending'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F24
+      - F25
+      - F26
+      - F27
+  /connections/{connection}/terms:
+    post:
+      summary: Terms
+      operationId: hosted_post__connections_connection_terms
+      parameters:
+      - name: connection
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Identifier
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedTerms'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedConnectionRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: connection setup only; consent and AI dispatch
+        remain pending'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F24
+      - F25
+      - F26
+      - F27
 components:
   securitySchemes:
     SessionCookie:
@@ -7511,6 +7946,256 @@ components:
       required:
       - workspace_id
       title: WorkspaceSelect
+    HostedConnectionCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 80
+          minLength: 1
+          title: Name
+        base_url:
+          type: string
+          maxLength: 300
+          minLength: 8
+          title: Base Url
+        requires_key:
+          type: boolean
+          title: Requires Key
+          default: true
+        api_style:
+          type: string
+          enum:
+          - chat
+          - responses
+          title: Api Style
+          default: chat
+        effort_style:
+          type: string
+          enum:
+          - reasoning_effort
+          - reasoning
+          - none
+          title: Effort Style
+          default: reasoning_effort
+        schema_style:
+          type: string
+          enum:
+          - json_schema
+          - json_object
+          - prompt_json
+          title: Schema Style
+          default: prompt_json
+        token_field:
+          type: string
+          enum:
+          - max_tokens
+          - max_completion_tokens
+          - max_output_tokens
+          title: Token Field
+          default: max_tokens
+        models_route:
+          type: string
+          maxLength: 100
+          title: Models Route
+          default: /models
+        completion_route:
+          type: string
+          maxLength: 100
+          title: Completion Route
+          default: /chat/completions
+        temperature_zero:
+          type: boolean
+          title: Temperature Zero
+          default: false
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - base_url
+      title: ConnectionCreate
+    HostedKeyCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        api_key:
+          type: string
+          maxLength: 2048
+          minLength: 1
+          format: password
+          title: Api Key
+          writeOnly: true
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - api_key
+      title: KeyCommand
+    HostedManualModel:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        model_id:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Model Id
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - model_id
+      title: ManualModel
+    HostedSelection:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        model_id:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Model Id
+        effort:
+          type: string
+          enum:
+          - highest
+          - provider_default
+          - minimal
+          - low
+          - medium
+          - high
+          - xhigh
+          - max
+          title: Effort
+          default: highest
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - model_id
+      title: Selection
+    HostedTerms:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        confirmed:
+          type: boolean
+          title: Confirmed
+        terms_version:
+          type: string
+          maxLength: 200
+          minLength: 8
+          title: Terms Version
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - confirmed
+      - terms_version
+      title: Terms
+    HostedConnectionModel:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - efforts
+      - manual
+      - capability_source
+      - capability_reference
+      properties:
+        id: &id015
+          type: string
+        efforts:
+          type: array
+          items: *id015
+        manual:
+          type: boolean
+        capability_source: *id015
+        capability_reference: &id016
+          type:
+          - string
+          - 'null'
+    HostedConnectionRead:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - version
+      - active
+      - has_key
+      - base_url
+      - requires_key
+      - api_style
+      - effort_style
+      - models
+      - selected_model
+      - effort
+      - terms_confirmed
+      - terms_version
+      - tested_at
+      - test_code
+      properties:
+        id:
+          type: string
+          format: uuid
+        name: *id015
+        version:
+          type: integer
+          minimum: 1
+        active:
+          type: boolean
+        has_key:
+          type: boolean
+        base_url: *id015
+        requires_key:
+          type: boolean
+        api_style:
+          enum:
+          - chat
+          - responses
+        effort_style:
+          enum:
+          - reasoning_effort
+          - reasoning
+          - none
+        models:
+          type: array
+          maxItems: 500
+          items:
+            $ref: '#/components/schemas/HostedConnectionModel'
+        selected_model: *id016
+        effort: *id015
+        terms_confirmed:
+          type: boolean
+        terms_version: *id016
+        tested_at: *id016
+        test_code: *id016
+    HostedConnectionList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - next_cursor
+      properties:
+        items:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/HostedConnectionRead'
+        next_cursor:
+          type: 'null'
   responses:
     Error400:
       description: Safe structured error without private input echo

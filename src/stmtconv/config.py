@@ -230,6 +230,7 @@ class HostedSettings(BaseSettings):
     mode: Literal["local", "production"] = "local"
     database_url: SecretStr
     session_key: SecretStr
+    ai_encryption_key: SecretStr | None = None
     base_url: str = "http://127.0.0.1:8000"
     oidc_issuer: str
     oidc_client_id: str = "dockling-web"
@@ -254,6 +255,11 @@ class HostedSettings(BaseSettings):
 
         if not self.database_url.get_secret_value().startswith("postgresql+pg8000://"):
             raise ValueError("The web application requires PostgreSQL with the selected driver")
+        if self.ai_encryption_key is not None:
+            import re
+
+            if not re.fullmatch(r"[0-9a-fA-F]{64}", self.ai_encryption_key.get_secret_value()):
+                raise ValueError("The vault encryption key must be a generated 256-bit hex value")
         if len(self.session_key.get_secret_value()) < 32:
             raise ValueError("A generated session signing key is required")
         for value in [self.base_url, self.oidc_issuer, self.s3_endpoint]:
@@ -275,7 +281,8 @@ class HostedSettings(BaseSettings):
 
 def load_hosted_settings(path: Path = Path(".local-saas/server.env")) -> HostedSettings:
     try:
-        return HostedSettings(_env_file=path)
+        extra = path.parent / "ai-key.env" if path.name == "server.env" else None
+        return HostedSettings(_env_file=(path, extra) if extra and extra.is_file() else path)
     except ValidationError:
         raise ConfigurationError(
             "WEB_CONFIG", "Web settings are missing or invalid; no credential values are shown."

@@ -67,6 +67,37 @@ def write(name: str, value: str) -> None:
     path.chmod(0o644 if name in {"init.sql", "realm.json", "s3.json"} else 0o600)
 
 
+def ensure_ai_key() -> None:
+    """Dedicated local vault key; preserve it independently of cookies/DB passwords."""
+    file = LOCAL / "ai-key.env"
+    if file.is_symlink():
+        raise SystemExit("Vault key file cannot be a symlink.")
+    if file.exists():
+        return
+    # If a key file has been lost after connections were saved, do not replace it.
+    try:
+        from sqlalchemy import text
+
+        from stmtconv.config import load_hosted_settings
+        from stmtconv.web.database import database
+
+        with database(load_hosted_settings(LOCAL / "server.env")).connect() as connection:
+            if connection.scalar(text("SELECT to_regclass('public.web_connections')")):
+                if connection.scalar(
+                    text("SELECT count(*) FROM web_connections WHERE ciphertext IS NOT NULL")
+                ):
+                    raise SystemExit(
+                        "Restore the original .local-saas/ai-key.env from your private backup; existing connection keys must not be replaced."
+                    )
+    except SystemExit:
+        raise
+    except Exception:
+        raise SystemExit(
+            "Vault key initialization needs a reachable migrated database. Retry setup after services are ready."
+        ) from None
+    write("ai-key.env", "STMTCONV_WEB_AI_ENCRYPTION_KEY=" + secrets.token_hex(32) + "\n")
+
+
 def initialize() -> None:
     LOCAL.mkdir(exist_ok=True, mode=0o700)
     LOCAL.chmod(0o700)
@@ -467,6 +498,7 @@ def main() -> None:
         from stmtconv.web.database import migrate
 
         migrate(load_hosted_settings(LOCAL / "migrate.env"))
+        ensure_ai_key()
     if args.command == "setup":
         seed()
     if args.command == "down":
