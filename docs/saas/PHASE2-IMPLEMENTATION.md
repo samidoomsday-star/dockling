@@ -56,7 +56,7 @@ Migrations `0002`–`0005` add file/snapshot inventories, scoped composite artif
 
 The actual worker SIGKILL/restart test also passes: PostgreSQL shows two attempts/generation 2, one successful current revision and one operation after command replay. A full four-service/API restart preserves all 22 jobs, combined-image snapshots and private source PNGs; the final expanded financial-detail view passes mobile accessibility/overflow.
 
-Additional release evidence and GitHub workflow links are recorded in `docs/PROGRESS.md` as they finish. Windows/WSL/ARM, real customer documents, general OCR accuracy, hosting load, production backup/restore, billing/LLM requests and public deployment have not been certified by these synthetic checks.
+The final [fresh Linux GitHub pipeline](https://github.com/samidoomsday-star/dockling/actions/runs/38037531563) passes installation, all 51 backend tests, the verified model/image build, original converter checks, actual isolation, six genuine conversion cases and SIGKILL recovery. The [frontend workflow](https://github.com/samidoomsday-star/dockling/actions/runs/38036653809) passes against unchanged frontend source. Additional local rerun evidence is recorded in `docs/PROGRESS.md`. Windows/WSL/ARM, real customer documents, general OCR accuracy, hosting load, production backup/restore, billing/LLM requests and public deployment have not been certified by these synthetic checks.
 
 ## Next phase
 
