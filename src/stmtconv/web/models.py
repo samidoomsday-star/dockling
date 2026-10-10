@@ -87,6 +87,7 @@ class Job(Base):
     options: Mapped[dict[str, object]] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
     deletion_state: Mapped[str] = mapped_column(String(12), default="active")
+    content_digest: Mapped[str | None] = mapped_column(String(64))
 
 
 class Event(Base):
@@ -99,7 +100,7 @@ class Event(Base):
     job_id: Mapped[UUID | None]
     actor_id: Mapped[UUID | None] = mapped_column(ForeignKey("web_users.id"))
     action: Mapped[str] = mapped_column(String(80))
-    revision: Mapped[int | None]
+    revision: Mapped[int | None] = mapped_column(BigInteger)
     code: Mapped[str | None] = mapped_column(String(80))
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
@@ -134,6 +135,7 @@ class Idempotency(Base):
 class Artifact(Base):
     __tablename__ = "web_artifacts"
     __table_args__ = (
+        UniqueConstraint("workspace_id", "job_id", "id"),
         ForeignKeyConstraint(["workspace_id", "job_id"], ["web_jobs.workspace_id", "web_jobs.id"]),
     )
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
@@ -141,20 +143,75 @@ class Artifact(Base):
     job_id: Mapped[UUID]
     object_key: Mapped[str] = mapped_column(String(500), unique=True)
     sha256: Mapped[str] = mapped_column(String(64))
-    revision: Mapped[int]
+    revision: Mapped[int] = mapped_column(BigInteger)
     kind: Mapped[str] = mapped_column(String(40))
     bytes: Mapped[int] = mapped_column(BigInteger)
+    state: Mapped[str] = mapped_column(String(12), default="active")
+    operation_id: Mapped[UUID | None]
+    generation: Mapped[int | None]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
 class Operation(Base):
     __tablename__ = "web_operations"
     __table_args__ = (
+        UniqueConstraint("workspace_id", "job_id", "id"),
         ForeignKeyConstraint(["workspace_id", "job_id"], ["web_jobs.workspace_id", "web_jobs.id"]),
     )
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     workspace_id: Mapped[UUID] = mapped_column(index=True)
     job_id: Mapped[UUID]
-    input_revision: Mapped[int]
+    input_revision: Mapped[int] = mapped_column(BigInteger)
     state: Mapped[str] = mapped_column(String(20), default="queued")
     action: Mapped[str] = mapped_column(String(40))
     lease_generation: Mapped[int] = mapped_column(default=0)
+    actor_id: Mapped[UUID | None] = mapped_column(ForeignKey("web_users.id"))
+    lease_hash: Mapped[str | None] = mapped_column(String(64))
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(default=0)
+    stage: Mapped[str] = mapped_column(String(30), default="queued")
+    completed_pages: Mapped[int] = mapped_column(default=0)
+    page_limit: Mapped[int] = mapped_column(default=40)
+    error_code: Mapped[str | None] = mapped_column(String(80))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class SourceFile(Base):
+    __tablename__ = "web_files"
+    __table_args__ = (
+        ForeignKeyConstraint(["workspace_id", "job_id"], ["web_jobs.workspace_id", "web_jobs.id"]),
+        UniqueConstraint("workspace_id", "job_id", "id"),
+        ForeignKeyConstraint(
+            ["workspace_id", "job_id", "artifact_id"],
+            ["web_artifacts.workspace_id", "web_artifacts.job_id", "web_artifacts.id"],
+        ),
+        ForeignKeyConstraint(
+            ["workspace_id", "job_id", "normalized_id"],
+            ["web_artifacts.workspace_id", "web_artifacts.job_id", "web_artifacts.id"],
+        ),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    job_id: Mapped[UUID]
+    artifact_id: Mapped[UUID]
+    normalized_id: Mapped[UUID | None]
+    name: Mapped[str] = mapped_column(String(120))
+    kind: Mapped[str] = mapped_column(String(12))
+    position: Mapped[int]
+    pages: Mapped[list[dict[str, object]]] = mapped_column(JSONB, default=list)
+    previews: Mapped[dict[str, str]] = mapped_column(JSONB, default=dict)
+    password_required: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class CanonicalSnapshot(Base):
+    __tablename__ = "web_snapshots"
+    __table_args__ = (
+        ForeignKeyConstraint(["workspace_id", "job_id"], ["web_jobs.workspace_id", "web_jobs.id"]),
+        UniqueConstraint("workspace_id", "job_id", "revision"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    job_id: Mapped[UUID]
+    revision: Mapped[int] = mapped_column(BigInteger)
+    digest: Mapped[str] = mapped_column(String(64))
+    statements: Mapped[list[dict[str, object]]] = mapped_column(JSONB)

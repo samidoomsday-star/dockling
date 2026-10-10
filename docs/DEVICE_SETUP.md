@@ -4,15 +4,15 @@ This is the starting guide for an AI coding assistant with access to your local 
 
 ## What the owner should do
 
-For the current SaaS foundation plus the completed Python work, clone the SaaS branch:
+For the current SaaS upload/conversion app plus the completed Python work, clone the SaaS branch:
 
 ```text
-git clone --branch saas-phase-1 https://github.com/samidoomsday-star/dockling.git
+git clone --branch saas-phase-2 https://github.com/samidoomsday-star/dockling.git
 ```
 
 Open that `dockling` folder in your coding assistant/IDE. Give it this message:
 
-> First read docs/saas/LOCAL-SETUP.md and set up the real SaaS foundation with Docker Desktop/Compose, PostgreSQL, Keycloak, private storage and the API-mode React build. Preserve .local-saas credentials/volumes; never use demo fixtures as an API fallback. Run the SaaS integration and real OIDC browser checks, then leave the API build ready and give me the exact local start command. Next, set up this existing Dockling clone for development and synthetic testing on this device. If frontend/package.json exists, start with frontend/README.md and set up the browser preview with Node 24, npm ci and the frontend checks; explain its synthetic-only limits. Also set up the Python converter as described below. Read AGENTS.md and docs/DEVICE_SETUP.md, then follow the appropriate OS instructions in docs/ENVIRONMENT.md. Install the required dependencies and local models, run doctor, the full checks and selftest, and complete the synthetic first-delivery workflow in docs/OPERATOR_GUIDE.md. Continue through routine setup without asking me about each step. Preserve my settings, keys and existing jobs. Keep optional AI off; guide me through private BYOK setup only if I request it. Report what passed, what remains untested and exactly how I can start using the app.
+> First read docs/saas/LOCAL-SETUP.md and set up the real SaaS app through Linux x86_64/Python 3.12 (WSL 2 Ubuntu on Windows), Docker Desktop/Compose, PostgreSQL, Keycloak, private storage, the restricted conversion worker and API-mode React build. Hash-verify models during setup and test genuine fictional text/scanned/image/protected PDFs, source pages and worker public TCP/DNS denial. Preserve .local-saas credentials/volumes; never use demo fixtures as an API fallback. Run the SaaS integration and real OIDC browser checks, then leave the API build ready and give me the exact local start command. Next, set up this existing Dockling clone for development and synthetic testing on this device. If frontend/package.json exists, start with frontend/README.md and set up the browser preview with Node 24, npm ci and the frontend checks; explain its synthetic-only limits. Also set up the Python converter as described below. Read AGENTS.md and docs/DEVICE_SETUP.md, then follow the appropriate OS instructions in docs/ENVIRONMENT.md. Install the required dependencies and local models, run doctor, the full checks and selftest, and complete the synthetic first-delivery workflow in docs/OPERATOR_GUIDE.md. Continue through routine setup without asking me about each step. Preserve my settings, keys and existing jobs. Keep optional AI off; guide me through private BYOK setup only if I request it. Report what passed, what remains untested and exactly how I can start using the app.
 
 The assistant may need you to install Git/Python, approve an OS installer, or enter a private key later. Those device permissions and secrets cannot travel through GitHub. Normal statement processing needs no LLM key.
 
@@ -21,9 +21,9 @@ The assistant may need you to install Git/Python, approve an OS installer, or en
 ### Inspect before installing
 
 1. Read root/scoped AGENTS.md, docs/PROGRESS.md and docs/ENVIRONMENT.md. OPERATOR_GUIDE.md describes daily operation; BYOK_GUIDE.md describes the optional additions. Historical phase notes are not the current implementation status.
-2. Identify OS, architecture, available disk, Git, and **64-bit Python 3.12**. Record the checked-out branch/commit and `git status --short`. The real SaaS foundation is on `saas-phase-1`; the earlier demo plus completed Python version is on `web-frontend`; the Python-only milestone remains on `development-phases-2-10`; `main` still contains the starter until a merge is explicitly authorized.
+2. Identify OS, architecture, available disk, Git, and **64-bit Python 3.12**. Record the checked-out branch/commit and `git status --short`. The real SaaS Phase 2 app is on `saas-phase-2`; the earlier demo plus completed Python version is on `web-frontend`; the Python-only milestone remains on `development-phases-2-10`; `main` still contains the starter until a merge is explicitly authorized.
 3. Reuse this clone. Preserve tracked changes, `.env`, ignored workspace/model files and private provider settings. Never reset, clean, overwrite settings or switch branches through conflicting local work. If the wrong branch is checked out, explain it and switch only when local work can be preserved safely.
-4. Choose a project/workspace outside automatic cloud-sync folders. Do not print environment values or credential files. Check tool availability without dumping secrets. The offline CLI needs no GPU, Docker, Tesseract, LLM account or background server. The SaaS foundation needs Docker/Compose and a running web server; use its separate setup guide.
+4. Choose a project/workspace outside automatic cloud-sync folders. Do not print environment values or credential files. Check tool availability without dumping secrets. The offline CLI needs no GPU, Docker, Tesseract, LLM account or background server. The SaaS app needs Docker/Compose, the Linux CPU worker/models and a running web server; use its separate setup guide.
 
 ### Execute the documented setup
 
@@ -58,7 +58,7 @@ Do not ask for an API key as a prerequisite for offline setup. If the owner requ
 
 Keys/provider settings live in the ignored local workspace; they are not cloned. Do not request keys in chat or commit them. Local key storage is plaintext with private permissions where supported, so device protection matters.
 
-The existing converter has a CLI, Excel review and `run.bat`. The `web-frontend` branch additionally has an interactive **synthetic browser preview**. Follow [frontend/README.md](../frontend/README.md): Node 24 LTS (24.15 or newer within major 24), `npm ci` in `frontend`, then `npm run dev -- --open`, or use `run-web.bat` on Windows. This preview needs no Python/models/key. Install Playwright Chromium and run `npm run check` for its independent gate. Real upload/OCR, login, secure BYOK storage and hosting are pending backend stages. Do not collect real keys/documents or claim the preview performs real conversions. The frontend setup guide contains a receiving-assistant prompt. If the owner requests only the browser preview, do this Node workflow first and skip the separate Python/model setup unless requested.
+The existing converter has a CLI, Excel review and `run.bat`. The `web-frontend` branch additionally has an interactive **synthetic browser preview**. Follow [frontend/README.md](../frontend/README.md): Node 24 LTS (24.15 or newer within major 24), `npm ci` in `frontend`, then `npm run dev -- --open`, or use `run-web.bat` on Windows. This preview needs no Python/models/key. Install Playwright Chromium and run `npm run check` for its independent gate. The `saas-phase-2` branch connects real synthetic uploads/OCR/sign-in; review/exports, secure hosted BYOK and hosting are later stages. The separate demo does not perform those real operations. Do not collect real keys/documents or claim the preview performs real conversions. The frontend setup guide contains a receiving-assistant prompt. If the owner requests only the browser preview, do this Node workflow first and skip the separate Python/model setup unless requested.
 
 ### Handoff and future updates
 

@@ -29,6 +29,7 @@ def initialize() -> None:
     LOCAL.chmod(0o700)
     if (LOCAL / "bootstrap.json").exists():
         print("Existing local credentials preserved.")
+        worker_config()
         return
     found = subprocess.run(
         ["docker", "volume", "inspect", "dockling-saas_saas-postgres"],
@@ -239,6 +240,19 @@ def initialize() -> None:
     print(
         "Created synthetic credentials in ignored .local-saas/bootstrap.json. Do not upload this folder."
     )
+    worker_config()
+
+
+def worker_config() -> None:
+    """Add the restricted worker identity without replacing existing private settings."""
+    data = json.loads((LOCAL / "bootstrap.json").read_text())
+    broker = LOCAL / "broker"
+    broker.mkdir(exist_ok=True, mode=0o711)
+    password = data["keys"]["worker"]
+    write(
+        "worker.env",
+        f"STMTCONV_WORKER_DATABASE_URL=postgresql+pg8000://dockling_worker:{password}@postgres:5432/dockling\n",
+    )
 
 
 def compose(action: str) -> None:
@@ -325,7 +339,19 @@ def seed() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "command", choices=["init", "up", "setup", "down", "check", "run", "migrate"]
+        "command",
+        choices=[
+            "init",
+            "up",
+            "setup",
+            "down",
+            "check",
+            "run",
+            "migrate",
+            "worker",
+            "worker-build",
+            "reap",
+        ],
     )
     args = parser.parse_args()
     if args.command in {"init", "up", "setup"}:
@@ -342,7 +368,11 @@ def main() -> None:
     if args.command == "setup":
         seed()
     if args.command == "down":
-        compose("down")
+        subprocess.run(
+            ["docker", "compose", "--profile", "conversion", "-f", "compose.saas.yaml", "down"],
+            cwd=ROOT,
+            check=True,
+        )
         print("Services stopped; volumes and credentials preserved.")
     if args.command == "run":
         import uvicorn
@@ -350,11 +380,93 @@ def main() -> None:
         from stmtconv.config import load_hosted_settings
         from stmtconv.web.app import create_app
 
-        uvicorn.run(
-            create_app(load_hosted_settings(LOCAL / "server.env")),
-            host="127.0.0.1",
-            port=8000,
-            access_log=False,
+        app = create_app(load_hosted_settings(LOCAL / "server.env"))
+        app.state.broker.start(LOCAL / "broker" / "socket")
+        try:
+            uvicorn.run(app, host="127.0.0.1", port=8000, access_log=False)
+        finally:
+            app.state.broker.close()
+    if args.command == "worker-build":
+        # Verified binary wheels are installed before copying this development-only environment.
+        subprocess.run(["bash", "scripts/install-saas-linux.sh"], cwd=ROOT, check=True)
+        if Path(sys.prefix) != ROOT / ".venv":
+            # A fresh clone can start with system Python; model/build helpers need the locked venv.
+            subprocess.run(
+                [str(ROOT / ".venv/bin/python"), str(Path(__file__).resolve()), "worker-build"],
+                cwd=ROOT,
+                check=True,
+            )
+            return
+        from stmtconv.config import load_settings
+        from stmtconv.model_setup import download, load_manifest, verify_artifacts
+
+        settings = load_settings()
+        try:
+            verify_artifacts(ROOT / "models", load_manifest())
+        except Exception:
+            download(settings)
+        from stmtconv.config import build_certificate_bundle
+
+        build = LOCAL / "build"
+        build.mkdir(exist_ok=True, mode=0o700)
+        (build / "ca-certificates.crt").write_bytes(build_certificate_bundle().read_bytes())
+        subprocess.run(
+            [
+                "docker",
+                "--config",
+                str(LOCAL / "docker"),
+                "build",
+                "--network=host",
+                "--build-arg",
+                "HTTP_PROXY",
+                "--build-arg",
+                "HTTPS_PROXY",
+                "-f",
+                "Dockerfile.worker",
+                "-t",
+                "dockling-worker:phase2",
+                ".",
+            ],
+            cwd=ROOT,
+            check=True,
+        )
+    if args.command == "worker":
+        worker_config()
+        subprocess.run(
+            [
+                "docker",
+                "compose",
+                "--profile",
+                "conversion",
+                "-f",
+                "compose.saas.yaml",
+                "up",
+                "-d",
+                "worker",
+            ],
+            cwd=ROOT,
+            check=True,
+        )
+    if args.command == "reap":
+        from stmtconv.config import load_hosted_settings
+        from stmtconv.web.database import PostgresUnitOfWork, database
+        from stmtconv.web.maintenance import reap
+        from stmtconv.web.storage import ObjectStore
+
+        config = load_hosted_settings(LOCAL / "server.env")
+        checkpoint = LOCAL / "reap-cursors.json"
+        cursors = json.loads(checkpoint.read_text()) if checkpoint.exists() else {}
+        try:
+            counts, cursors = reap(
+                ObjectStore(config), PostgresUnitOfWork(database(config)), cursors
+            )
+        except Exception:
+            raise SystemExit(
+                "Cleanup could not finish. No complete deletion is claimed; retry this pass."
+            ) from None
+        write("reap-cursors.json", json.dumps(cursors))
+        print(
+            f"Cleanup pass: {counts['examined']} examined, {counts['deleted']} abandoned objects removed. Active source documents are preserved."
         )
 
 

@@ -76,3 +76,7 @@ Stages C/D connect the existing Python services and add secure accounts/private 
 ## Sending this to Kilo Code or another assistant
 
 > Set up the `web-frontend` branch of https://github.com/samidoomsday-star/dockling on this device. Read AGENTS.md, frontend/AGENTS.md, frontend/README.md and docs/DEVICE_SETUP.md. Preserve existing work and private settings. Install a compatible Node 24 LTS and run npm ci in frontend. Install Playwright Chromium, run npm run check, start the preview and guide me through the synthetic correction/source-check/export journey. Explain each owner action plainly. Do not mistake the demo for real OCR/authentication, collect my keys in the browser, merge main or publicly deploy. If I also request the existing Python converter, follow the separate device guide and verify its models/full gate/selftest. Report actual device results and unrun checks separately.
+
+## Real Phase 2 app
+
+On `saas-phase-2`, follow [the SaaS setup guide](../docs/saas/LOCAL-SETUP.md) for real sign-in, uploads, CPU text/OCR conversion and source-linked results. `npm run build:api` is served by the Python API; it requires PostgreSQL/private storage/identity plus a separate restricted Linux worker. Windows uses the documented WSL/Docker route, which still needs device verification. `npm run dev` remains the separate fictional demo. Hosted editing/exports/BYOK/billing are later phases; keep the operating-mode labels visible.

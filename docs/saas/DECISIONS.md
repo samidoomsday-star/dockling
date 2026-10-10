@@ -60,3 +60,7 @@ Changing money/source/output-affecting settings creates a new job revision and i
 ## Verification of task 0.1
 
 All choices have a status, responsible person and point where they are required. Customer geography, business country, budget, prices and retention have not been fabricated. The feature/permission map implements the development defaults; later phases still need working code and their own acceptance evidence.
+
+## D14 — Phase 2 bounded byte upload and capability-only worker (10 October 2026)
+
+Accepted implementation: bounded buffered raw uploads avoid multipart scratch spooling, with one file/request, CSRF/idempotency/expected-revision/name/synthetic headers and private hash-verified inventory. Worker SQL claim/heartbeat/publish functions and a private Unix capability broker replace unscoped document-table/S3 credentials. Docker internal networking plus disabled public DNS enforce offline processing. Result IPC uses bounded JSON rather than unpickling parser output. Hash-verified models are mounted read-only. Captured page quotas and lease generations fence stale/cancelled/revoked/deleted work. PostgreSQL snapshots reuse the existing Decimal/parser code; financial success always remains source-review-required. Production isolation, artifact/SBOM/native package freeze, region/backup/retention and release reviews remain separate gates.

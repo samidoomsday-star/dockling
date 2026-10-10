@@ -2,11 +2,10 @@ openapi: 3.1.0
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Dockling hosted API contract
-  version: 0.1.1
-  description: Phase 0 implementation contract. Phase 1 foundation schemas are the
-    initial baseline; later-phase schemas are planned and subject to domain contract
-    review. No route is implemented by this document. All private routes enforce membership/grants
-    and never substitute demo results.
+  version: 0.2.0
+  description: Versioned SaaS design. Phases 1 and 2 are implemented for synthetic local testing; later-phase
+    operations remain planned. Phase 2 upload uses bounded raw bytes with revision/name/synthetic-confirmation
+    headers.
 servers:
 - url: /api/v1
 security:
@@ -667,12 +666,37 @@ paths:
       - $ref: '#/components/parameters/PathJob'
       - $ref: '#/components/parameters/HeaderXCsrfToken'
       - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      - name: X-Expected-Revision
+        in: header
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+      - name: X-File-Name
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 1440
+        description: URL-encoded filename; decoded length 1–120 characters, no controls.
+      - name: X-Synthetic-Confirmed
+        in: header
+        required: true
+        schema:
+          type: string
+          const: 'true'
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/octet-stream:
             schema:
-              $ref: '#/components/schemas/Upload'
+              type: string
+              format: binary
+              maxLength: 8388608
+      description: One file per request, maximum 8 MiB by default. The filename is URL-encoded UTF-8 data,
+        never a storage path. The upload remains quarantined until the isolated worker verifies PDF/image
+        structure. Reuse the same idempotency key and exact payload when the response is lost.
   /jobs/{job}/intake:
     post:
       operationId: post_jobs_job_intake
@@ -1045,6 +1069,49 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/OperationCreate'
+      description: Phase 2 implements extract and retry only. Other action enum values remain planned
+        for later phases and are rejected by the Phase 2 server.
+    get:
+      operationId: get_jobs_job_operations
+      summary: GET /jobs/{job}/operations
+      x-phase: 2
+      x-feature-ids:
+      - F08
+      - F19
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
+      description: Latest 30 operations, newest first. This bounded recent-history view always returns
+        null next_cursor.
   /jobs/{job}/operations/{operation}:
     get:
       operationId: get_jobs_job_operations_operation
@@ -1219,7 +1286,7 @@ paths:
     get:
       operationId: get_jobs_job_rows
       summary: GET /jobs/{job}/rows
-      x-phase: 3
+      x-phase: 2
       x-feature-ids:
       - F11
       x-access-roles:
@@ -1257,6 +1324,9 @@ paths:
       - $ref: '#/components/parameters/PathJob'
       - $ref: '#/components/parameters/QueryLimit'
       - $ref: '#/components/parameters/QueryCursor'
+      description: Read-only source-linked canonical rows at the current revision. Monetary values remain
+        exact decimal strings; raw text and full account identity are excluded. Editing/export remains
+        Phase 3.
   /jobs/{job}/review:
     post:
       operationId: post_jobs_job_review
@@ -3779,20 +3849,100 @@ paths:
               $ref: '#/components/schemas/Webhook'
       security:
       - PaymentSignature: []
+  /intake-options:
+    get:
+      operationId: get_intake_options
+      summary: GET /intake-options
+      x-phase: 2
+      x-feature-ids:
+      - F03
+      - F06
+      - F07
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntakeOptions'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters: []
+  /jobs/{job}/statements:
+    get:
+      operationId: get_jobs_job_statements
+      summary: GET /jobs/{job}/statements
+      x-phase: 2
+      x-feature-ids:
+      - F08
+      - F10
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-workspace-scoped: true
+      responses:
+        '200':
+          description: Successful authorized result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatementList'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      parameters:
+      - $ref: '#/components/parameters/PathJob'
 components:
   securitySchemes:
     SessionCookie:
       type: apiKey
       in: cookie
       name: dockling_session
-      description: Opaque server session; Secure, HttpOnly, SameSite. Not an OIDC
-        access token or browser role.
+      description: Opaque server session; Secure, HttpOnly, SameSite. Not an OIDC access token or browser
+        role.
     PaymentSignature:
       type: apiKey
       in: header
       name: Payment-Signature
-      description: Placeholder for the selected provider signature scheme; validate
-        raw provider bytes, timestamp and replay policy before processing.
+      description: Placeholder for the selected provider signature scheme; validate raw provider bytes,
+        timestamp and replay policy before processing.
   schemas:
     Error:
       type: object
@@ -3971,19 +4121,31 @@ components:
           format: uuid
         role:
           type: string
-          enum: [editor, viewer]
+          enum:
+          - editor
+          - viewer
         expires_at:
           type: string
           format: date-time
         status:
           type: string
-          enum: [pending, accepted, revoked, expired]
+          enum:
+          - pending
+          - accepted
+          - revoked
+          - expired
         accept_url:
           type: string
           format: uri
           maxLength: 1000
-          description: Owner-only invitation link. Token is carried in the fragment; do not log or persist this response in browser storage.
-      required: [id, role, expires_at, status, accept_url]
+          description: Owner-only invitation link. Token is carried in the fragment; do not log or persist
+            this response in browser storage.
+      required:
+      - id
+      - role
+      - expires_at
+      - status
+      - accept_url
       additionalProperties: false
     InvitationCreate:
       type: object
@@ -4277,17 +4439,6 @@ components:
       required:
       - items
       - next_cursor
-      additionalProperties: false
-    Upload:
-      type: object
-      properties:
-        expected_revision: *id004
-        file:
-          type: string
-          format: binary
-      required:
-      - expected_revision
-      - file
       additionalProperties: false
     PasswordCommand:
       type: object
@@ -5806,6 +5957,127 @@ components:
       - model_id
       - effort
       additionalProperties: false
+    IntakeOptions:
+      type: object
+      properties:
+        upload_bytes:
+          type: integer
+          minimum: 1024
+        job_files:
+          type: integer
+          minimum: 1
+        job_pages:
+          type: integer
+          minimum: 1
+        profiles:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                maxLength: 100
+              name:
+                type: string
+                maxLength: 120
+            required:
+            - id
+            - name
+            additionalProperties: false
+      required:
+      - upload_bytes
+      - job_files
+      - job_pages
+      - profiles
+      additionalProperties: false
+    OperationList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Operation'
+          maxItems: 30
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+      required:
+      - items
+      - next_cursor
+      additionalProperties: false
+    StatementResult:
+      type: object
+      properties:
+        id:
+          type: string
+          maxLength: 100
+        profile_id:
+          type: string
+          maxLength: 100
+        verdict:
+          type: string
+          enum:
+          - VERIFIED
+          - VERIFIED_BY_TOTALS
+          - VERIFIED_WITH_FIXES
+          - NEEDS_REVIEW
+          - UNVERIFIABLE
+        rows:
+          type: integer
+          minimum: 0
+        flags:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+          maxItems: 100
+        checks:
+          type: object
+          additionalProperties:
+            anyOf:
+            - type: boolean
+            - type: 'null'
+        version:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        source_checked:
+          type: boolean
+          const: false
+      required:
+      - id
+      - profile_id
+      - verdict
+      - rows
+      - flags
+      - checks
+      - version
+      - source_checked
+      additionalProperties: false
+    StatementList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatementResult'
+          maxItems: 100
+        next_cursor:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+        revision:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+      required:
+      - items
+      - next_cursor
+      - revision
+      additionalProperties: false
   responses:
     Error400:
       description: Safe structured error without private input echo
@@ -5896,8 +6168,7 @@ components:
         type: string
         maxLength: 128
         minLength: 16
-      description: Scoped durable replay key; changed payload under the same key is
-        a 409 conflict.
+      description: Scoped durable replay key; changed payload under the same key is a 409 conflict.
     PathInvitation:
       name: invitation
       in: path

@@ -242,6 +242,11 @@ class HostedSettings(BaseSettings):
     s3_bucket: str = "dockling-private"
     session_hours: int = Field(default=8, ge=1, le=24)
     frontend_dist: Path = Path("frontend/dist")
+    upload_bytes: int = Field(default=8 * 1024**2, ge=1024, le=8 * 1024**2)
+    job_files: int = Field(default=12, ge=1, le=30)
+    job_pages: int = Field(default=40, ge=1, le=100)
+    workspace_bytes: int = Field(default=512 * 1024**2, ge=1024)
+    workspace_operations: int = Field(default=4, ge=1, le=20)
 
     @model_validator(mode="after")
     def secure_boundaries(self) -> Self:
@@ -275,3 +280,40 @@ def load_hosted_settings(path: Path = Path(".local-saas/server.env")) -> HostedS
         raise ConfigurationError(
             "WEB_CONFIG", "Web settings are missing or invalid; no credential values are shown."
         ) from None
+
+
+class WorkerSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="STMTCONV_WORKER_", extra="ignore")
+    database_url: SecretStr
+    broker_socket: Path = Path("/broker/socket")
+    models: Path = Path("/models")
+    seconds: int = Field(default=300, ge=30, le=900)
+    max_pages: int = Field(default=100, ge=1, le=100)
+
+    @model_validator(mode="after")
+    def restricted_database(self) -> Self:
+        from urllib.parse import urlsplit
+
+        url = urlsplit(self.database_url.get_secret_value())
+        if url.scheme != "postgresql+pg8000" or url.username != "dockling_worker":
+            raise ValueError("Worker requires its restricted PostgreSQL identity")
+        return self
+
+
+def load_worker_settings(path: Path | None = None) -> WorkerSettings:
+    try:
+        return WorkerSettings(_env_file=path)
+    except ValidationError:
+        raise ConfigurationError("WORKER_CONFIG", "Worker configuration is unavailable.") from None
+
+
+def build_certificate_bundle() -> Path:
+    """Public trust certificates for verified build-time downloads behind the cloud proxy."""
+    import certifi
+
+    return Path(os.environ.get("SSL_CERT_FILE") or certifi.where())
+
+
+def clear_worker_credentials() -> None:
+    """Keep process-spawned document parsers from inheriting runtime credentials."""
+    os.environ.pop("STMTCONV_WORKER_DATABASE_URL", None)

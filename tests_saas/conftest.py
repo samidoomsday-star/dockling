@@ -24,9 +24,10 @@ def configs():
     admin = load_hosted_settings(Path(".local-saas/migrate.env"))
     config = config.model_copy(
         update={
+            "s3_bucket": config.s3_bucket + "-test",
             "database_url": SecretStr(
                 config.database_url.get_secret_value().rsplit("/", 1)[0] + "/dockling_test"
-            )
+            ),
         }
     )
     admin = admin.model_copy(
@@ -37,6 +38,7 @@ def configs():
         }
     )
     migrate(admin)
+    ObjectStore(config).ensure_bucket()
     yield config, admin
 
 

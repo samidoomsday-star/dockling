@@ -1,0 +1,16 @@
+# Reviewed official Python 3.12 Debian base; no dependency/model downloads at runtime.
+FROM python@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258
+COPY --chmod=0644 .local-saas/build/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources && \
+    https_proxy="${HTTPS_PROXY:-}" http_proxy="${HTTP_PROXY:-}" apt-get update && \
+    https_proxy="${HTTPS_PROXY:-}" http_proxy="${HTTP_PROXY:-}" apt-get install -y --no-install-recommends libgl1 libgomp1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*
+COPY --chmod=0755 src /app/src
+COPY --chmod=0644 docs/PHASE0-MODEL-MANIFEST.json /app/src/stmtconv/_model-manifest.json
+COPY --chmod=0755 config /app/config
+COPY --chmod=0755 profiles /app/profiles
+WORKDIR /app
+ENV PYTHONPATH=/app/src PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+USER 1000:1000
+CMD ["python", "-m", "stmtconv.web.worker"]
+# Large verified binary layer last: avoids duplicating it on the cloud's storage driver.
+COPY --chmod=0755 .venv/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages

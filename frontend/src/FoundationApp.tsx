@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FoundationApi, FoundationError, type ServerSession } from './lib/foundation';
+import PipelineJob from './PipelineJob';
 const api = new FoundationApi();
 const explain = (e: unknown) =>
   e instanceof FoundationError ? e.message : 'The service is unavailable. Please try again.';
@@ -56,10 +57,10 @@ export default function FoundationApp() {
         <section className="hero">
           <span className="eyebrow">Your statement workspace</span>
           <h1>A clearer place to prepare your financial documents.</h1>
-          <p>Sign in to your private workspace and create a saved job.</p>
+          <p>Sign in to upload statements, run conversion and compare results with the source.</p>
           <p>
-            Foundation preview: upload, conversion, review, exports and billing are being connected
-            in upcoming phases.
+            Synthetic development preview. Review editing, final exports and billing are being
+            connected in upcoming phases.
           </p>
           <a className="button primary" href="/auth/login">
             Sign in securely
@@ -78,7 +79,7 @@ export default function FoundationApp() {
         Skip to content
       </a>
       <div className="preview-banner" role="status">
-        SaaS foundation · Real sign-in and saved job records · Synthetic testing only
+        Statement workspace · Real upload and conversion · Synthetic testing only
       </div>
       <div className="workspace foundation-shell">
         <aside className="sidebar">
@@ -93,8 +94,8 @@ export default function FoundationApp() {
             {s.platform_admin && <Link to="/admin">Service health</Link>}
           </nav>
           <div className="sidebar-note">
-            Uploads and conversion arrive in Phase 2. Your existing command-line app remains
-            available.
+            Upload, inspect and convert your test statements. Always compare dates and descriptions
+            with the source.
           </div>
         </aside>
         <div className="workspace-body">
@@ -273,17 +274,33 @@ function Jobs({ session }: { session: ServerSession }) {
 function NewJob({ session, act, busy }: Actions) {
   const [name, setName] = useState('');
   const [currency, setCurrency] = useState('USD');
+  const [engine, setEngine] = useState('auto');
+  const [dateOrder, setDateOrder] = useState('auto');
+  const [profile, setProfile] = useState('');
+  const [pages, setPages] = useState('');
+  const [combine, setCombine] = useState(false);
+  const choices = useQuery({
+    queryKey: ['foundation', session.workspace_id, 'intake-options'],
+    queryFn: () => api.intakeOptions(),
+    retry: false,
+  });
   if (session.role === 'viewer')
     return <p>Your viewer membership can read jobs. Ask an owner or editor to create one.</p>;
   return (
     <section className="card">
       <h1>Create a job</h1>
-      <p>This saves a job record. Files, extraction and export will be enabled in later phases.</p>
+      <p>Start with a name and currency. Add your fictional statement files on the next screen.</p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           void act(async () => {
-            const j = await api.create(session, name, currency);
+            const j = await api.create(session, name, currency, {
+              engine,
+              date_order: dateOrder,
+              profile_id: profile || null,
+              pages: pages || null,
+              combine,
+            });
             return j;
           }, '/app/jobs');
         }}
@@ -302,7 +319,71 @@ function NewJob({ session, act, busy }: Actions) {
             onChange={(e) => setCurrency(e.target.value.toUpperCase())}
           />
         </label>
-        <p>Defaults: automatic date order, Excel and CSV formats.</p>
+        <details>
+          <summary>Conversion options</summary>
+          <label>
+            Extraction engine
+            <select
+              aria-label="Extraction engine"
+              value={engine}
+              onChange={(e) => setEngine(e.target.value)}
+            >
+              <option value="auto">Automatic text / OCR (recommended)</option>
+              <option value="text">Text only</option>
+              <option value="docling">Docling OCR</option>
+            </select>
+          </label>
+          <label>
+            Date order
+            <select
+              aria-label="Date order"
+              value={dateOrder}
+              onChange={(e) => setDateOrder(e.target.value)}
+            >
+              <option value="auto">Automatic</option>
+              <option value="MDY">Month / day / year</option>
+              <option value="DMY">Day / month / year</option>
+              <option value="YMD">Year / month / day</option>
+            </select>
+          </label>
+          <label>
+            Statement layout
+            <select
+              aria-label="Statement layout"
+              value={profile}
+              onChange={(e) => setProfile(e.target.value)}
+            >
+              <option value="">Detect automatically</option>
+              {choices.data?.profiles.map((p) => (
+                <option value={p.id} key={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          {choices.isError && <p role="alert">{explain(choices.error)}</p>}
+          <label>
+            Page groups (optional)
+            <input
+              value={pages}
+              maxLength={200}
+              placeholder="1-4,5-9"
+              onChange={(e) => setPages(e.target.value)}
+            />
+          </label>
+          <p className="fine">
+            Separate ranges create separate statements. Applies to each document, or the combined
+            image sequence.
+          </p>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={combine}
+              onChange={(e) => setCombine(e.target.checked)}
+            />
+            Combine ordered images into one statement
+          </label>
+        </details>
         <button className="button primary" disabled={busy}>
           Save job
         </button>
@@ -312,31 +393,7 @@ function NewJob({ session, act, busy }: Actions) {
 }
 function Job({ session }: { session: ServerSession }) {
   const { id = '' } = useParams();
-  const q = useQuery({
-    queryKey: ['foundation', session.workspace_id, 'job', id],
-    queryFn: () => api.job(id),
-    retry: false,
-  });
-  if (q.isPending) return <p>Loading job…</p>;
-  if (q.isError) return <p role="alert">{explain(q.error)}</p>;
-  return (
-    <section className="card">
-      <span className="eyebrow">Saved job</span>
-      <h1>{q.data.name}</h1>
-      <dl>
-        <dt>Status</dt>
-        <dd>{q.data.status}</dd>
-        <dt>Currency</dt>
-        <dd>{q.data.currency}</dd>
-        <dt>Revision</dt>
-        <dd>{q.data.revision}</dd>
-        <dt>Source review</dt>
-        <dd>Not started — no documents uploaded</dd>
-      </dl>
-      <p>Upload and conversion are next. No financial checks or exports have run on this job.</p>
-      <Link to="/app/jobs">Back to jobs</Link>
-    </section>
-  );
+  return <PipelineJob key={session.workspace_id + ':' + id} session={session} id={id} />;
 }
 function Settings({ session }: { session: ServerSession }) {
   const q = useQuery({

@@ -1,15 +1,15 @@
-name: SaaS foundation checks
+name: SaaS pipeline checks
 on:
   push:
-    paths: ['src/**', 'tests_saas/**', 'scripts/**', 'requirements/**', 'compose.saas.yaml', 'contracts/**', 'frontend/**', 'pyproject.toml', '.github/workflows/saas-foundation.yml']
+    paths: ['src/**', 'tests_saas/**', 'scripts/**', 'requirements/**', 'compose.saas.yaml', 'Dockerfile.worker', '.dockerignore', 'contracts/**', 'frontend/**', 'pyproject.toml', '.github/workflows/saas-foundation.yml']
   pull_request:
-    paths: ['src/**', 'tests_saas/**', 'scripts/**', 'requirements/**', 'compose.saas.yaml', 'contracts/**', 'frontend/**', 'pyproject.toml', '.github/workflows/saas-foundation.yml']
+    paths: ['src/**', 'tests_saas/**', 'scripts/**', 'requirements/**', 'compose.saas.yaml', 'Dockerfile.worker', '.dockerignore', 'contracts/**', 'frontend/**', 'pyproject.toml', '.github/workflows/saas-foundation.yml']
 permissions:
   contents: read
 jobs:
   foundation:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -30,11 +30,17 @@ jobs:
       - run: .venv/bin/python -m ruff format --check src tests scripts tests_saas research/phase0 tools/synth
       - run: .venv/bin/python -m mypy
       - run: .venv/bin/python -m pytest tests_saas -q
+      - run: .venv/bin/python scripts/saas-local.py worker-build
+      - run: .venv/bin/python scripts/check.py
+      - run: .venv/bin/python scripts/saas-local.py worker
+      - run: .venv/bin/python scripts/check-worker-isolation.py
+      - run: .venv/bin/python scripts/saas-fixtures.py
       - run: npm exec --prefix frontend -- playwright install --with-deps chromium
-      - name: Real OIDC browser journey
+      - name: Real OIDC and isolated conversion browser journey
         run: |
           .venv/bin/python scripts/saas-local.py run > /tmp/dockling-server.log 2>&1 &
           node scripts/saas-browser.mjs
+          node scripts/saas-recovery.mjs
       - name: Stop services and preserve volumes
         if: always()
         run: docker compose -f compose.saas.yaml down

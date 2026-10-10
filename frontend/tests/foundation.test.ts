@@ -11,6 +11,67 @@ const session: ServerSession = {
 };
 afterEach(() => vi.unstubAllGlobals());
 describe('foundation contract adapter', () => {
+  it('keeps raw uploads and the same replay key when retrying a lost response', async () => {
+    const fetch = vi.fn().mockImplementation(
+      async () =>
+        new Response(
+          JSON.stringify({
+            id,
+            display_name: 'Statement.pdf',
+            bytes: 5,
+            sha256: 'a'.repeat(64),
+            pages: 0,
+            kind: 'pdf',
+            password_required: false,
+            revision: 2,
+          }),
+        ),
+    );
+    vi.stubGlobal('fetch', fetch);
+    const file = new File(['%PDF-'], 'Statement.pdf', { type: 'application/pdf' });
+    const api = new FoundationApi();
+    await api.upload(session, id, file, 1, 'same-retry-key');
+    await api.upload(session, id, file, 1, 'same-retry-key');
+    expect(fetch.mock.calls.map((call) => call[1].headers['Idempotency-Key'])).toEqual([
+      'same-retry-key',
+      'same-retry-key',
+    ]);
+    expect(fetch.mock.calls[0][1].body).toBe(file);
+    expect(fetch.mock.calls[0][1].headers['X-Synthetic-Confirmed']).toBe('true');
+  });
+  it('rejects a monetary float in canonical API rows', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            revision: 4,
+            next_cursor: null,
+            items: [
+              {
+                id: 'r1',
+                statement_id: 's0001',
+                sequence: 0,
+                date: '2026-01-01',
+                description: 'Synthetic',
+                debit: 2.12,
+                credit: null,
+                balance: '10.00',
+                file_id: id,
+                page: 1,
+                engine: 'text',
+                flags: [],
+                fixed_by: null,
+                source_reviewed: false,
+                category: null,
+              },
+            ],
+          }),
+        ),
+      ),
+    );
+    await expect(new FoundationApi().rows(id)).rejects.toThrow();
+  });
   it('uses same-origin server session and CSRF without a browser role header', async () => {
     const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id }), { status: 201 }));
     vi.stubGlobal('fetch', fetch);

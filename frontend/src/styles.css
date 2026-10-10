@@ -1346,3 +1346,35 @@ li {
     max-width: 250px;
   }
 }
+.pipeline-file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.pipeline-file > div:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.pipeline-file small,
+.pipeline-file strong {
+  display: block;
+}
+.pipeline-file form {
+  width: 100%;
+}
+.pipeline-source {
+  display: block;
+  max-width: 100%;
+  max-height: 850px;
+  margin: 16px auto;
+  object-fit: contain;
+  border: 1px solid var(--line);
+}
+.metrics .pipeline-status {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  overflow-wrap: anywhere;
+}

@@ -81,6 +81,7 @@ class ObjectStore:
             .where(
                 Artifact.workspace_id == workspace,
                 Artifact.id == artifact_id,
+                Artifact.state == "active",
                 Job.deletion_state == "active",
             )
         ).first()
@@ -89,6 +90,9 @@ class ObjectStore:
         artifact, job = result
         if artifact.revision != job.revision:
             raise WebError(409, "STALE_REVISION", "This artifact belongs to an earlier revision.")
+        return self.verified(artifact)
+
+    def verified(self, artifact: Artifact) -> bytes:
         try:
             data: bytes = self.client.get_object(Bucket=self.bucket, Key=artifact.object_key)[
                 "Body"
@@ -98,3 +102,11 @@ class ObjectStore:
         if len(data) != artifact.bytes or hashlib.sha256(data).hexdigest() != artifact.sha256:
             raise WebError(503, "ARTIFACT_INTEGRITY", "This artifact could not be verified.")
         return data
+
+    def write(self, artifact: Artifact, data: bytes) -> None:
+        try:
+            self.client.put_object(Bucket=self.bucket, Key=artifact.object_key, Body=data)
+            if self.verified(artifact) != data:
+                raise ValueError
+        except Exception:
+            raise WebError(503, "STORAGE_UNAVAILABLE", "Private storage is unavailable.") from None

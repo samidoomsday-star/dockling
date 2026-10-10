@@ -1,6 +1,6 @@
 # SaaS Phase 2 — actual upload and conversion workers
 
-**Status:** next implementation checklist; not started. Read Phase 1 evidence, `docs/saas/DATA-AND-JOBS.md`, security/permissions and the OpenAPI phase-2 routes first. Preserve the CLI and demo baseline.
+**Status:** implemented for synthetic local development on `saas-phase-2`. See [implementation/evidence](../saas/PHASE2-IMPLEMENTATION.md) and [device setup](../saas/LOCAL-SETUP.md). Production and device/field gates remain pending. Read Phase 1 evidence, `docs/saas/DATA-AND-JOBS.md`, security/permissions and the OpenAPI phase-2 routes first. Preserve the CLI and demo baseline.
 
 ## Intended outcome
 
@@ -18,3 +18,9 @@ A signed-in customer uploads a synthetic statement, sees its genuine intake/conv
 8. Update API examples, device/container/model/setup instructions and fresh-device verification; push a reviewable milestone without merging or deploying main. Do not process real customer documents or contact a paid LLM.
 
 Production vendor/country/retention/budget decisions remain pending. This local phase must not silently open real customer intake or apply guessed retention/prices. Complete hosted privacy/key/billing/operations/release gates before advertising a paid SaaS.
+
+## Completed milestone
+
+Tasks 1–8 are implemented for the local synthetic workflow. Evidence: 50 PostgreSQL/storage tests, 314 original Python tests, 42 frontend unit tests, 19 demo browser journeys, genuine text/scanned/image/protected/combined-image source-linked results and actual Keycloak/OTP/browser checks. Actual container public TCP/DNS denial and resource/mount/role checks pass. Actual SIGKILL/45-second lease reclaim publishes one revision, confirmed as generation 2/two attempts, with no duplicate replay. See PHASE2-IMPLEMENTATION.md and PROGRESS.md for failures corrected, exact evidence and remaining device/production gates.
+
+Phase 3 is next: corrections/review/source attestations → recheck → current-revision exports. The existing multi-page description mismatch must remain review-gated. Do not enable paid BYOK, real customer intake or deployment as a side effect of finishing this phase.

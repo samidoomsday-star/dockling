@@ -1,0 +1,39 @@
+{
+  "purpose": "Local synthetic Phase 2 worker; production artifact freeze/SBOM and distribution obligations remain release gates.",
+  "python_base": {
+    "image": "python@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258",
+    "platform": "Linux amd64 / Python 3.12 / Debian bookworm",
+    "terms": "Python PSF; Debian components have individual copyright/license files under /usr/share/doc."
+  },
+  "observed_worker_image": "sha256:e927f68cf4ccdb165153f9acd481ded6b280f5eeea28d29be060f68c42a48277",
+  "locks": {
+    "requirements/phase1-linux.txt": "734ae8cc28b28a87db978dfb8489df26c8abe6edb9746ae5294559e4b1826206",
+    "requirements/saas-linux.txt": "b5d2f97292ca67071ca9e644367923e3bce9caaa800f57476e3f942e733ab442",
+    "frontend/package-lock.json": "963459b0f5017af610dab997d6d2184d716933d4d6f05689b13796f0c0a34533",
+    "docs/PHASE0-MODEL-MANIFEST.json": "ae00b5dd3340ced6f0505ed306db837eb415bf40ddd78ef77c50b34c86c52cab"
+  },
+  "native_packages": [
+    {
+      "name": "libgl1",
+      "observed_version": "1.6.0-1",
+      "terms": "GLVND permissive license; see installed Debian copyright. Graphics dependencies have their own terms."
+    },
+    {
+      "name": "libglib2.0-0",
+      "observed_version": "2.74.6-2+deb12u9",
+      "terms": "LGPL-2.1-or-later; preserve copyright/license notices and meet applicable distribution obligations."
+    },
+    {
+      "name": "libgomp1",
+      "observed_version": "12.2.0-14+deb12u1",
+      "terms": "GPL-3.0-or-later with GCC Runtime Library Exception 3.1; see installed Debian copyright."
+    }
+  ],
+  "build_verification": "Python binaries installed with reviewed SHA256 locks; apt signatures and HTTPS trusted CA verification retained; model SHA256 checked at setup and worker startup. No new npm/Python pins in Phase 2.",
+  "limitations": [
+    "Native apt dependencies follow authenticated bookworm repository updates; observed versions are recorded, not a complete snapshot-pinned native lock.",
+    "Read model/direct/transitive license inventories before external distribution; this file does not resolve all upstream obligations.",
+    "Linux image copies verified Linux site-packages. Windows/ARM binaries cannot be substituted.",
+    "Images remain local; no image registry publication or production deployment occurred."
+  ]
+}

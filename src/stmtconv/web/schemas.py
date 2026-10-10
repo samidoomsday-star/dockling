@@ -1,6 +1,6 @@
 """Bounded input commands; financial values are never browser floats."""
 
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -42,12 +42,43 @@ class JobOptions(Command):
             raise ValueError("Output formats must be distinct")
         return value
 
-    @field_validator("pages", "profile_id")
+    @field_validator("profile_id")
     @classmethod
-    def future_selection(cls, value: str | None) -> None:
+    def published_profile(cls, value: str | None) -> str | None:
         if value is not None:
-            raise ValueError("This selection becomes available in a later phase")
-        return None
+            from stmtconv.profiles.schema import load_profiles
+
+            if value not in {p.id for p in load_profiles()}:
+                raise ValueError("Choose a published profile")
+        return value
+
+    @field_validator("pages")
+    @classmethod
+    def page_selection(cls, value: str | None) -> str | None:
+        import re
+
+        if value is not None and not re.fullmatch(
+            r"[1-9][0-9]*(?:-[1-9][0-9]*)?(?:,[1-9][0-9]*(?:-[1-9][0-9]*)?)*", value
+        ):
+            raise ValueError("Use distinct page ranges")
+        return value
+
+
+class RevisionCommand(Command):
+    expected_revision: int = Field(ge=1, le=9007199254740991)
+
+
+class PipelineCommand(RevisionCommand):
+    action: Literal["extract", "retry"]
+    retry_operation_id: UUID | None = Field(default=None, strict=False)
+
+
+class PasswordCommand(RevisionCommand):
+    password: str = Field(min_length=1, max_length=512, repr=False)
+
+
+class FileOrderCommand(RevisionCommand):
+    file_ids: list[Annotated[UUID, Field(strict=False)]] = Field(min_length=1, max_length=30)
 
 
 class WorkspaceSelect(Command):

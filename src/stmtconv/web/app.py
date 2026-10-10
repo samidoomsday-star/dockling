@@ -3,6 +3,7 @@
 import hashlib
 import hmac
 import json
+import re
 from collections.abc import Awaitable, Callable, Iterator
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -32,9 +33,11 @@ from stmtconv.web.auth import (
     session_json,
     validate_write,
 )
+from stmtconv.web.broker import Broker
 from stmtconv.web.database import PostgresUnitOfWork, UnitOfWork, database
 from stmtconv.web.errors import WebError, missing
 from stmtconv.web.models import Event, Invitation, Job, Membership, User, WebSession, Workspace
+from stmtconv.web.pipeline_api import register_pipeline
 from stmtconv.web.repository import Cursors, HostedMetadata, Json, job_json, membership, replay
 from stmtconv.web.schemas import (
     InvitationAccept,
@@ -47,12 +50,16 @@ from stmtconv.web.storage import ObjectStore
 
 
 def create_app(config: HostedSettings) -> FastAPI:
-    app = FastAPI(title="Dockling foundation", docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(
+        title="Dockling statement workspace", docs_url=None, redoc_url=None, openapi_url=None
+    )
     engine = database(config)
     app.state.engine = engine
     uow: UnitOfWork = PostgresUnitOfWork(engine)
     identity = oauth_client(config)
     store = ObjectStore(config)
+    broker = Broker(config, PostgresUnitOfWork(engine), store)
+    app.state.broker = broker
     cursors = Cursors(config.session_key.get_secret_value())
     secure = config.mode == "production"
     app.add_middleware(
@@ -106,7 +113,15 @@ def create_app(config: HostedSettings) -> FastAPI:
             chunks = []
             async for chunk in request.stream():
                 size += len(chunk)
-                if size > 65536:
+                maximum = (
+                    config.upload_bytes
+                    if (
+                        request.method == "POST"
+                        and re.fullmatch(r"/api/v1/jobs/[0-9a-fA-F-]{36}/files", request.url.path)
+                    )
+                    else 65536
+                )
+                if size > maximum:
                     return problem(
                         WebError(413, "BODY_LIMIT", "The submitted request is too large.")
                     )
@@ -119,7 +134,7 @@ def create_app(config: HostedSettings) -> FastAPI:
             response = problem(
                 WebError(503, "SERVICE_UNAVAILABLE", "The service is temporarily unavailable.")
             )
-        response.headers["Cache-Control"] = "no-store"
+        response.headers["Cache-Control"] = "private, no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["Content-Security-Policy"] = (
@@ -239,7 +254,7 @@ def create_app(config: HostedSettings) -> FastAPI:
 
     @app.get("/api/v1/version")
     def version() -> Json:
-        return {"version": "0.2.0-foundation", "api_version": "v1"}
+        return {"version": "0.2.0-pipeline", "api_version": "v1"}
 
     @app.get("/api/v1/session")
     def current(request: Request, db: Db) -> Json:
@@ -569,6 +584,8 @@ def create_app(config: HostedSettings) -> FastAPI:
             "worker": "unknown",
             "models": "unknown",
         }
+
+    register_pipeline(app, config, get_db, scoped, key, store, broker, cursors)
 
     # API is registered before the SPA. Unknown API/auth URLs cannot serve HTML or fixtures.
     @app.api_route("/api/{remaining:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])

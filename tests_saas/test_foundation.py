@@ -63,7 +63,9 @@ def test_cross_tenant_ids_lists_and_children(world, name):
     else:
         assert result.json()["items"] == []
         validate_response("JobList", result.json())
-    assert c.post("/api/v1/jobs/" + job["id"] + "/intake", json={}).status_code == 404
+    # Intake is implemented in Phase 2; a complete command exercises its authorization.
+    result = c.post("/api/v1/jobs/" + job["id"] + "/intake", json={"expected_revision": 1})
+    assert result.status_code == (403 if name == "viewer0" else 404)
 
 
 def test_roles_boundaries_and_safe_errors(world):

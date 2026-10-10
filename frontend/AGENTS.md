@@ -1,6 +1,6 @@
 # Dockling frontend
 
-Stage B interactive frontend: React/TypeScript/Vite with synthetic fixtures. Read `docs/FRONTEND-IMPLEMENTATION.md` and `docs/FRONTEND-COVERAGE.md` before changes. SaaS Phase 1 adds `FoundationApp`/`FoundationApi` for real sign-in and persisted metadata; read `docs/saas/LOCAL-SETUP.md` and `PHASE1-IMPLEMENTATION.md`. Upload/review/BYOK/billing integration remains later work.
+Stage B interactive frontend: React/TypeScript/Vite with synthetic fixtures. Read `docs/FRONTEND-IMPLEMENTATION.md` and `docs/FRONTEND-COVERAGE.md` before changes. SaaS Phases 1–2 add `FoundationApp`/`FoundationApi` for real sign-in, persisted metadata, uploads, durable conversion and source-linked read-only results; read `docs/saas/LOCAL-SETUP.md` and `PHASE1-IMPLEMENTATION.md`. Read PHASE2-IMPLEMENTATION.md. Review editing/exports/BYOK/billing integration remains later work.
 
 - Keep the explicit preview banner and truthful labels. Never substitute fixtures for API failures, claim real uploads/processing/authentication or collect real keys in demo mode.
 - Money is exact text here; financial arithmetic/reconciliation and authorization belong to the existing Python core and future server. Financial verdicts and source checking stay separate.

@@ -45,7 +45,7 @@ def job_json(job: Job) -> Json:
         "created_at": job.created_at.isoformat(),
         "deletion_state": job.deletion_state,
         "options": job.options,
-        "content_digest": None,
+        "content_digest": job.content_digest,
         "export_revision": None,
         "source_checked": False,
         "ai_source_checked": False,
