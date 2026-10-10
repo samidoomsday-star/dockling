@@ -231,6 +231,9 @@ class HostedSettings(BaseSettings):
     database_url: SecretStr
     session_key: SecretStr
     ai_encryption_key: SecretStr | None = None
+    ai_page_cap: int = Field(default=40, ge=1, le=100)
+    ai_request_cap: int = Field(default=40, ge=1, le=100)
+    ai_pages_per_run: int = Field(default=5, ge=1, le=5)
     base_url: str = "http://127.0.0.1:8000"
     oidc_issuer: str
     oidc_client_id: str = "dockling-web"

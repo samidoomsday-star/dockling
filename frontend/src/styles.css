@@ -1394,3 +1394,33 @@ li {
   border: 1px solid #c4ded2;
   border-radius: 1rem;
 }
+
+.ai-usage > div {
+  min-width: 0;
+}
+.ai-usage strong {
+  display: block;
+  font-size: 1.15rem;
+  overflow-wrap: anywhere;
+}
+.ai-usage span {
+  display: block;
+  margin-bottom: 6px;
+}
+#optional-ai-title ~ fieldset {
+  min-width: 0;
+}
+
+.text-link {
+  text-decoration: underline;
+}
+
+.config-editor {
+  min-height: 16rem;
+  font-family: ui-monospace, monospace;
+  width: 100%;
+  max-width: 100%;
+}
+.wrap-anywhere {
+  overflow-wrap: anywhere;
+}

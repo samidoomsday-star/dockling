@@ -79,12 +79,20 @@ class HostedMetadata:
         )
 
     def create(self, options: JobOptions) -> Json:
+        from stmtconv.web.owner_config import runtime_snapshot
+
+        runtime = runtime_snapshot(self.db)
+        if options.profile_id and options.profile_id not in {
+            str(p["id"]) for p in cast(list[Json], runtime["profiles"])
+        }:
+            raise WebError(422, "PROFILE_UNKNOWN", "Choose an active published profile.")
         job = Job(
             workspace_id=self.actor.workspace_id,
             creator_id=self.actor.user_id,
             name=options.name,
             currency=options.currency,
             options=options.model_dump(mode="json"),
+            runtime_config=runtime,
         )
         self.db.add(job)
         self.db.flush()

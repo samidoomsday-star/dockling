@@ -77,7 +77,16 @@ def decode_result(data: bytes) -> PipelineResult:
         if (
             not isinstance(a, dict)
             or set(a) != {"id", "kind", "data"}
-            or a["kind"] not in {"normalized", "page", "review_workbook", "export", "delivery"}
+            or a["kind"]
+            not in {
+                "normalized",
+                "page",
+                "review_workbook",
+                "export",
+                "delivery",
+                "profile_scaffold",
+                "diagnostic",
+            }
         ):
             raise ValueError("Invalid parser artifact")
         content = base64.b64decode(a["data"], validate=True)
@@ -205,6 +214,8 @@ def process_one(operations: PipelineOperations, cfg: WorkerSettings) -> bool:
         }
         if task.action == "review_apply":
             documents = {"workbook": artifacts.read(UUID(str(task.payload["upload_id"])))}
+        elif task.action == "profile_scaffold":
+            documents = {"source": artifacts.read(UUID(str(task.payload["source_artifact"])))}
         elif task.action == "delivery":
             documents = {
                 str(i["id"]): artifacts.read(UUID(str(i["id"])))
@@ -338,6 +349,30 @@ def main() -> None:
             raise SystemExit("Scratch recovery acknowledgement failed.")
         guard.commit()
     operations: PipelineOperations = LeasedPostgres(engine)
+    manifest_digest = hashlib.sha256(
+        json.dumps(
+            load_manifest().model_dump(mode="json"), sort_keys=True, separators=(",", ":")
+        ).encode()
+    ).hexdigest()
+
+    def report(verified: bool = False) -> None:
+        with engine.begin() as connection:
+            connection.execute(
+                text("SELECT dockling_worker_report(:digest,:version,:verified)"),
+                {"digest": manifest_digest, "version": "saas-phase-4", "verified": verified},
+            )
+
+    report(True)
+
+    def service_heartbeat() -> None:
+        while True:
+            time.sleep(10)
+            try:
+                report()
+            except Exception:
+                pass  # Health becomes stale; never fabricate an available worker.
+
+    threading.Thread(target=service_heartbeat, daemon=True).start()
     print("Restricted offline conversion worker started.", flush=True)
     while True:
         try:

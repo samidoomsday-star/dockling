@@ -77,6 +77,18 @@ def remove_live(
         .limit(1)
     ):
         raise ValueError("Scratch cleanup not acknowledged")
+    from stmtconv.web.models import AiAttempt, AiConsent, AiRun, ProfileEvidence, SupportGrant
+
+    if db.scalar(
+        select(AiRun.id)
+        .where(
+            AiRun.workspace_id == job.workspace_id,
+            AiRun.job_id == job.id,
+            AiRun.cleanup_done.is_(False),
+        )
+        .limit(1)
+    ):
+        raise ValueError("AI memory cleanup has not been acknowledged")
     artifacts = list(
         db.scalars(
             select(Artifact).where(
@@ -120,7 +132,17 @@ def remove_live(
         operation.lease_hash, operation.lease_until = None, None
         return {"removed": False, "deletion_state": "partial"}
     ws, jid = job.workspace_id, job.id
-    for model in (SourceFile, CanonicalSnapshot, ReviewRevision, Artifact):
+    for model in (
+        ProfileEvidence,
+        SupportGrant,
+        AiAttempt,
+        AiRun,
+        AiConsent,
+        SourceFile,
+        CanonicalSnapshot,
+        ReviewRevision,
+        Artifact,
+    ):
         db.execute(delete(model).where(model.workspace_id == ws, model.job_id == jid))
     # Every job-specific idempotency action ends with the job UUID. Old recorded
     # commands may contain names or row data and cannot survive live removal.
@@ -143,6 +165,7 @@ def remove_live(
         {},
         {},
     )
+    job.runtime_config = {}
     job.status, job.deletion_state = "closed", "removed"
     certificate = {
         "job_id": str(jid),
@@ -166,9 +189,19 @@ def remove_live(
         )
     )
     db.flush()
-    for model in (SourceFile, CanonicalSnapshot, ReviewRevision, Artifact):
+    for model in (
+        ProfileEvidence,
+        SupportGrant,
+        AiAttempt,
+        AiRun,
+        AiConsent,
+        SourceFile,
+        CanonicalSnapshot,
+        ReviewRevision,
+        Artifact,
+    ):
         if db.scalar(
-            select(model.id).where(model.workspace_id == ws, model.job_id == jid).limit(1)
+            select(model.job_id).where(model.workspace_id == ws, model.job_id == jid).limit(1)
         ):
             raise ValueError("Private database inventory remains")
     return {"removed": True, "certificate": certificate}

@@ -2,11 +2,11 @@ openapi: 3.1.0
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Dockling hosted API contract
-  version: 0.4.0
-  description: Versioned SaaS design. Hosted Phases 1–3 are implemented for synthetic
-    local testing. Operations marked x-implementation implemented describe current
-    routes; other routes remain planned. Upload and workbook apply use bounded raw
-    bytes with revision headers.
+  version: 0.4.1
+  description: Versioned SaaS design. Hosted Phases 1–4 are implemented for synthetic
+    local acceptance; billing, public deployment and future aliases remain planned.
+    Uploads/workbook apply use bounded raw bytes. AI uses separate consent and conservative
+    reservations; production teardown recovery remains a deployment gate.
 servers:
 - url: /api/v1
 security:
@@ -1738,27 +1738,22 @@ paths:
           $ref: '#/components/responses/Error404'
         '409':
           $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
-      x-phase: 3
-      x-implementation: implemented
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
       - editor
       - viewer
       x-feature-ids:
-      - F13
-      - F14
-      - F15
-      - F17
-      - F18
-      - F19
-      - F20
+      - F28
+      - F26
+      - F27
     post:
       summary: Confirm
       operationId: hosted_post__jobs_job_ai_source
@@ -1799,26 +1794,21 @@ paths:
           $ref: '#/components/responses/Error404'
         '409':
           $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
-      x-phase: 3
-      x-implementation: implemented
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
       - editor
       x-feature-ids:
-      - F13
-      - F14
-      - F15
-      - F17
-      - F18
-      - F19
-      - F20
+      - F28
+      - F26
+      - F27
   /jobs/{job}/exports:
     post:
       summary: Prepare
@@ -2626,8 +2616,8 @@ paths:
         '503':
           $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-implementation: 'implemented: connection setup only; consent and AI dispatch
-        remain pending'
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
@@ -2671,8 +2661,8 @@ paths:
         '503':
           $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-implementation: 'implemented: connection setup only; consent and AI dispatch
-        remain pending'
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
@@ -2808,8 +2798,8 @@ paths:
         '503':
           $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-implementation: 'implemented: connection setup only; consent and AI dispatch
-        remain pending'
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
@@ -3035,21 +3025,33 @@ paths:
       parameters:
       - $ref: '#/components/parameters/PathJob'
     post:
-      operationId: post_jobs_job_consent
-      summary: POST /jobs/{job}/consent
-      x-phase: 4
-      x-feature-ids:
-      - F28
-      x-access-roles:
-      - owner
-      x-workspace-scoped: true
+      summary: Consent
+      operationId: hosted_post__jobs_job_consent
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedConsentCommand'
       responses:
         '200':
-          description: Successful authorized result
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Consent'
+                $ref: '#/components/schemas/HostedAiStatusRead'
+        '422':
+          $ref: '#/components/responses/Error422'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -3060,104 +3062,104 @@ paths:
           $ref: '#/components/responses/Error404'
         '409':
           $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F28
+      - F26
+      - F27
+  /settings:
+    get:
+      summary: Settings
+      operationId: hosted_get__settings
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Settings Api V1 Settings Get
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
         '422':
           $ref: '#/components/responses/Error422'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/PathJob'
-      - $ref: '#/components/parameters/HeaderXCsrfToken'
-      - $ref: '#/components/parameters/HeaderIdempotencyKey'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConsentCommand'
-  /settings:
-    get:
-      operationId: get_settings
-      summary: GET /settings
-      x-phase: 1
-      x-feature-ids:
-      - F32
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
       x-access-roles:
       - owner
       - editor
       - viewer
-      x-workspace-scoped: true
-      responses:
-        '200':
-          description: Successful authorized result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Settings'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
-    put:
-      operationId: put_settings
-      summary: PUT /settings
-      x-phase: 4
       x-feature-ids:
       - F32
-      x-access-roles:
-      - owner
-      x-workspace-scoped: true
-      responses:
-        '200':
-          description: Successful authorized result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Settings'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/HeaderXCsrfToken'
-      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+    put:
+      summary: Save Preferences
+      operationId: hosted_put__settings
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SettingsCommand'
+              $ref: '#/components/schemas/HostedPreferences'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Save Preferences Api V1 Settings Put
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F32
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
   /support-grants:
     get:
       operationId: get_support_grants
@@ -3699,116 +3701,15 @@ paths:
               $ref: '#/components/schemas/YamlCommand'
   /admin/profiles/{profile}/tests:
     post:
-      operationId: post_admin_profiles_profile_tests
-      summary: POST /admin/profiles/{profile}/tests
-      x-phase: 4
-      x-feature-ids:
-      - F29
-      x-access-roles:
-      - platform_admin
-      x-workspace-scoped: false
-      responses:
-        '202':
-          description: Accepted queued operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SystemOperation'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
+      summary: Profile Test
+      operationId: hosted_post__admin_profiles_profile_tests
       parameters:
-      - $ref: '#/components/parameters/PathProfile'
-      - $ref: '#/components/parameters/HeaderXCsrfToken'
-      - $ref: '#/components/parameters/HeaderIdempotencyKey'
-  /admin/config/{section}:
-    get:
-      operationId: get_admin_config_section
-      summary: GET /admin/config/{section}
-      x-phase: 4
-      x-feature-ids:
-      - F32
-      x-access-roles:
-      - platform_admin
-      x-workspace-scoped: false
-      responses:
-        '200':
-          description: Successful authorized result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/YamlVersion'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/PathSection'
-    put:
-      operationId: put_admin_config_section
-      summary: PUT /admin/config/{section}
-      x-phase: 4
-      x-feature-ids:
-      - F32
-      x-access-roles:
-      - platform_admin
-      x-workspace-scoped: false
-      responses:
-        '200':
-          description: Successful authorized result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/YamlVersion'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
-        '422':
-          $ref: '#/components/responses/Error422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '503':
-          $ref: '#/components/responses/Error503'
-      parameters:
-      - $ref: '#/components/parameters/PathSection'
+      - name: profile
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Identifier
       - $ref: '#/components/parameters/HeaderXCsrfToken'
       - $ref: '#/components/parameters/HeaderIdempotencyKey'
       requestBody:
@@ -3816,21 +3717,144 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/YamlCommand'
-  /admin/health:
-    get:
-      operationId: get_admin_health
-      summary: GET /admin/health
-      x-phase: 1
-      x-feature-ids:
-      - F30
-      - N09
+              $ref: '#/components/schemas/HostedProfileTest'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Profile Test Api V1 Admin Profiles  Identifier  Tests
+                  Post
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
       x-access-roles:
       - platform_admin
-      x-workspace-scoped: false
+      x-feature-ids:
+      - F29
+      - F32
+  /admin/config/{section}:
+    get:
+      summary: Config Read
+      operationId: hosted_get__admin_config_section
+      parameters:
+      - name: section
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Section
       responses:
         '200':
-          description: Successful authorized result
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Config Read Api V1 Admin Config  Section  Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: false
+      x-access-roles:
+      - platform_admin
+      x-feature-ids:
+      - F32
+    put:
+      summary: Config Write
+      operationId: hosted_put__admin_config_section
+      parameters:
+      - name: section
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Section
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedConfigCommand'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Config Write Api V1 Admin Config  Section  Put
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: false
+      x-access-roles:
+      - platform_admin
+      x-feature-ids:
+      - F32
+  /admin/health:
+    get:
+      summary: Health
+      operationId: hosted_get__admin_health
+      responses:
+        '200':
+          description: Successful Response
           content:
             application/json:
               schema:
@@ -3845,32 +3869,33 @@ paths:
           $ref: '#/components/responses/Error404'
         '409':
           $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
         '422':
           $ref: '#/components/responses/Error422'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
-  /admin/metrics:
-    get:
-      operationId: get_admin_metrics
-      summary: GET /admin/metrics
       x-phase: 4
-      x-feature-ids:
-      - F23
-      - N09
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: false
       x-access-roles:
       - platform_admin
-      x-workspace-scoped: false
+      x-feature-ids:
+      - F30
+  /admin/metrics:
+    get:
+      summary: Metrics
+      operationId: hosted_get__admin_metrics
       responses:
         '200':
-          description: Successful authorized result
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Metrics'
+                additionalProperties: true
+                type: object
+                title: Response Metrics Api V1 Admin Metrics Get
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -3881,14 +3906,23 @@ paths:
           $ref: '#/components/responses/Error404'
         '409':
           $ref: '#/components/responses/Error409'
-        '413':
-          $ref: '#/components/responses/Error413'
         '422':
           $ref: '#/components/responses/Error422'
         '429':
           $ref: '#/components/responses/Error429'
         '503':
           $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: false
+      x-access-roles:
+      - platform_admin
+      x-feature-ids:
+      - F30
+      - F31
+      - F32
+      - F33
   /admin/model-maintenance:
     post:
       operationId: post_admin_model_maintenance
@@ -4975,8 +5009,8 @@ paths:
         '503':
           $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-implementation: 'implemented: connection setup only; consent and AI dispatch
-        remain pending'
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
@@ -5029,8 +5063,8 @@ paths:
         '503':
           $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-implementation: 'implemented: connection setup only; consent and AI dispatch
-        remain pending'
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
@@ -5083,8 +5117,8 @@ paths:
         '503':
           $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-implementation: 'implemented: connection setup only; consent and AI dispatch
-        remain pending'
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
@@ -5137,8 +5171,8 @@ paths:
         '503':
           $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-implementation: 'implemented: connection setup only; consent and AI dispatch
-        remain pending'
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
@@ -5191,8 +5225,8 @@ paths:
         '503':
           $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-implementation: 'implemented: connection setup only; consent and AI dispatch
-        remain pending'
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
@@ -5245,8 +5279,8 @@ paths:
         '503':
           $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-implementation: 'implemented: connection setup only; consent and AI dispatch
-        remain pending'
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
@@ -5299,8 +5333,8 @@ paths:
         '503':
           $ref: '#/components/responses/Error503'
       x-phase: 4
-      x-implementation: 'implemented: connection setup only; consent and AI dispatch
-        remain pending'
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
       x-workspace-scoped: true
       x-access-roles:
       - owner
@@ -5309,6 +5343,842 @@ paths:
       - F25
       - F26
       - F27
+  /jobs/{job}/ai:
+    get:
+      summary: Status
+      operationId: hosted_get__jobs_job_ai
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedAiStatusRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F28
+      - F26
+      - F27
+  /jobs/{job}/ai/requests:
+    post:
+      summary: Reserve
+      operationId: hosted_post__jobs_job_ai_requests
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedAiRequest'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedAiRunRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F28
+      - F26
+      - F27
+  /jobs/{job}/ai/requests/{request}/cancel:
+    post:
+      summary: Cancel
+      operationId: hosted_post__jobs_job_ai_requests_request_cancel
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - name: request
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Rid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedRevisionCommand'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedAiRunRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      x-feature-ids:
+      - F28
+      - F26
+      - F27
+  /jobs/{job}/profile-scaffolds:
+    post:
+      summary: Scaffold
+      operationId: hosted_post__jobs_job_profile_scaffolds
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedScaffoldCommand'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Scaffold Api V1 Jobs  Jid  Profile Scaffolds Post
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F29
+      - F32
+  /admin/selftest:
+    post:
+      summary: Selftest
+      operationId: hosted_post__admin_selftest
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Selftest Api V1 Admin Selftest Post
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - platform_admin
+      x-feature-ids:
+      - F29
+      - F31
+      parameters:
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+  /jobs/{job}/utilities:
+    get:
+      summary: Utilities
+      operationId: hosted_get__jobs_job_utilities
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Utilities Api V1 Jobs  Jid  Utilities Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F29
+      - F32
+  /admin/diagnostics/{job}:
+    get:
+      summary: Diagnostic
+      operationId: hosted_get__admin_diagnostics_job
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Diagnostic Api V1 Admin Diagnostics  Jid  Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - platform_admin
+      x-feature-ids:
+      - F29
+      - F31
+  /jobs/{job}/utilities/{artifact}/download:
+    get:
+      summary: Download
+      operationId: hosted_get__jobs_job_utilities_artifact_download
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - name: artifact
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      - editor
+      - viewer
+      x-feature-ids:
+      - F29
+      - F32
+  /admin/diagnostics/{job}/{artifact}/download:
+    get:
+      summary: Diagnostic Download
+      operationId: hosted_get__admin_diagnostics_job_artifact_download
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - name: artifact
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - platform_admin
+      x-feature-ids:
+      - F29
+      - F31
+  /support-operators:
+    get:
+      summary: Operators
+      operationId: hosted_get__support_operators
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Operators Api V1 Support Operators Get
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F29
+      - F32
+  /jobs/{job}/support-grants:
+    get:
+      summary: Grants
+      operationId: hosted_get__jobs_job_support_grants
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Grants Api V1 Jobs  Jid  Support Grants Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F29
+      - F32
+    post:
+      summary: Grant
+      operationId: hosted_post__jobs_job_support_grants
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedGrantCommand'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedSupportGrantRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F29
+      - F32
+  /jobs/{job}/support-grants/{grant}/revoke:
+    post:
+      summary: Revoke
+      operationId: hosted_post__jobs_job_support_grants_grant_revoke
+      parameters:
+      - name: job
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Jid
+      - name: grant
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Gid
+      - $ref: '#/components/parameters/HeaderXCsrfToken'
+      - $ref: '#/components/parameters/HeaderIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostedGrantRevoke'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedSupportGrantRead'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - owner
+      x-feature-ids:
+      - F29
+      - F32
+  /admin/support-grants:
+    get:
+      summary: Assigned
+      operationId: hosted_get__admin_support_grants
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Assigned Api V1 Admin Support Grants Get
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - platform_admin
+      x-feature-ids:
+      - F29
+      - F32
+  /admin/support-grants/{grant}/results:
+    get:
+      summary: Support Results
+      operationId: hosted_get__admin_support_grants_grant_results
+      parameters:
+      - name: grant
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Gid
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Support Results Api V1 Admin Support Grants  Gid  Results
+                  Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - platform_admin
+      x-feature-ids:
+      - F29
+      - F32
+  /admin/support-grants/{grant}/artifacts/{artifact}:
+    get:
+      summary: Support Artifact
+      operationId: hosted_get__admin_support_grants_grant_artifacts_artifact
+      parameters:
+      - name: grant
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Gid
+      - name: artifact
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Aid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - platform_admin
+      x-feature-ids:
+      - F29
+      - F32
+  /admin/support-grants/{grant}/artifacts:
+    get:
+      summary: Support Inventory
+      operationId: hosted_get__admin_support_grants_grant_artifacts
+      parameters:
+      - name: grant
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Gid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Support Inventory Api V1 Admin Support Grants  Gid  Artifacts
+                  Get
+        '422':
+          $ref: '#/components/responses/Error422'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 4
+      x-implementation: 'implemented: SaaS Phase 4; single API/worker local topology,
+        synthetic acceptance only'
+      x-workspace-scoped: true
+      x-access-roles:
+      - platform_admin
+      x-feature-ids:
+      - F29
+      - F32
 components:
   securitySchemes:
     SessionCookie:
@@ -5601,10 +6471,13 @@ components:
           - text
           - docling
         profile_id:
-          anyOf:
-          - type: string
-            maxLength: 100
-          - type: 'null'
+          type:
+          - string
+          - 'null'
+          maxLength: 80
+          pattern: ^[a-z0-9_-]+$
+          description: Choose an active published profile from intake-options; custom
+            profiles require synthetic test evidence before activation.
         pages:
           anyOf:
           - type: string
@@ -7044,11 +7917,26 @@ components:
           - verified
           - unverified
           - unknown
+        worker_seen_at:
+          type:
+          - string
+          - 'null'
+        models_verified_at:
+          type:
+          - string
+          - 'null'
+        model_manifest_digest:
+          type:
+          - string
+          - 'null'
       required:
       - database
       - storage
       - worker
       - models
+      - worker_seen_at
+      - models_verified_at
+      - model_manifest_digest
       additionalProperties: false
     ModelMaintenance:
       type: object
@@ -8196,6 +9084,385 @@ components:
             $ref: '#/components/schemas/HostedConnectionRead'
         next_cursor:
           type: 'null'
+    HostedAiRequest:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        consent_version:
+          type: integer
+          minimum: 1.0
+          title: Consent Version
+        page_keys:
+          items:
+            type: string
+          type: array
+          maxItems: 5
+          minItems: 1
+          title: Page Keys
+        acknowledge_prior_uncertainty:
+          type: boolean
+          title: Acknowledge Prior Uncertainty
+          default: false
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - consent_version
+      - page_keys
+      title: AiRequest
+    HostedConfigCommand:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 0.0
+          title: Expected Version
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+        reason:
+          type: string
+          maxLength: 250
+          minLength: 1
+          title: Reason
+        activate:
+          type: boolean
+          title: Activate
+          default: false
+        synthetic_review_confirmed:
+          type: boolean
+          title: Synthetic Review Confirmed
+          default: false
+        evidence_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Evidence Id
+      additionalProperties: false
+      type: object
+      required:
+      - expected_version
+      - data
+      - reason
+      title: ConfigCommand
+    HostedConsentCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        expected_consent_version:
+          type: integer
+          minimum: 0.0
+          title: Expected Consent Version
+        granted:
+          type: boolean
+          title: Granted
+        connection_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Connection Id
+        consent_note:
+          type: string
+          maxLength: 500
+          title: Consent Note
+          default: ''
+        mask_names:
+          items:
+            type: string
+          type: array
+          maxItems: 40
+          title: Mask Names
+        page_cap:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Page Cap
+          default: 5
+        request_cap:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Request Cap
+          default: 5
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - expected_consent_version
+      - granted
+      title: ConsentCommand
+    HostedGrantCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        actor_id:
+          type: string
+          format: uuid
+          title: Actor Id
+        scopes:
+          items:
+            type: string
+            enum:
+            - results
+            - source
+            - profile_scaffold
+          type: array
+          maxItems: 3
+          minItems: 1
+          title: Scopes
+        minutes:
+          type: integer
+          maximum: 60.0
+          minimum: 1.0
+          title: Minutes
+          default: 30
+        reason:
+          type: string
+          maxLength: 250
+          minLength: 1
+          title: Reason
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - actor_id
+      - scopes
+      - reason
+      title: GrantCommand
+    HostedGrantRevoke:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - expected_version
+      title: GrantRevoke
+    HostedPreferences:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 0.0
+          title: Expected Version
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          title: Currency
+        date_order:
+          type: string
+          enum:
+          - auto
+          - DMY
+          - MDY
+          - YMD
+          title: Date Order
+        output_date_format:
+          type: string
+          enum:
+          - ISO
+          - MM/DD/YYYY
+          - DD/MM/YYYY
+          title: Output Date Format
+        outputs:
+          items:
+            type: string
+            enum:
+            - excel
+            - csv
+            - qb_csv3
+            - qb_csv4
+            - xero_csv
+            - ofx
+          type: array
+          maxItems: 6
+          minItems: 1
+          title: Outputs
+      additionalProperties: false
+      type: object
+      required:
+      - expected_version
+      - currency
+      - date_order
+      - output_date_format
+      - outputs
+      title: Preferences
+    HostedProfileTest:
+      properties:
+        profile:
+          additionalProperties: true
+          type: object
+          title: Profile
+      additionalProperties: false
+      type: object
+      required:
+      - profile
+      title: ProfileTest
+    HostedScaffoldCommand:
+      properties:
+        expected_revision:
+          type: integer
+          maximum: 9007199254740991.0
+          minimum: 1.0
+          title: Expected Revision
+        file_id:
+          type: string
+          format: uuid
+          title: File Id
+      additionalProperties: false
+      type: object
+      required:
+      - expected_revision
+      - file_id
+      title: ScaffoldCommand
+    HostedAiRunRead:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - job_id
+      - input_revision
+      - state
+      - error_code
+      - pages_reserved
+      - requests_reserved
+      - cleanup_done
+      properties:
+        id: &id017
+          type: string
+          format: uuid
+        job_id: *id017
+        input_revision: &id018
+          type: integer
+          minimum: 0
+        state:
+          enum:
+          - queued
+          - running
+          - succeeded
+          - failed
+          - uncertain
+          - cancelled
+        error_code: &id020
+          type:
+          - string
+          - 'null'
+        pages_reserved: *id018
+        requests_reserved: *id018
+        cleanup_done: &id019
+          type: boolean
+    HostedAiStatusRead:
+      type: object
+      additionalProperties: false
+      required:
+      - revision
+      - consent
+      - gate_code
+      - pages_used
+      - requests_used
+      - platform_page_cap
+      - platform_request_cap
+      - pages_per_run
+      - pages
+      - runs
+      properties:
+        revision: *id018
+        consent:
+          anyOf:
+          - type: object
+            additionalProperties: false
+            required:
+            - version
+            - valid
+            - granted
+            - connection_id
+            - page_cap
+            - request_cap
+            properties:
+              version: *id018
+              valid: *id019
+              granted: *id019
+              connection_id:
+                type:
+                - string
+                - 'null'
+                format: uuid
+              page_cap: *id018
+              request_cap: *id018
+          - type: 'null'
+        gate_code: *id020
+        pages_used: *id018
+        requests_used: *id018
+        platform_page_cap: *id018
+        platform_request_cap: *id018
+        pages_per_run: *id018
+        pages:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - key
+            - statement_id
+            - file_id
+            - page
+            - rows
+            properties:
+              key: &id021
+                type: string
+              statement_id: *id021
+              file_id: *id017
+              page: *id018
+              rows: *id018
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostedAiRunRead'
+    HostedSupportGrantRead:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - job_id
+      - actor_id
+      - version
+      - revision
+      - scopes
+      - expires_at
+      - revoked
+      properties:
+        id: *id017
+        job_id: *id017
+        actor_id: *id017
+        version: *id018
+        revision: *id018
+        scopes:
+          type: array
+          items:
+            enum:
+            - results
+            - source
+            - profile_scaffold
+        expires_at: *id021
+        revoked: *id019
   responses:
     Error400:
       description: Safe structured error without private input echo

@@ -99,6 +99,7 @@ class Job(Base):
     export_manifest: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
     delivery_manifest: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
     removal: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
+    runtime_config: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
 
 
 class Event(Base):
@@ -275,3 +276,125 @@ class Connection(Base):
     terms_version: Mapped[str | None] = mapped_column(String(200))
     tested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     test_code: Mapped[str | None] = mapped_column(String(80))
+
+
+class AiConsent(Base):
+    __tablename__ = "web_ai_consents"
+    __table_args__ = (
+        ForeignKeyConstraint(["workspace_id", "job_id"], ["web_jobs.workspace_id", "web_jobs.id"]),
+    )
+    job_id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID]
+    version: Mapped[int] = mapped_column(BigInteger, default=1)
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+    connection_id: Mapped[UUID | None] = mapped_column(ForeignKey("web_connections.id"))
+    granted: Mapped[bool] = mapped_column(Boolean, default=False)
+    binding: Mapped[str] = mapped_column(String(64), default="")
+    page_cap: Mapped[int] = mapped_column(default=1)
+    request_cap: Mapped[int] = mapped_column(default=1)
+    private: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
+
+
+class AiRun(Base):
+    __tablename__ = "web_ai_runs"
+    __table_args__ = (
+        ForeignKeyConstraint(["workspace_id", "job_id"], ["web_jobs.workspace_id", "web_jobs.id"]),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    job_id: Mapped[UUID]
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+    input_revision: Mapped[int] = mapped_column(BigInteger)
+    consent_version: Mapped[int]
+    binding: Mapped[str] = mapped_column(String(64))
+    page_keys: Mapped[list[str]] = mapped_column(JSONB)
+    state: Mapped[str] = mapped_column(String(20), default="queued")
+    error_code: Mapped[str | None] = mapped_column(String(80))
+    cleanup_done: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class AiAttempt(Base):
+    __tablename__ = "web_ai_attempts"
+    __table_args__ = (UniqueConstraint("run_id", "page_key"),)
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    run_id: Mapped[UUID] = mapped_column(ForeignKey("web_ai_runs.id"))
+    workspace_id: Mapped[UUID]
+    job_id: Mapped[UUID]
+    page_key: Mapped[str] = mapped_column(String(64))
+    state: Mapped[str] = mapped_column(String(20), default="reserved")
+    result: Mapped[dict[str, object]] = mapped_column(JSONB, default=dict)
+
+
+class WorkspacePreferences(Base):
+    __tablename__ = "web_preferences"
+    workspace_id: Mapped[UUID] = mapped_column(ForeignKey("web_workspaces.id"), primary_key=True)
+    version: Mapped[int] = mapped_column(BigInteger, default=1)
+    data: Mapped[dict[str, object]] = mapped_column(JSONB)
+
+
+class ConfigHead(Base):
+    __tablename__ = "web_config_heads"
+    section: Mapped[str] = mapped_column(String(100), primary_key=True)
+    version: Mapped[int] = mapped_column(BigInteger, default=0)
+    active_version: Mapped[int | None] = mapped_column(BigInteger)
+
+
+class ConfigVersion(Base):
+    __tablename__ = "web_config_versions"
+    __table_args__ = (UniqueConstraint("section", "version"),)
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    section: Mapped[str] = mapped_column(ForeignKey("web_config_heads.section"))
+    version: Mapped[int] = mapped_column(BigInteger)
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+    data: Mapped[dict[str, object]] = mapped_column(JSONB)
+    reason: Mapped[str] = mapped_column(String(250))
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class AdminSpace(Base):
+    __tablename__ = "web_admin_spaces"
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"), primary_key=True)
+    workspace_id: Mapped[UUID] = mapped_column(ForeignKey("web_workspaces.id"), unique=True)
+
+
+class SupportGrant(Base):
+    __tablename__ = "web_support_grants"
+    __table_args__ = (
+        ForeignKeyConstraint(["workspace_id", "job_id"], ["web_jobs.workspace_id", "web_jobs.id"]),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    job_id: Mapped[UUID]
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+    owner_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+    revision: Mapped[int] = mapped_column(BigInteger)
+    version: Mapped[int] = mapped_column(BigInteger, default=1)
+    scopes: Mapped[list[str]] = mapped_column(JSONB)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    revoked: Mapped[bool] = mapped_column(Boolean, default=False)
+    reason: Mapped[str] = mapped_column(String(250))
+
+
+class ServiceReport(Base):
+    __tablename__ = "web_service_reports"
+    name: Mapped[str] = mapped_column(String(40), primary_key=True)
+    heartbeat_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    models_verified_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    model_digest: Mapped[str] = mapped_column(String(64))
+    version: Mapped[str] = mapped_column(String(40))
+
+
+class ProfileEvidence(Base):
+    __tablename__ = "web_profile_evidence"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "job_id", "artifact_id"],
+            ["web_artifacts.workspace_id", "web_artifacts.job_id", "web_artifacts.id"],
+        ),
+    )
+    artifact_id: Mapped[UUID] = mapped_column(primary_key=True)
+    workspace_id: Mapped[UUID]
+    job_id: Mapped[UUID]
+    profile_digest: Mapped[str] = mapped_column(String(64))
+    passed: Mapped[bool] = mapped_column(Boolean)

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { FoundationApi, FoundationError, type ServerSession } from './lib/foundation';
 import ReviewWorkspace, { Correction, PrivacyPanel } from './ReviewWorkspace';
+import AiPanel from './AiPanel';
+import { JobOwnerTools } from './OwnerOperations';
 const api = new FoundationApi();
 const explain = (e: unknown) =>
   e instanceof FoundationError ? e.message : 'The service is unavailable. Please try again.';
@@ -462,6 +464,13 @@ export default function PipelineJob({ session, id }: { session: ServerSession; i
           showSource={(file, page) => setSource({ file, page })}
         />
       )}
+      <AiPanel session={session} id={id} />
+      <JobOwnerTools
+        session={session}
+        job={q.data}
+        files={files.data?.items ?? []}
+        running={running}
+      />
       <PrivacyPanel
         session={session}
         id={id}

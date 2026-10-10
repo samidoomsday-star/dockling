@@ -11,7 +11,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 
-from stmtconv.catalog import Categories, load_catalog
+from stmtconv.catalog import Categories, Exports, load_catalog
 from stmtconv.config import Settings, resolve_config_dir
 from stmtconv.core.categorize import Rule, categorize
 from stmtconv.core.merge import merge
@@ -88,7 +88,11 @@ def export_gate(task: PipelineTask, settings: Settings) -> list[Statement]:
     date_format = {"ISO": "%Y-%m-%d", "MM/DD/YYYY": "%m/%d/%Y", "DD/MM/YYYY": "%d/%m/%Y"}[
         str(task.options.get("output_date_format", "ISO"))
     ]
-    specs = load_catalog(resolve_config_dir()).exports
+    specs = (
+        Exports.model_validate(task.runtime_config["exports"])
+        if task.runtime_config.get("exports")
+        else load_catalog(resolve_config_dir()).exports
+    )
     for output in cast(list[Output], task.options["outputs"]):
         if output not in {"csv", "ofx"} and date_format not in specs.formats[output].date_formats:
             raise StmtconvError(
@@ -244,7 +248,11 @@ def compute_workflow(
             for s in statements:
                 if s.summary.account_key is None:
                     s.summary.account_key = str(identity)
-        specs = load_catalog(resolve_config_dir()).exports
+        specs = (
+            Exports.model_validate(task.runtime_config["exports"])
+            if task.runtime_config.get("exports")
+            else load_catalog(resolve_config_dir()).exports
+        )
         date_format = {"ISO": "%Y-%m-%d", "MM/DD/YYYY": "%m/%d/%Y", "DD/MM/YYYY": "%d/%m/%Y"}[
             str(task.options.get("output_date_format", "ISO"))
         ]
@@ -332,7 +340,12 @@ def compute_workflow(
             )
             archive.writestr(
                 "DELIVERY-NOTE.txt",
-                "These outputs were produced from your current reviewed revision. This package is available for download; it is not proof of email delivery or accounting-software import.\n",
+                str(
+                    cast(dict[str, object], task.runtime_config.get("templates", {})).get(
+                        "delivery_note", ""
+                    )
+                )
+                + "\nThese outputs were produced from your current reviewed revision. This package is available for download; it is not proof of email delivery or accounting-software import.\n",
             )
             archive.writestr(
                 "DATA-HANDLING.txt",

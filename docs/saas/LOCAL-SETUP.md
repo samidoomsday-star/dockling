@@ -99,4 +99,11 @@ Use [the Phase 3 guide](PHASE3-IMPLEMENTATION.md) after conversion. Run the real
 
 ## Phase 4 connection setup
 
-On `saas-phase-4`, run setup/migrate to apply the connection table and preserve/create the dedicated ignored `.local-saas/ai-key.env`. Restart the API after upgrading. Keep this key file with the matching private database backup; never regenerate it for existing encrypted credentials. Read [the connection guide](PHASE4-CONNECTIONS.md). The real browser check is `node scripts/saas-browser.mjs --phase3 --phase4`; it saves/revokes fictional keys without contacting a provider. Consent, AI inference and remaining owner tools are pending. Optional keys are never prerequisites for offline conversion.
+On `saas-phase-4`, run setup/migrate to apply the connection table and preserve/create the dedicated ignored `.local-saas/ai-key.env`. Restart the API after upgrading. Keep this key file with the matching private database backup; never regenerate it for existing encrypted credentials. Read [the connection guide](PHASE4-CONNECTIONS.md). The real browser check is `node scripts/saas-browser.mjs --phase3 --phase4`; it saves/revokes fictional keys without contacting a provider. Per-job consent, reserved AI correction requests and owner tools are implemented; read [the complete Phase 4 guide](PHASE4-IMPLEMENTATION.md). Real provider inference is separately authorized; use the explicit fake-AI harness for synthetic browser tests. Optional keys are never prerequisites for offline conversion.
+
+
+## Phase 4 upgrade and owner testing
+
+Read [PHASE4-IMPLEMENTATION.md](PHASE4-IMPLEMENTATION.md). Run forward migrations through `0010_owner_tools`; rebuild/restart the worker and API frontend, then restart the API. The gateway starts with the API; use one Linux API process. Do not reset database/storage volumes or regenerate the vault key. Production interrupted AI runs withhold cleanup acknowledgement pending verified process teardown recovery in the deployment phase.
+
+`--phase4-owner` adds real preference, private scaffold, expiring support, versioned configuration, isolated nine-case selftest and worker-health UI checks. `--phase4-ai` requires `scripts/saas-fake-ai-server.py` instead of the ordinary API; it makes only fictional model requests. Run OTP browser and crash-recovery checks sequentially. Stop the harness afterward and leave the ordinary API ready. Advanced shared profile activation requires an exact passing synthetic test plus a separate confirmation that no private customer fingerprints are being published.

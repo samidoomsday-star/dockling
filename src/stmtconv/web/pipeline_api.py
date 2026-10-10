@@ -57,6 +57,20 @@ def revision(job: Job, expected: int) -> None:
 
 
 def idle(db: Session, job: Job) -> None:
+    from stmtconv.web.models import AiRun
+
+    if db.scalar(
+        select(AiRun.id)
+        .where(
+            AiRun.workspace_id == job.workspace_id,
+            AiRun.job_id == job.id,
+            (AiRun.state.in_(["queued", "running"]) | AiRun.cleanup_done.is_(False)),
+        )
+        .limit(1)
+    ):
+        raise WebError(
+            409, "JOB_BUSY", "Wait for the AI request or cancel it and allow cleanup first."
+        )
     if db.scalar(
         select(Operation.id).where(
             Operation.workspace_id == job.workspace_id,
@@ -158,13 +172,14 @@ def register_pipeline(
     @app.get("/api/v1/intake-options")
     def intake_options(request: Request, db: Db) -> Json:
         scoped(db, request)
-        from stmtconv.profiles.schema import load_profiles
+        from stmtconv.web.owner_config import runtime_snapshot
 
+        profiles = cast(list[Json], runtime_snapshot(db)["profiles"])
         return {
             "upload_bytes": config.upload_bytes,
             "job_files": config.job_files,
             "job_pages": config.job_pages,
-            "profiles": [{"id": p.id, "name": p.display_name} for p in load_profiles()],
+            "profiles": [{"id": p["id"], "name": p["display_name"]} for p in profiles],
         }
 
     def page_window(token: str | None, scope: str) -> int:

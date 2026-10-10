@@ -4,6 +4,7 @@ import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-quer
 import { FoundationApi, FoundationError, type ServerSession } from './lib/foundation';
 import PipelineJob from './PipelineJob';
 import ConnectionsWorkspace from './ConnectionsWorkspace';
+import ServiceOperations, { Preferences } from './OwnerOperations';
 import { hasUnsavedCorrections } from './ReviewWorkspace';
 const api = new FoundationApi();
 const explain = (e: unknown) =>
@@ -150,14 +151,14 @@ export default function FoundationApp() {
             {workspaces.isError && <p role="alert">{explain(workspaces.error)}</p>}
             <Routes>
               <Route path="/invite" element={<Invitation session={s} act={act} busy={busy} />} />
-              <Route path="/admin" element={<Health />} />
+              <Route path="/admin" element={<ServiceOperations session={s} />} />
               {s.workspace_id ? (
                 <>
                   <Route path="/app" element={<Jobs key={s.workspace_id} session={s} />} />
                   <Route path="/app/jobs" element={<Jobs key={s.workspace_id} session={s} />} />
                   <Route path="/app/new" element={<NewJob session={s} act={act} busy={busy} />} />
                   <Route path="/app/jobs/:id" element={<Job session={s} />} />
-                  <Route path="/app/settings" element={<Settings session={s} />} />
+                  <Route path="/app/settings" element={<Preferences session={s} />} />
                   <Route
                     path="/app/connections"
                     element={<ConnectionsWorkspace key={s.workspace_id} session={s} />}
@@ -283,11 +284,26 @@ function Jobs({ session }: { session: ServerSession }) {
     </>
   );
 }
-function NewJob({ session, act, busy }: Actions) {
+function NewJob(props: Actions) {
+  const q = useQuery({
+    queryKey: ['foundation', props.session.workspace_id, 'settings'],
+    queryFn: () => api.settings(),
+    retry: false,
+  });
+  if (q.isError) return <p role="alert">{explain(q.error)}</p>;
+  if (!q.data) return <p>Loading new job defaults…</p>;
+  return <NewJobForm {...props} defaults={q.data} />;
+}
+function NewJobForm({
+  session,
+  act,
+  busy,
+  defaults,
+}: Actions & { defaults: Awaited<ReturnType<FoundationApi['settings']>> }) {
   const [name, setName] = useState('');
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState(defaults.currency);
   const [engine, setEngine] = useState('auto');
-  const [dateOrder, setDateOrder] = useState('auto');
+  const [dateOrder, setDateOrder] = useState(defaults.date_order);
   const [profile, setProfile] = useState('');
   const [pages, setPages] = useState('');
   const [combine, setCombine] = useState(false);
@@ -309,6 +325,8 @@ function NewJob({ session, act, busy }: Actions) {
             const j = await api.create(session, name, currency, {
               engine,
               date_order: dateOrder,
+              outputs: defaults.outputs,
+              output_date_format: defaults.output_date_format,
               profile_id: profile || null,
               pages: pages || null,
               combine,
@@ -406,33 +424,6 @@ function NewJob({ session, act, busy }: Actions) {
 function Job({ session }: { session: ServerSession }) {
   const { id = '' } = useParams();
   return <PipelineJob key={session.workspace_id + ':' + id} session={session} id={id} />;
-}
-function Settings({ session }: { session: ServerSession }) {
-  const q = useQuery({
-    queryKey: ['foundation', session.workspace_id, 'settings'],
-    queryFn: () => api.settings(),
-    retry: false,
-  });
-  return (
-    <section className="card">
-      <h1>Workspace preferences</h1>
-      {q.isError ? (
-        <p role="alert">{explain(q.error)}</p>
-      ) : q.data ? (
-        <>
-          <p>
-            Currency: {q.data.currency} · Date order: {q.data.date_order}
-          </p>
-          <p>
-            Output date format: {q.data.output_date_format} · Formats: {q.data.outputs.join(', ')}
-          </p>
-          <p>Editing preferences and BYOK model connections will arrive in Phase 4.</p>
-        </>
-      ) : (
-        <p>Loading preferences…</p>
-      )}
-    </section>
-  );
 }
 function Team({ session, act, busy }: Actions) {
   const [email, setEmail] = useState('');
@@ -580,36 +571,6 @@ function Invitation({ session, act, busy }: Actions) {
           Accept invitation
         </button>
       </form>
-    </section>
-  );
-}
-function Health() {
-  const q = useQuery({
-    queryKey: ['foundation', 'health'],
-    queryFn: () => api.health(),
-    retry: false,
-  });
-  return (
-    <section className="card">
-      <h1>Service health</h1>
-      <p>
-        Fresh administrator second-factor sign-in required. This view grants no customer document
-        access.
-      </p>
-      {q.isError ? (
-        <p role="alert">{explain(q.error)}</p>
-      ) : q.data ? (
-        <dl>
-          {Object.entries(q.data).map(([k, v]) => (
-            <div key={k}>
-              <dt>{k}</dt>
-              <dd>{v}</dd>
-            </div>
-          ))}
-        </dl>
-      ) : (
-        <p>Checking services…</p>
-      )}
     </section>
   );
 }

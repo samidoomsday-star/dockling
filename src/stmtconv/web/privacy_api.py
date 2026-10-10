@@ -100,6 +100,19 @@ def register_privacy(
             for o in active:
                 o.state, o.lease_hash, o.lease_until = "cancelled", None, None
                 o.error_code = "INPUT_REVOKED"
+            from stmtconv.web.models import AiConsent, AiRun
+
+            for ai in db.scalars(
+                select(AiRun).where(
+                    AiRun.workspace_id == ws,
+                    AiRun.job_id == jid,
+                    AiRun.state.in_(["queued", "running"]),
+                )
+            ):
+                ai.state, ai.error_code = "cancelled", "AI_INPUT_REVOKED"
+            consent = db.get(AiConsent, jid)
+            if consent:
+                consent.granted, consent.private = False, {}
             # End active operations before the partial unique index sees close.
             db.flush()
             job.revision += 1

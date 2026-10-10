@@ -50,6 +50,7 @@ class PipelineTask(BaseModel):
     payload: dict[str, object] = Field(default_factory=dict)
     statements: list[dict[str, object]] = Field(default_factory=list)
     review_state: dict[str, object] = Field(default_factory=dict)
+    runtime_config: dict[str, object] = Field(default_factory=dict)
 
 
 @dataclass
@@ -123,6 +124,21 @@ def compute(
     progress: Callable[[int], None] | None = None,
 ) -> PipelineResult:
     """Disposable scratch only. No Order UUID bypass or authoritative order.json."""
+    from stmtconv.web.owner_config import Processing
+
+    if task.runtime_config.get("processing"):
+        policy = Processing.model_validate(task.runtime_config["processing"])
+        settings = settings.model_copy(
+            update={
+                "balance_tolerance": policy.balance_tolerance,
+                "date_out_of_period_days": policy.date_out_of_period_days,
+                "qb_csv_max_rows": policy.qb_csv_max_rows,
+            }
+        )
+    if task.action in {"profile_scaffold", "profile_test", "selftest"}:
+        from stmtconv.web.utilities import compute_utility
+
+        return compute_utility(task, documents, scratch, settings, max_pages)
     if task.action not in {"intake", "extract"}:
         from stmtconv.web.workflow import compute_workflow
 
@@ -216,7 +232,15 @@ def compute(
             },
             artifacts,
         )
-    profiles = load_profiles()
+    if task.runtime_config.get("profiles"):
+        from stmtconv.profiles.schema import Profile
+
+        profiles = [
+            Profile.model_validate(p)
+            for p in cast(list[dict[str, object]], task.runtime_config["profiles"])
+        ]
+    else:
+        profiles = load_profiles()
     statements: list[dict[str, object]] = []
     sources = [(path, [source]) for path, source in zip(paths, task.files, strict=True)]
     if task.options.get("combine"):

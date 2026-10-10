@@ -1,6 +1,6 @@
 # Dockling: production SaaS plan
 
-**Status:** architecture direction accepted; [SaaS Phase 0 technical preparation](tasks/saas-phase-0.md) implemented on `saas-phase-0`, including contracts and measured synthetic capacity/limitations. [Phase 1](tasks/saas-phase-1.md) is ready for local synthetic implementation. Market/provider/business promises remain pending. Original proposal: 10 October 2026 (Asia/Dhaka), based on `web-frontend` commit `d24cbf5`. This plan covers a customer-facing service, not merely a hosted copy of the sample frontend. No backend, billing, or public deployment is claimed complete by this document.
+**Status:** architecture direction accepted; [SaaS Phase 0 technical preparation](tasks/saas-phase-0.md) implemented on `saas-phase-0`, including contracts and measured synthetic capacity/limitations. [Phase 1](tasks/saas-phase-1.md) is ready for local synthetic implementation. Market/provider/business promises remain pending. Original proposal: 10 October 2026 (Asia/Dhaka), based on `web-frontend` commit `d24cbf5`. This plan covers a customer-facing service, not merely a hosted copy of the sample frontend. Phases 1–4 now have a real locally tested backend and UI; see docs/tasks/saas-phase-4.md. Billing, public deployment and the release gates remain pending.
 
 ## 1. The product we are building
 

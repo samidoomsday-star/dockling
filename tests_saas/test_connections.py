@@ -322,3 +322,41 @@ def test_provider_post_not_retried_and_response_size_bounded(monkeypatch):
         transport.request("GET", "/models")
     assert oversized.value.code == "AI_RESPONSE_LIMIT"
     assert calls == ["POST", "GET"]
+
+
+def test_absolute_deadline_interrupts_detached_header_socket_without_post_retry(monkeypatch):
+    """Actual local socket read stalls; the watchdog interrupts it even after HTTP detaches sock."""
+    import http.client
+    import threading
+
+    from stmtconv.web import egress
+
+    attempts = []
+    timer = threading.Timer
+
+    class FakeHTTPS:
+        def __init__(self, *_args):
+            self.sock, self.peer = socket.socketpair()
+            self.original = self.sock
+
+        def request(self, method, *_args):
+            attempts.append(method)
+
+        def getresponse(self):
+            response = http.client.HTTPResponse(self.original)
+            self.sock = None
+            response.begin()  # no headers arrive; only the watchdog can unblock this read
+            return response
+
+        def close(self):
+            self.original.close()
+            self.peer.close()
+
+    monkeypatch.setattr(egress, "public_addresses", lambda _host: ["93.184.216.34"])
+    monkeypatch.setattr(egress, "PinnedHTTPS", FakeHTTPS)
+    monkeypatch.setattr(egress.threading, "Timer", lambda _seconds, callback: timer(0.05, callback))
+    provider = Provider(name="fictional", base_url="https://api.example.com/v1", requires_key=False)
+    with pytest.raises(StmtconvError) as failure:
+        PublicTransport(provider).request("POST", "/chat/completions", {"model": "fictional"})
+    assert failure.value.code == "AI_CONNECTION"
+    assert attempts == ["POST"]

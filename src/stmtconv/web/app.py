@@ -4,7 +4,8 @@ import hashlib
 import hmac
 import json
 import re
-from collections.abc import Awaitable, Callable, Iterator
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Annotated, cast
@@ -14,7 +15,7 @@ from uuid import UUID, uuid4
 from fastapi import Depends, FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException
@@ -53,11 +54,26 @@ from stmtconv.web.storage import ObjectStore
 
 
 def create_app(config: HostedSettings) -> FastAPI:
+    @asynccontextmanager
+    async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+        application.state.ai_gateway.start()
+        try:
+            yield
+        finally:
+            application.state.ai_gateway.close()
+
     app = FastAPI(
-        title="Dockling statement workspace", docs_url=None, redoc_url=None, openapi_url=None
+        title="Dockling statement workspace",
+        docs_url=None,
+        redoc_url=None,
+        openapi_url=None,
+        lifespan=lifespan,
     )
     engine = database(config)
     app.state.engine = engine
+    from stmtconv.web.ai_gateway import Gateway
+
+    app.state.ai_gateway = Gateway(config, engine)
     uow: UnitOfWork = PostgresUnitOfWork(engine)
     identity = oauth_client(config)
     store = ObjectStore(config)
@@ -566,16 +582,9 @@ def create_app(config: HostedSettings) -> FastAPI:
     @app.get("/api/v1/settings")
     def settings(request: Request, db: Db) -> Json:
         ws, _u = scoped(db, request)
-        workspace = db.get(Workspace, ws)
-        assert workspace is not None
-        return {
-            "version": workspace.version,
-            "currency": "USD",
-            "date_order": "auto",
-            "output_date_format": "ISO",
-            "outputs": ["excel", "csv"],
-            "retention_days": None,
-        }
+        from stmtconv.web.owner_api import preferences
+
+        return preferences(db, ws)
 
     @app.get("/api/v1/admin/health")
     def health(request: Request, db: Db) -> Json:
@@ -586,18 +595,20 @@ def create_app(config: HostedSettings) -> FastAPI:
                 "ADMIN_MFA_REQUIRED",
                 "Administrator access requires a fresh verified second-factor sign-in.",
             )
-        db.execute(text("SELECT 1"))
-        return {
-            "database": "healthy",
-            "storage": "healthy" if store.healthy() else "unhealthy",
-            "worker": "unknown",
-            "models": "unknown",
-        }
+        from stmtconv.web.owner_api import health_data
+
+        return health_data(db, store)
 
     register_pipeline(app, config, get_db, scoped, key, store, broker, cursors)
     register_review(app, config, get_db, scoped, key, store)
     register_privacy(app, config, get_db, scoped, key)
     register_connections(app, config, get_db, scoped, key)
+    from stmtconv.web.ai_api import register_ai
+
+    register_ai(app, config, get_db, scoped, key)
+    from stmtconv.web.owner_api import register_owner
+
+    register_owner(app, config, get_db, scoped, actor, key, store)
 
     # API is registered before the SPA. Unknown API/auth URLs cannot serve HTML or fixtures.
     @app.api_route("/api/{remaining:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])

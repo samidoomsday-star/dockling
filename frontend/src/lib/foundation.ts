@@ -446,6 +446,24 @@ export class FoundationApi {
   connections() {
     return this.request('/connections', page(connectionSchema));
   }
+  aiStatus(id: string) {
+    return this.request('/jobs/' + id + '/ai', aiStatusSchema);
+  }
+  aiConsent(session: ServerSession, id: string, values: Record<string, unknown>) {
+    return this.request('/jobs/' + id + '/consent', aiStatusSchema, session, values, 'POST');
+  }
+  aiRequest(session: ServerSession, id: string, values: Record<string, unknown>) {
+    return this.request('/jobs/' + id + '/ai/requests', aiRunSchema, session, values, 'POST');
+  }
+  aiCancel(session: ServerSession, id: string, run: string, revision: number) {
+    return this.request(
+      '/jobs/' + id + '/ai/requests/' + run + '/cancel',
+      aiRunSchema,
+      session,
+      { expected_revision: revision },
+      'POST',
+    );
+  }
   createConnection(session: ServerSession, values: Record<string, unknown>) {
     return this.request('/connections', connectionSchema, session, values, 'POST');
   }
@@ -531,6 +549,133 @@ export class FoundationApi {
         .strict(),
     );
   }
+  saveSettings(session: ServerSession, values: Record<string, unknown>) {
+    return this.request('/settings', preferencesSchema, session, values, 'PUT');
+  }
+  configuration(section: string) {
+    return this.request('/admin/config/' + encodeURIComponent(section), configurationSchema);
+  }
+  saveConfiguration(session: ServerSession, section: string, values: Record<string, unknown>) {
+    return this.request(
+      '/admin/config/' + encodeURIComponent(section),
+      configurationSchema,
+      session,
+      values,
+      'PUT',
+    );
+  }
+  selftest(session: ServerSession) {
+    return this.request('/admin/selftest', operationSchema, session, {}, 'POST');
+  }
+  profileTest(session: ServerSession, identifier: string, profile: Record<string, unknown>) {
+    return this.request(
+      '/admin/profiles/' + encodeURIComponent(identifier) + '/tests',
+      operationSchema,
+      session,
+      { profile },
+      'POST',
+    );
+  }
+  diagnostic(id: string) {
+    return this.request('/admin/diagnostics/' + id, diagnosticSchema);
+  }
+  utilities(id: string) {
+    return this.request('/jobs/' + id + '/utilities', artifactList);
+  }
+  scaffold(session: ServerSession, id: string, expected_revision: number, file_id: string) {
+    return this.request(
+      '/jobs/' + id + '/profile-scaffolds',
+      operationSchema,
+      session,
+      { expected_revision, file_id },
+      'POST',
+    );
+  }
+  operators() {
+    return this.request(
+      '/support-operators',
+      z
+        .object({ items: z.array(z.object({ id: uuid, display_name: z.string() }).strict()) })
+        .strict(),
+    );
+  }
+  grants(id?: string) {
+    return this.request(
+      id ? '/jobs/' + id + '/support-grants' : '/admin/support-grants',
+      z.object({ items: z.array(grantSchema) }).strict(),
+    );
+  }
+  grant(session: ServerSession, id: string, values: Record<string, unknown>) {
+    return this.request('/jobs/' + id + '/support-grants', grantSchema, session, values, 'POST');
+  }
+  revokeGrant(
+    session: ServerSession,
+    id: string,
+    grant: string,
+    expected_revision: number,
+    expected_version: number,
+  ) {
+    return this.request(
+      '/jobs/' + id + '/support-grants/' + grant + '/revoke',
+      grantSchema,
+      session,
+      { expected_revision, expected_version },
+      'POST',
+    );
+  }
+  supportRows(id: string, offset = 0) {
+    return this.request(
+      '/admin/support-grants/' + id + '/results?offset=' + offset,
+      z
+        .object({
+          revision: z.number().int(),
+          next_offset: z.number().int().nullable(),
+          items: z.array(
+            z
+              .object({
+                statement_id: z.string(),
+                id: z.string(),
+                date: z.string().nullable(),
+                description: z.string(),
+                debit: money,
+                credit: money,
+                balance: money,
+                file_id: uuid,
+                page: z.number().int(),
+              })
+              .strict(),
+          ),
+        })
+        .strict(),
+    );
+  }
+  supportArtifacts(id: string) {
+    return this.request(
+      '/admin/support-grants/' + id + '/artifacts',
+      z
+        .object({
+          items: z.array(
+            z.object({ id: uuid, kind: z.string(), bytes: z.number().int() }).strict(),
+          ),
+        })
+        .strict(),
+    );
+  }
+  metrics() {
+    return this.request(
+      '/admin/metrics',
+      z
+        .object({
+          minimum_workspaces: z.number().int(),
+          suppressed_groups: z.number().int(),
+          scope: z.string(),
+          buckets: z.array(
+            z.object({ action: z.string(), state: z.string(), count: z.number().int() }).strict(),
+          ),
+        })
+        .strict(),
+    );
+  }
   health() {
     return this.request(
       '/admin/health',
@@ -540,11 +685,79 @@ export class FoundationApi {
           storage: z.string(),
           worker: z.string(),
           models: z.string(),
+          worker_seen_at: z.string().nullable(),
+          models_verified_at: z.string().nullable(),
+          model_manifest_digest: z.string().nullable(),
         })
         .strict(),
     );
   }
 }
+
+const preferencesSchema = z
+  .object({
+    version: z.number().int(),
+    currency: z.string(),
+    date_order: z.string(),
+    output_date_format: z.string(),
+    outputs: z.array(z.string()),
+    retention_days: z.number().nullable(),
+  })
+  .strict();
+const configurationSchema = z
+  .object({
+    section: z.string(),
+    version: z.number().int(),
+    active_version: z.number().int().nullable(),
+    data: z.record(z.string(), z.unknown()),
+    active_data: z.record(z.string(), z.unknown()),
+    history: z.array(
+      z
+        .object({
+          version: z.number().int(),
+          data: z.record(z.string(), z.unknown()),
+          at: z.string(),
+          reason: z.string(),
+        })
+        .strict(),
+    ),
+    visibility: z.string(),
+  })
+  .strict();
+const grantSchema = z
+  .object({
+    id: uuid,
+    job_id: uuid,
+    actor_id: uuid,
+    version: z.number().int(),
+    revision: z.number().int(),
+    scopes: z.array(z.enum(['results', 'source', 'profile_scaffold'])),
+    expires_at: z.string(),
+    revoked: z.boolean(),
+  })
+  .strict();
+const diagnosticSchema = z
+  .object({
+    job_id: uuid,
+    revision: z.number().int(),
+    operation: operationSchema.nullable(),
+    reports: z.array(
+      z
+        .object({
+          id: uuid,
+          name: z.string(),
+          kind: z.string(),
+          sha256: z.string(),
+          bytes: z.number().int(),
+          revision: z.number().int().optional(),
+        })
+        .strict(),
+    ),
+    evidence: z.array(
+      z.object({ artifact_id: uuid, profile_digest: z.string(), passed: z.boolean() }).strict(),
+    ),
+  })
+  .strict();
 
 const artifactList = z
   .object({
@@ -652,3 +865,49 @@ const connectionSchema = z
   })
   .strict();
 export type ServerConnection = z.infer<typeof connectionSchema>;
+const aiRunSchema = z
+  .object({
+    id: uuid,
+    job_id: uuid,
+    input_revision: z.number().int(),
+    state: z.enum(['queued', 'running', 'succeeded', 'failed', 'uncertain', 'cancelled']),
+    error_code: z.string().nullable(),
+    pages_reserved: z.number().int(),
+    requests_reserved: z.number().int(),
+    cleanup_done: z.boolean(),
+  })
+  .strict();
+const aiStatusSchema = z
+  .object({
+    revision: z.number().int(),
+    consent: z
+      .object({
+        version: z.number().int(),
+        valid: z.boolean(),
+        granted: z.boolean(),
+        connection_id: uuid.nullable(),
+        page_cap: z.number().int(),
+        request_cap: z.number().int(),
+      })
+      .strict()
+      .nullable(),
+    gate_code: z.string().nullable(),
+    pages_used: z.number().int(),
+    requests_used: z.number().int(),
+    platform_page_cap: z.number().int(),
+    platform_request_cap: z.number().int(),
+    pages_per_run: z.number().int(),
+    pages: z.array(
+      z
+        .object({
+          key: z.string(),
+          statement_id: z.string(),
+          file_id: uuid,
+          page: z.number().int(),
+          rows: z.number().int(),
+        })
+        .strict(),
+    ),
+    runs: z.array(aiRunSchema),
+  })
+  .strict();

@@ -46,10 +46,10 @@ class JobOptions(Command):
     @classmethod
     def published_profile(cls, value: str | None) -> str | None:
         if value is not None:
-            from stmtconv.profiles.schema import load_profiles
+            import re
 
-            if value not in {p.id for p in load_profiles()}:
-                raise ValueError("Choose a published profile")
+            if not re.fullmatch(r"[a-z0-9_-]{1,80}", value):
+                raise ValueError("Use a published profile identifier")
         return value
 
     @field_validator("pages")

@@ -13,7 +13,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from stmtconv.catalog import Categories
-from stmtconv.config import HostedSettings, load_settings
+from stmtconv.config import HostedSettings
 from stmtconv.errors import StmtconvError
 from stmtconv.extract.service import version
 from stmtconv.review.commands import ReviewEdit, apply_edits
@@ -27,6 +27,7 @@ from stmtconv.web.models import (
     Operation,
     ReviewRevision,
 )
+from stmtconv.web.owner_config import processing_settings
 from stmtconv.web.pipeline import PipelineTask, digest
 from stmtconv.web.pipeline_api import Scope, current_job, enqueue, idle, revision
 from stmtconv.web.repository import Json, job_json, replay
@@ -185,6 +186,7 @@ def task_for(job: Job, records: list[dict[str, object]], action: str) -> Pipelin
         options=job.options,
         statements=records,
         review_state=job.review_state,
+        runtime_config=job.runtime_config,
     )
 
 
@@ -229,7 +231,9 @@ def register_review(
         def run(job: Job, actor: UUID) -> Json:
             old = snapshot(db, job).statements
             try:
-                changed = apply_edits(domains(old), command.edits, load_settings())
+                changed = apply_edits(
+                    domains(old), command.edits, processing_settings(job.runtime_config)
+                )
             except StmtconvError as exc:
                 raise WebError(422, exc.code, exc.message) from None
             records = [
@@ -248,7 +252,7 @@ def register_review(
         from stmtconv.core.validate import validate
 
         statements = [
-            validate(s, load_settings().balance_tolerance)
+            validate(s, processing_settings(job.runtime_config).balance_tolerance)
             for s in domains(snapshot(db, job).statements)
         ]
         return {
@@ -343,7 +347,7 @@ def register_review(
                 from stmtconv.core.validate import validate
 
                 ready = all(
-                    validate(s, load_settings().balance_tolerance).verdict
+                    validate(s, processing_settings(job.runtime_config).balance_tolerance).verdict
                     not in {"NEEDS_REVIEW", "UNVERIFIABLE"}
                     for s in statements
                 )
@@ -403,7 +407,9 @@ def register_review(
             statements = domains(snapshot(db, job).statements)
             group = job.review_state.get("account_group")
             combination = merge(
-                statements, load_settings().balance_tolerance, str(group) if group else None
+                statements,
+                processing_settings(job.runtime_config).balance_tolerance,
+                str(group) if group else None,
             )
             return {
                 "revision": job.revision,
@@ -573,7 +579,9 @@ def register_review(
             records = snapshot(db, job).statements
             if action in {"export", "delivery"}:
                 try:
-                    export_gate(task_for(job, records, action), load_settings())
+                    export_gate(
+                        task_for(job, records, action), processing_settings(job.runtime_config)
+                    )
                 except StmtconvError as exc:
                     raise WebError(409, exc.code, exc.message) from None
             payload: Json = {}

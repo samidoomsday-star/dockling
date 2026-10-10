@@ -153,7 +153,12 @@ class Broker:
                     "intake",
                     "extract",
                 }:
-                    raise ValueError
+                    if not (
+                        artifact.kind == "normalized"
+                        and operation.action == "profile_scaffold"
+                        and str(aid) == operation.payload.get("source_artifact")
+                    ):
+                        raise ValueError
                 data = self.store.verified(artifact)
                 return {"data": base64.b64encode(data).decode()}
             if value["action"] != "stage" or value["kind"] not in {
@@ -162,6 +167,8 @@ class Broker:
                 "review_workbook",
                 "export",
                 "delivery",
+                "profile_scaffold",
+                "diagnostic",
             }:
                 raise ValueError
             permitted = {
@@ -169,6 +176,9 @@ class Broker:
                 "review_workbook": {"review_workbook"},
                 "export": {"export"},
                 "delivery": {"delivery"},
+                "profile_scaffold": {"profile_scaffold"},
+                "profile_test": {"diagnostic"},
+                "selftest": {"diagnostic"},
             }
             if value["kind"] not in permitted.get(operation.action, set()):
                 raise ValueError

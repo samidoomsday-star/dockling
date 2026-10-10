@@ -1,6 +1,6 @@
 # Phase 4 first milestone — secure BYOK connections
 
-Phase 3 is complete on `saas-phase-3`. The `saas-phase-4` branch adds the first Phase 4 milestone: real workspace connections and a React **AI connections** screen. Phase 4 remains in progress; consent, AI statement processing and owner operations are still pending. This is a local synthetic development app, not a deployed production service.
+Phase 3 is complete on `saas-phase-3`. The `saas-phase-4` branch adds the first Phase 4 milestone: real workspace connections and a React **AI connections** screen. This records the first milestone; consent, AI cell corrections and owner operations are now described in [PHASE4-IMPLEMENTATION.md](PHASE4-IMPLEMENTATION.md). This is a local synthetic development app, not a deployed production service.
 
 ## What an owner can use
 
@@ -24,4 +24,4 @@ The local baseline passed 315 original Python tests, 84 database/storage/API tes
 
 The genuine Keycloak/browser journey covers fictional key save, manual picker, revoke/key erasure, mobile accessibility/layout, then Phase 3 corrections, six output formats, delivery/live removal and six actual synthetic conversion inputs. See `docs/tasks/saas-phase-4.md` for the final execution record. CI independently runs `scripts/saas-browser.mjs --phase3 --phase4`; report its actual result separately.
 
-Next: per-job consent tied to content/revision/provider/model/effort/terms; minimized masked cells and durable page/request reservations; uncertainty-safe gateway dispatch with fake providers; owner profiles/config/health/selftest and expiring audited MFA support grants. These must pass their own gates before Phase 4 can be marked complete. Windows/WSL, actual provider terms/capability/inference, accounting imports, public hosting, load/security review and production backup/restore remain separate release checks.
+Next: per-job consent tied to content/revision/provider/model/effort/terms; minimized masked cells and durable page/request reservations; uncertainty-safe gateway dispatch with fake providers; owner profiles/config/health/selftest and expiring audited MFA support grants. Their implementation and gates are recorded in PHASE4-IMPLEMENTATION.md and the Phase 4 task. Windows/WSL, actual provider terms/capability/inference, accounting imports, public hosting, load/security review and production backup/restore remain separate release checks.

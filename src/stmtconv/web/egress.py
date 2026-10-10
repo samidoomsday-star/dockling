@@ -6,6 +6,7 @@ import json
 import re
 import socket
 import ssl
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from typing import cast
@@ -102,6 +103,7 @@ class PublicTransport:
         for attempt in range(attempts):
             address = public_addresses(self.host)[0]
             client = PinnedHTTPS(self.host, address)
+            watchdog: threading.Timer | None = None
             try:
                 headers = {"Accept": "application/json", "Accept-Encoding": "identity"}
                 if self.provider.api_key:
@@ -117,6 +119,24 @@ class PublicTransport:
                     headers["Content-Type"] = "application/json"
                 deadline = time.monotonic() + 25
                 client.request(method, self.base_path + route, body, headers)
+                network_socket = getattr(client, "sock", None)
+                if network_socket is not None:
+
+                    def interrupt(connection: socket.socket = network_socket) -> None:
+                        try:
+                            connection.shutdown(socket.SHUT_RDWR)
+                        except OSError:
+                            pass
+
+                    # Retain the original socket even if HTTP headers detach client.sock.
+                    # Trickle-fed headers or bodies cannot extend the absolute deadline.
+                    watchdog = threading.Timer(max(0, deadline - time.monotonic()), interrupt)
+                    watchdog.daemon = True
+                    watchdog.start()
+                if time.monotonic() > deadline:
+                    raise StmtconvError(
+                        "AI_RESPONSE_LIMIT", "The provider exceeded its time limit."
+                    )
                 response = client.getresponse()
                 if response.status in {429, 502, 503, 504} and attempt + 1 < attempts:
                     continue
@@ -147,5 +167,7 @@ class PublicTransport:
                     "The provider connection could not be confirmed. Details are hidden.",
                 ) from None
             finally:
+                if watchdog is not None:
+                    watchdog.cancel()
                 client.close()
         raise StmtconvError("AI_HTTP", "The provider is temporarily unavailable.")

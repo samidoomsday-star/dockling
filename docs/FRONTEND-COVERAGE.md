@@ -52,3 +52,10 @@ F10–F22 now have real local review/output/privacy adapters as described in PHA
 ### SaaS Phase 4 connection milestone
 
 F24–F27 now have real workspace connection setup: encrypted key save/replace/revoke, custom public HTTPS compatibility settings, model-list discovery/test, manual model IDs and highest-supported/default/advertised effort choices. Owner changes and sanitized editor/viewer reads are server-enforced. Terms recording is available; F28 per-job consent/reservations/AI dispatch and F29–F32 owner operations remain pending. See PHASE4-CONNECTIONS.md.
+
+
+## SaaS Phase 4 complete local implementation
+
+F24–F28 now include real encrypted connections, advertised effort/Max, exact per-job consent, conservative reservation/cancellation/uncertainty handling and minimized atomic existing-cell AI correction with full source checks. F29–F32 include real workspace preferences, private job scaffolds, isolated synthetic profile/selftest evidence, immutable supported configuration versions, future-job snapshots, worker startup hash/heartbeat reports, scoped expiring audited MFA support access and anonymous outcome buckets. See `saas/PHASE4-IMPLEMENTATION.md`. The historical preview table above remains a record of Stage B; these real adapters supersede its pending labels.
+
+Controlled model download remains setup-only (`worker-build` with pinned hashes); the proposed arbitrary web maintenance endpoint is not enabled. CLI local config/help/version remain available; no server file/env/code editor is exposed. Hosted AI only corrects existing normalized cells and does not recover missing rows. Remaining launch exclusions include payment/email integrations, production gateway teardown recovery, public deployment, real-provider and accounting-import acceptance, backup/expiry, region/legal and Windows/WSL device checks. None is advertised as completed by the local UI.

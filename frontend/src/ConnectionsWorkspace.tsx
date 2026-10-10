@@ -326,9 +326,9 @@ export default function ConnectionsWorkspace({ session }: { session: ServerSessi
       </div>
       <div className="notice">
         <p>
-          Phase 4 connection setup is available. AI statement dispatch, per-job consent/budgets and
-          the remaining owner tools are being connected next. Saving a connection does not send
-          documents or start paid generation.
+          Saving a connection does not send documents or start generation. Optional AI requests are
+          controlled from each job, with separate consent and page/request limits. Your provider may
+          charge for generation.
         </p>
       </div>
       {(message || q.isError) && <p role="alert">{message || explain(q.error)}</p>}
