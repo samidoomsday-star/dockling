@@ -1,40 +1,48 @@
-# SaaS Phase 3 — review, outputs and verified live removal
+# Frontend feature coverage — Stage B
 
-**Status:** implemented and locally verified on `saas-phase-3`, based on the tested Phase 2 commit `f388e404bde27d67534ce2a60ee82a89174ff7ec`. This is the new SaaS phase, not the historical CLI Phase 3. Synthetic local information only; hosting, paid AI and billing remain later phases.
+This ledger maps every existing-feature row in WEB-APP-PLAN section 6. **Interactive preview** means in-memory synthetic UI behavior, not a completed production function. **Backend pending** means the existing CLI remains usable but the web endpoint/worker has not been built. No existing Python function was removed.
 
-## Implementation checklist
+| Existing capability | Frontend location and current behavior | Integration required |
+|---|---|---|
+| Create order, currency/dates/outputs, alias/channel/package | `/app/new` guided form; operator details described in admin | Create/update order; operator-only commercial metadata |
+| List/show/history/overdue | `/app/jobs` search/status; job Overview/Activity; retention explanation | Pagination, timestamps, overdue reminders |
+| Intake sniff/hash/page kind/limits | New conversion file picker; Files clearly labels fixture metadata | Authenticated uploads, signatures/hashes/quotas |
+| PDF password | Intake disabled password field | Transient worker handoff, no logged/stored password |
+| Combine/EXIF/image ordering | Intake combine toggle and move-up controls | Rotation, normalized private artifacts |
+| Force limits | Admin configuration explains permission boundary | Authorized override/reason/audit; customer cannot bypass |
+| Quote/pricing/add-ons | `/pricing` truthful unapproved offers; admin pricing validation | Quote service, validated price writes; no checkout |
+| Extraction automatic/text/Docling | Intake engine selector; explicit practice-processing action | Durable worker and actual extraction |
+| Engine/profile/page groups/diagnostics | Intake advanced fields; Files/Overview | Profile/page routing, per-page statuses |
+| Validation/balance/totals/coverage/dates/duplicates | Checks explains fixed fixture amounts and server checks | Existing Decimal core and readable issue DTOs |
+| Review/fix/delete/insert/clear/notes | Review modal, staged atomic batches, exact amounts, discard warning | Shared Python review service, authenticated actor/history |
+| Revision-bound spotcheck/fixed rows | Checks compares both sample rows; edits invalidate checks/exports | Deterministic server sample and revision assertions |
+| AI source confirmation/provenance | AI fixture; engine/page flags; separate full source acknowledgement | Actual source rendering and trusted server record |
+| Six exports/date/QB chunks | Exports: six reference downloads, revision gate, import notes | Current-job writers, chunking and private downloads |
+| Identity-aware bank/card OFX | Intake account-group confirmation; Exports gate and format notes | Institution/account/direction DTOs and import validation |
+| Merge/monthly workbook/continuity | Intake merge confirmation; Files/Exports account and continuity details | Real merge/12-month writer and gap/overlap checks |
+| Categories/direction/regex/overrides | `/app/categories` ordered add/edit/remove/move rules; override control | Scoped matching/regex preview and job override upload |
+| Deliver/hash/revision/ZIP/templates | Exports prepares preview package and fixed ZIP; Activity revision | Live artifacts/hashes, templates, safe delivery |
+| Run/resume/review pauses | Intake start; recovery fixture retry; review/export gates | Durable stage resumption/idempotency |
+| Inbox/run.bat | Help and frontend README preserve local CLI/device workflow | Browser upload counterpart; existing local launcher retained |
+| Close/retention/partial retry/certificate | Data tab removal, explicit confirmation, simulated partial failure/retry | Inventory all private storage; verified deletion and reminders |
+| Close abandon/anonymous outcome | Unfinished job removal requires abandonment; scrubbed preview | Anonymous server ledger, no content leakage |
+| Stats/engine/timing/verdict/fix/pages | Dashboard/admin display actual session counts only | Owner-scoped real worker timings and anonymous aggregates |
+| AI setup/list/private selection | Connections add/edit/remove custom HTTPS configurations | Encrypted per-owner BYOK key storage/rotation |
+| AI models/test/manual IDs | Sample catalog/manual IDs; provider test clearly disabled | Outbound metadata/discovery/test policies |
+| AI pick/capability evidence/Max | Model picker auto-selects highest supported effort; unknown default only | Provider evidence validation; renewed consent bindings |
+| AI adapter/chat/responses/JSON/tokens/routes/temperature | Connection advanced settings, supported-effort validation | Existing adapter behind server outbound policy |
+| Consent/terms/budget/retries | Job AI note/consent/revoke, provider terms, page counter/cap | Binding/caps/reservations/retry accounting; no inference here |
+| Profile scaffold/test/YAML | Admin profile picker and private scaffold/test instructions | Sanitized fixture tests and permission-scoped editing |
+| Doctor/model download/hash | Admin unknown health status and local commands/setup guidance | Actual system probes, explicit model maintenance |
+| Selftest/demo/synthetic assets | Public guided sample, admin local selftest, generated reference files | Isolated backend sample workspace and diagnostics |
+| YAML defaults/prices/exports/categories/profiles/templates | Settings/category editors; admin validated pricing example/config controls | Versioned schema-valid server writes |
+| CLI help/version/config/env | Help/admin local CLI instructions; frontend README | Preserve CLI; deployment controls remain owner-side |
 
-1. Extract one typed pure fix/delete/insert/clear command implementation for browser and Excel review. Validate the complete batch before any persistence, keep exact Decimal values/provenance, record actor/revision/history, reject stale requests/workbooks and invalidate relevant source checks and downloads.
-2. Store revision-bound deterministic sample plus every fixed row, separate full AI-source acknowledgement, current financial checks and explicit private account grouping. Never equate financial reconciliation with correct source descriptions or dates.
-3. Use the existing restricted durable worker for review workbook generation/application, all six actual export writers, QuickBooks chunking/date selection, monthly merge and private verified delivery ZIPs. Publish complete hash-bound artifact sets atomically; reject stale/foreign/tampered output and prohibit customer verification bypasses.
-4. Add scoped ordered category rules/job overrides with bounded safe pattern evaluation and current output invalidation. Preserve identity/currency/direction/continuity merge gates and original CLI behavior.
-5. Add owner-only close/abandon with immediate access/publication fencing, complete live object/version and private database-data removal, scratch cleanup receipts and retryable partial failure. Issue a live-removal certificate only after the inventory is verified empty; disclose backup policy separately. Add explicit local retention maintenance without making a hosted retention promise.
-6. Connect the colorful real review/source/download/privacy UI, unsaved-edit protection, revision conflicts, accessible mobile controls and honest pending/error/empty states. Keep demo and real adapters separate.
-7. Test real PostgreSQL/storage, browser/Excel parity, stale/concurrent/foreign/role denial, six outputs/package hashes, worker/API interruption and forced deletion failure/retry. Run original Python and frontend gates plus genuine restricted-worker browser journeys.
-8. Record actual evidence/remaining device and production gates, update contracts/device/cloud setup instructions, commit and push the reviewable Phase 3 branch. Do not merge main or deploy.
+## New web requirements still pending
 
-Next: Phase 4 hosted optional BYOK/custom OpenAI-compatible connection, model discovery/manual entry and highest supported reasoning effort including Max, plus owner operations. No LLM key is required for Phase 3.
+Stage C: authenticated API contract implementation, genuine file upload/source viewer, queue/worker status, shared browser/Excel review, real exports and cleanup. Stage D: account isolation, permissions, CSRF enforcement, encrypted BYOK storage, outbound restrictions, quotas, durable restart recovery and negative security tests. Stage E: tested fresh Windows installation and chosen hosting deployment. Stage F: real bank-layout/import trials and approved commercial offer.
 
-## Local acceptance evidence
-
-- Full Python gate: **315 passed**, no skipped checks, strict typing/lint/format passed; 13 upstream warnings remain.
-- Real PostgreSQL/private storage suite: **59 passed**; 3 dependency/image warnings. Eight Phase 3 cases cover atomic browser edits, Excel round trip, six outputs/ZIP/close, scratch fencing, deletion failure/retry, stale downloads, category invalidation and corrupt output refusal.
-- Frontend lint/format/types/build and **42 unit tests** passed. Separate explicit demo **19 Chromium journeys** passed. Demo fixtures do not validate real processing.
-- Actual Keycloak/worker browser journey: correction/source comparison, account confirmation, six current format files, real delivery ZIP and owner close/live certificate passed; genuine text/different/scanned/photo/protected/combined inputs passed (2/6/2/2/2/2 rows). Viewer/A–B/admin isolation and actual OTP passed. Mobile 375 px/desktop screenshots were inspected; accessibility/overflow checks passed.
-- Restricted worker: pinned public CPU model hashes, no public TCP/DNS, non-root/read-only/resource limits/private SQL role passed. Worker image includes required writer templates. Real retention dry run reports eligibility without changing jobs.
-- API schema: 107 operations, 112 schemas, seven examples, all 33 feature mappings validated; implemented runtime routes are labelled separately from future design routes.
-
-Windows receiving-device verification, accounting software imports, chosen-host backup expiry, independent security/load/restore review and public deployment remain later release gates. Known OCR description accuracy limits still require source comparison. Existing legacy unreferenced upload objects are handled separately by the conservative sweeper; the live certificate covers verified inventoried job scope.
-
-Next authorized by owner: implement Phase 4 without another phase approval. Paid inference, publishing, main merge and commercial billing are not part of this milestone.
-
-
-## SaaS Phase 3 — review, exports and live removal
-
-Implemented on `saas-phase-3`: shared browser/Excel fix/delete/insert/clear commands, revision/source invalidation and private history, deterministic source sample/all fixed rows, separate AI-source gate, six actual writers, QB/date/account/merge rules, ordered categories, verified delivery ZIPs and owner close/abandon with partial retry/scratch receipts/live-scope certificates. Original CLI remains compatible. See `docs/saas/PHASE3-IMPLEMENTATION.md` and `docs/tasks/saas-phase-3.md` for evidence and precise limits.
-
-Local gates: 315 original Python tests; 59 real PG/storage tests; 42 frontend unit tests; 19 explicit demo journeys; genuine restricted-worker/Keycloak review→six outputs→package→removal plus six extraction cases, role/tenant/MFA/mobile/axe checks passed. No real client documents, paid AI requests, email, public deployment or main merge. Owner authorized continuing Phase 4, with own BYOK and capability-based Max.
-
+UI filters persist through URL parameters where implemented; demo content/preferences reset on reload by design. Public requests/contact and payment are intentionally not presented as working sales channels before their details are approved.
 
 ### SaaS Phase 3 runtime update
 
