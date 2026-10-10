@@ -5,8 +5,10 @@ from __future__ import annotations
 import argparse
 import json
 import secrets
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
 from pathlib import Path
@@ -16,6 +18,47 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 LOCAL = ROOT / ".local-saas"
 ISSUER = "http://127.0.0.1:8085/realms/dockling"
+
+
+def stage_worker_models() -> None:
+    """Mount only approved public artifacts, without widening the private source cache."""
+    from stmtconv.model_setup import artifact_path, load_manifest, verify_artifacts
+
+    source = ROOT / "models"
+    target = LOCAL / "worker-models"
+    manifest = load_manifest()
+    verify_artifacts(source, manifest)
+    if target.is_symlink():
+        raise SystemExit("Worker model folder must not be a symlink.")
+    target.mkdir(exist_ok=True, mode=0o755)
+    target.chmod(0o755)
+    approved = {artifact.path for artifact in manifest.files}
+    for entry in target.rglob("*"):
+        if entry.is_symlink() or (
+            entry.is_file() and entry.relative_to(target).as_posix() not in approved
+        ):
+            raise SystemExit("Unexpected worker cache entry; use a clean worker-models folder.")
+    for artifact in manifest.files:
+        destination = artifact_path(target, artifact)
+        destination.parent.mkdir(parents=True, exist_ok=True, mode=0o755)
+        for parent in [destination.parent, *destination.parent.parents]:
+            if parent == target:
+                break
+            parent.chmod(0o755)
+        try:
+            verify_artifacts(target, manifest.model_copy(update={"files": [artifact]}))
+        except Exception:
+            with tempfile.NamedTemporaryFile(dir=destination.parent, delete=False) as temporary:
+                temporary_path = Path(temporary.name)
+            try:
+                shutil.copyfile(artifact_path(source, artifact), temporary_path)
+                temporary_path.chmod(0o644)
+                temporary_path.replace(destination)
+            finally:
+                temporary_path.unlink(missing_ok=True)
+        destination.chmod(0o644)
+    verify_artifacts(target, manifest)
+    print("Worker public model cache verified; original private model cache preserved.")
 
 
 def write(name: str, value: str) -> None:
@@ -405,6 +448,7 @@ def main() -> None:
             verify_artifacts(ROOT / "models", load_manifest())
         except Exception:
             download(settings)
+        stage_worker_models()
         from stmtconv.config import build_certificate_bundle
 
         build = LOCAL / "build"
@@ -432,6 +476,7 @@ def main() -> None:
         )
     if args.command == "worker":
         worker_config()
+        stage_worker_models()
         subprocess.run(
             [
                 "docker",

@@ -26,7 +26,7 @@ Then build the conversion worker:
 .venv/bin/python scripts/saas-local.py worker-build
 ```
 
-This rechecks the installation, downloads missing OCR models during setup and verifies their pinned SHA256 hashes, then builds the restricted Linux worker image. Package signatures and TLS remain enabled. It can take several minutes on the first run. The models require roughly 700 MB and no LLM key. Model files are mounted read-only rather than downloaded during processing.
+This rechecks the installation, downloads missing OCR models during setup and verifies their pinned SHA256 hashes, then builds the restricted Linux worker image. Package signatures and TLS remain enabled. It can take several minutes on the first run. The models require roughly 700 MB and no LLM key. Setup also creates a separate roughly 700 MB worker cache containing only manifest-approved public artifacts, readable by the container's fixed user even when your host uses a different user number. Your original model-cache permissions and private setup files are preserved. The worker cache is mounted read-only rather than downloaded during processing.
 
 Then start that worker:
 

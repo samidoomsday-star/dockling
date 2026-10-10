@@ -43,7 +43,7 @@ services:
     dns: ["127.0.0.1"]  # Docker resolves private service names; public DNS has no upstream.
     dns_opt: ["timeout:1", "attempts:1"]
     volumes:
-      - ./models:/models:ro
+      - ./.local-saas/worker-models:/models:ro
       - ./.local-saas/broker:/broker:ro
     read_only: true
     tmpfs: ["/tmp:size=536870912,mode=1777"]
