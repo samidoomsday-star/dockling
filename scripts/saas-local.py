@@ -379,6 +379,38 @@ def seed() -> None:
     print("Two synthetic workspaces and owner/editor/viewer memberships are ready.")
 
 
+def verification_workspace() -> None:
+    """Give repeated local browser checks a fresh quota without changing existing workspaces."""
+    from sqlalchemy import select
+    from sqlalchemy.orm import Session
+
+    from stmtconv.config import load_hosted_settings
+    from stmtconv.web.database import database
+    from stmtconv.web.models import Membership, User, Workspace
+
+    config = load_hosted_settings(LOCAL / "migrate.env")
+    if config.mode != "local" or config.oidc_issuer != ISSUER:
+        raise SystemExit("Verification workspaces are limited to the local synthetic setup.")
+    data = json.loads((LOCAL / "bootstrap.json").read_text())
+    workspace = Workspace(name="Browser verification " + uuid4().hex[:12])
+    with Session(database(config)) as db, db.begin():
+        db.add(workspace)
+        db.flush()
+        for entry in data["users"]:
+            if not entry["username"].endswith("-a"):
+                continue
+            user = db.scalar(select(User).where(User.issuer == ISSUER, User.subject == entry["id"]))
+            if user is None:
+                raise SystemExit("Run local setup before preparing browser verification.")
+            db.add(
+                Membership(
+                    workspace_id=workspace.id, user_id=user.id, role=entry["username"].split("-")[0]
+                )
+            )
+        identifier = str(workspace.id)
+    print(json.dumps({"workspace_id": identifier}))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -394,9 +426,12 @@ def main() -> None:
             "worker",
             "worker-build",
             "reap",
+            "verification-workspace",
         ],
     )
     args = parser.parse_args()
+    if args.command == "verification-workspace":
+        verification_workspace()
     if args.command in {"init", "up", "setup"}:
         initialize()
     if args.command in {"up", "setup"}:

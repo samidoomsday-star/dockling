@@ -2,7 +2,9 @@
 import { createRequire } from 'node:module';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createHmac, randomUUID } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
 const require = createRequire(new URL('../frontend/package.json', import.meta.url));
 const { chromium } = require('@playwright/test');
 const { AxeBuilder } = require('@axe-core/playwright');
@@ -10,6 +12,9 @@ const fixturePath = new URL('../.local-saas/bootstrap.json', import.meta.url);
 const realmPath = new URL('../.local-saas/realm.json', import.meta.url);
 const fixture = JSON.parse(await readFile(fixturePath, 'utf8'));
 const origin = 'http://127.0.0.1:8000';
+// Local privileged setup only provisions memberships; sign-in and switching still use real auth/CSRF.
+const verification=JSON.parse(execFileSync(fileURLToPath(new URL('../.venv/bin/python',import.meta.url)),
+  [fileURLToPath(new URL('./saas-local.py',import.meta.url)),'verification-workspace'],{encoding:'utf8'}));
 function totp(secret) {
   // Keycloak's stored/enrollment value is raw UTF-8; its QR displays the base32 encoding.
   const bytes = Buffer.from(secret, 'utf8');
@@ -61,6 +66,17 @@ async function signIn(username, viewport={width:1440,height:1000}) {
   }
   await page.waitForURL(origin+'/app');
   await page.getByRole('button',{name:'Sign out'}).waitFor();
+  if(username.endsWith('-a')) {
+    const current=await (await context.request.get(origin+'/api/v1/session')).json();
+    const switched=await context.request.post(origin+'/api/v1/session/workspace',{
+      headers:{'Origin':origin,'X-CSRF-Token':current.csrf_token,'Idempotency-Key':randomUUID()},
+      data:{workspace_id:verification.workspace_id},
+    });
+    assert.equal(switched.status(),200);
+    assert.equal((await switched.json()).workspace_id,verification.workspace_id);
+    await page.goto(origin+'/app');
+    await page.getByRole('button',{name:'Sign out'}).waitFor();
+  }
   return {page,context};
 }
 try {
@@ -129,7 +145,11 @@ try {
       await a.page.getByRole('button',{name:'Unlock and continue inspection',exact:true}).click();
     }
     await a.page.waitForFunction(()=>[...document.querySelectorAll('button')].some(b=>b.textContent==='Convert statements'&&!b.disabled),null,{timeout:90000});
-    await a.page.getByRole('button',{name:'Convert statements',exact:true}).click();
+    const [conversion]=await Promise.all([
+      a.page.waitForResponse(response=>response.url()===origin+'/api/v1/jobs/'+next+'/operations' && response.request().method()==='POST'),
+      a.page.getByRole('button',{name:'Convert statements',exact:true}).click(),
+    ]);
+    assert.equal(conversion.status(),202);
     await a.page.getByText('Statement s0001 · '+expectedRows+' rows',{exact:true}).waitFor({timeout:180000});
     const result=await (await a.context.request.get(origin+'/api/v1/jobs/'+next+'/rows')).json();
     assert.equal(result.items.length,expectedRows);

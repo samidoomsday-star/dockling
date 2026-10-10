@@ -167,4 +167,4 @@ Implemented on `saas-phase-2`, based on `saas-phase-1`: bounded private raw uplo
 
 Next: SaaS Phase 3 correction, source confirmation, revalidation and private current-revision exports. Owner BYOK/custom OpenAI-compatible model picker/highest supported Max remains Phase 4, with unknown capabilities default-only and no silent downgrade.
 
-Phase 2 code/setup is ready for the pushed GitHub milestone; hosted CI evidence is recorded after its run completes.
+The initial [GitHub pipeline run](https://github.com/samidoomsday-star/dockling/actions/runs/38036653911) and [frontend run](https://github.com/samidoomsday-star/dockling/actions/runs/38036653809) pass on the pushed milestone. The subsequent private model-cache and repeat-verification improvements are checked in a separate run before final handoff. Repeated local browser runs reached the original workspace's 30-operation hourly limit; no quota was weakened. Browser/recovery checks now provision fresh fictional workspaces and switch through genuine authorized sessions, preserving original jobs, memberships and limits.
