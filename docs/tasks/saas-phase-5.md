@@ -1,6 +1,6 @@
 # SaaS Phase 5 — accounts, usage and manual pilot billing
 
-Status: in progress on `saas-phase-5`; owner authorized Phase 5 then Phase 6 on 11 October 2026 (Asia/Dhaka).
+Status: implemented locally and pushed on `saas-phase-5`; owner authorized Phase 5 then Phase 6 on 11 October 2026 (Asia/Dhaka).
 
 ## Implementation sequence
 
@@ -14,3 +14,12 @@ Status: in progress on `saas-phase-5`; owner authorized Phase 5 then Phase 6 on 
 ## Commercial and acceptance boundaries
 
 Local allowances and fictional invoice values are synthetic development configuration, not approved offers. Production has no implicit free test entitlement. Exact decimal currency values only. Named, immutable manual payment evidence is entered only by a fresh-MFA platform administrator, with event/version/idempotency checks; a customer cannot assert payment. Cancel/refund prevents new processing without withholding already-owned files. Page reservations precede processing, remain conservatively reserved after uncertainty, and do not imply provider dollar charges. Email delivery and merchant checkout remain disclosed integration gates until selected and actually tested; in-app notices and manual invoice records are functional first-pilot alternatives.
+
+## Observed acceptance
+
+- 109 real PostgreSQL/private-storage/API tests; 315 original converter tests; strict lint/format/types; OpenAPI 0.5.0 (147 operations, 157 schemas, seven examples, 33 feature mappings).
+- Final frontend check: 42 unit tests and 19 demo browser journeys, plus TypeScript/API build.
+- Complete genuine OIDC/OTP restricted-worker/fake-AI journey passes new-account creation, verified-email invitation, upload/conversion/source checks/actual CSV download, exact usage, private support/reply/notices, manual invoice issued/paid/refunded, owner entitlement fencing, all six older input/export cases, live removal, grant revocation and mobile axe/layout. Fictional provider only.
+- Fixed a real invitation-link unmount issue; test selectors now use actual writer CSV naming, visible response prefix and the specific named support grant. No source, financial, isolation, download or revocation assertions were relaxed.
+- Source `ae3b1257` is pushed. GitHub frontend run [38120264673](https://github.com/samidoomsday-star/dockling/actions/runs/38120264673) passed; full SaaS run [38120264665](https://github.com/samidoomsday-star/dockling/actions/runs/38120264665) is checked to completion. Later evidence follows when observed. Main remains unmerged.
+- The Phase 6 dependency audit identified outdated packaging-tool advisories; fixing the pinned pip/setuptools and rerunning conversion is part of the next milestone. This is not a production-release signoff.
