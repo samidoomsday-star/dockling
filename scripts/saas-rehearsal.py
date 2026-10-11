@@ -390,10 +390,28 @@ def run() -> None:
         app.state.engine.dispose()
 
 
+def wait_ready() -> None:
+    """Bound startup polling; full security preflight still runs separately once."""
+    config = rehearsal_config()
+    deadline = time.monotonic() + 120
+    with httpx.Client(verify=service_tls(config), timeout=5, trust_env=False) as client:
+        while time.monotonic() < deadline:
+            try:
+                response = client.get(ORIGIN + "/api/v1/health/ready")
+                if response.status_code == 200 and response.json().get("status") == "ready":
+                    print(json.dumps({"status": "ready", "code": "HTTPS_API_READY"}))
+                    return
+            except Exception:
+                pass
+            time.sleep(1)
+    raise ValueError("Verified HTTPS startup exceeded its deadline")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "command", choices=["init", "setup", "run", "check", "stop", "verification-workspaces"]
+        "command",
+        choices=["init", "setup", "run", "wait-ready", "check", "stop", "verification-workspaces"],
     )
     args = parser.parse_args()
     try:
@@ -403,6 +421,8 @@ def main() -> int:
             setup()
         elif args.command == "run":
             run()
+        elif args.command == "wait-ready":
+            wait_ready()
         elif args.command == "verification-workspaces":
             print(json.dumps(verification_workspaces()))
         elif args.command == "stop":

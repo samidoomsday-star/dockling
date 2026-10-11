@@ -72,17 +72,14 @@ jobs:
           .venv/bin/python scripts/saas-ops.py expiry-drill
       - name: Isolated verified HTTPS staging rehearsal with real OIDC/OTP
         run: |
-          .venv/bin/python scripts/saas-rehearsal.py setup
+          timeout 300 .venv/bin/python -u scripts/saas-rehearsal.py setup
           .venv/bin/python scripts/saas-rehearsal.py run > /tmp/dockling-rehearsal-api.log 2>&1 &
           rehearsal_api_pid=$!
-          for attempt in $(seq 1 60); do
-            if .venv/bin/python scripts/saas-rehearsal.py check > /tmp/dockling-rehearsal-check.json; then break; fi
-            if [ "$attempt" = 60 ]; then exit 1; fi
-            sleep 1
-          done
+          timeout 150 .venv/bin/python scripts/saas-rehearsal.py wait-ready
+          .venv/bin/python scripts/saas-rehearsal.py check
           .venv/bin/python scripts/check-worker-isolation.py --rehearsal
-          .venv/bin/python scripts/saas-rehearsal-verify.py
-          .venv/bin/python scripts/saas-rehearsal-browser.py
+          timeout 1200 .venv/bin/python -u scripts/saas-rehearsal-verify.py
+          timeout 300 .venv/bin/python -u scripts/saas-rehearsal-browser.py
           kill "$rehearsal_api_pid"
           rehearsal_exit=0
           wait "$rehearsal_api_pid" || rehearsal_exit=$?

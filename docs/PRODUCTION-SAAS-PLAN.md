@@ -1,6 +1,6 @@
 # Dockling: production SaaS plan
 
-**Status:** architecture direction accepted; [SaaS Phase 0 technical preparation](tasks/saas-phase-0.md) implemented on `saas-phase-0`, including contracts and measured synthetic capacity/limitations. [Phase 1](tasks/saas-phase-1.md) is ready for local synthetic implementation. Market/provider/business promises remain pending. Original proposal: 10 October 2026 (Asia/Dhaka), based on `web-frontend` commit `d24cbf5`. This plan covers a customer-facing service, not merely a hosted copy of the sample frontend. Phases 1–4 now have a real locally tested backend and UI; see docs/tasks/saas-phase-4.md. Billing, public deployment and the release gates remain pending.
+**Status:** architecture accepted and SaaS Phases 0–7 engineering implemented through `saas-phase-7`. See [current progress](PROGRESS.md), [Phase 7 evidence and limits](saas/PHASE7-STAGING.md) and [the Phase 7 task](tasks/saas-phase-7.md). Local synthetic HTTPS/authentication/conversion/UI acceptance passes; actual selected-host and permitted field acceptance remain pending. Manual invoice evidence is implemented, while live checkout, public deployment and production release gates remain pending. Original proposal: 10 October 2026 (Asia/Dhaka), based on `web-frontend` commit `d24cbf5`. Phase 8 is the invited paying pilot after the release gates; it has not launched.
 
 ## 1. The product we are building
 
@@ -22,7 +22,7 @@ Keep the current calm, colorful visual system and improve trust and clarity thro
 | AI provider settings | Private local provider file and CLI consent/page budget | That file is not a hosted vault. Keys must be encrypted per workspace, never returned to the browser, and all outbound destinations controlled |
 | Commercial/operations | Operator quotes, basic help and preview pricing page | No approved SaaS plans, payment, entitlements, support channel, hosting, monitoring, recovery, legal text, or verified import tests |
 
-The existing [web-app plan](WEB-APP-PLAN.md) remains the feature inventory; [frontend coverage](FRONTEND-COVERAGE.md) lists every current control and integration gap. Its SQLite/single-filesystem suggestion is appropriate only for a tightly limited one-server local pilot. **For the requested multi-customer sellable SaaS, use PostgreSQL and private object storage from the first real hosted build.** This is a proposed architectural update for review; it does not change the existing CLI.
+The existing [web-app plan](WEB-APP-PLAN.md) remains the feature inventory; [frontend coverage](FRONTEND-COVERAGE.md) lists every current control and integration gap. Its SQLite/single-filesystem suggestion is appropriate only for a tightly limited one-server local pilot. **For the requested multi-customer sellable SaaS, use PostgreSQL and private object storage from the first real hosted build.** This accepted architectural direction is implemented for the SaaS service; the existing offline CLI remains supported.
 
 ## 3. Recommended architecture
 
@@ -141,7 +141,7 @@ The architecture above is my recommended default. These product choices influenc
 4. **Retention and support promises:** approve default live-data retention, backup expiry, support contact/hours and acceptable recovery targets after seeing host costs. The local CLI’s seven-day preference cannot automatically become a truthful cloud backup promise.
 5. **Budget and capacity:** set a maximum monthly hosting spend and a first-cohort size. Use the phase-0 benchmark to choose infrastructure and limits, then adjust before publishing prices.
 
-Phase 0's technical contracts and measured findings are recorded in [the completed task](tasks/saas-phase-0.md). Implement [Phase 1's workspace/auth/database boundary](tasks/saas-phase-1.md) next. It should produce a working, isolated two-workspace synthetic API before touching real customer files. The existing frontend remains the visual starting point throughout.
+Phase 0's technical contracts and measured findings are recorded in [the completed task](tasks/saas-phase-0.md). The [Phase 1 workspace/auth/database boundary](tasks/saas-phase-1.md) and subsequent engineering phases are implemented. Finish the selected-host and permitted field acceptance in [Phase 7](tasks/saas-phase-7.md), resolve production release gates, then prepare Phase 8's invited pilot. Follow the current progress/task documents rather than restarting completed phases.
 
 ## 9. Basis for the architecture
 
