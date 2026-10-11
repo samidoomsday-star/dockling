@@ -23,3 +23,6 @@ Local allowances and fictional invoice values are synthetic development configur
 - Fixed a real invitation-link unmount issue; test selectors now use actual writer CSV naming, visible response prefix and the specific named support grant. No source, financial, isolation, download or revocation assertions were relaxed.
 - Source `ae3b1257` is pushed. GitHub frontend run [38120264673](https://github.com/samidoomsday-star/dockling/actions/runs/38120264673) passed; full SaaS run [38120264665](https://github.com/samidoomsday-star/dockling/actions/runs/38120264665) is checked to completion. Later evidence follows when observed. Main remains unmerged.
 - The Phase 6 dependency audit identified outdated packaging-tool advisories; fixing the pinned pip/setuptools and rerunning conversion is part of the next milestone. This is not a production-release signoff.
+
+
+Final observation recorded during Phase 6: source `ae3b1257` passed both [SaaS CI](https://github.com/samidoomsday-star/dockling/actions/runs/38120264665) and [frontend CI](https://github.com/samidoomsday-star/dockling/actions/runs/38120264673), including ordinary-server SIGKILL/reclaim/replay. Phase 5 development acceptance is complete. Production payment/provider/hosting exclusions above remain unchanged.

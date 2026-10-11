@@ -215,3 +215,9 @@ Implemented on `saas-phase-6`: anonymous fresh-MFA operations/alerts, minimal he
 
 
 Phase 6 full local real-browser acceptance passes every Phase 3–5 gate plus fresh-MFA anonymous operations and denied private form writes after real cross-tab logout; cached private content is immediately hidden. This uses actual restricted OCR and fictional providers, not a demo fallback. Exact pushed-source CI remains to be recorded; production exit remains blocked.
+
+
+Phase 6 source `44b2b6d` is pushed to GitHub. Final rebuilt worker isolation and ordinary-server actual SIGKILL/reclaim/replay pass, and the original converter gate again passes 315 tests. The additional expired-backup receipt regression passes in nine targeted operations/recovery cases. Complete pushed-source application/frontend CI is being observed; the native production gate remains blocked without suppression.
+
+
+Phase 6 final [GitHub SaaS pipeline](https://github.com/samidoomsday-star/dockling/actions/runs/38123735381) and [frontend checks](https://github.com/samidoomsday-star/dockling/actions/runs/38123735406) pass on `44b2b6df9e57b2a5938687f000834f97783a6846`. SaaS logs confirm 129 SaaS tests and 315 original tests with no skips, actual isolated worker/browser/OTP/fake-AI/accounts/operations/crash recovery, and a fresh-stack encrypted 27-object/fictional-key restore with prior-schema ledger rehearsal, quarantine and disposable cleanup. Separate local restore verified 352 objects. Expiry tests preserve valid/source archives and delete exactly the expired fictional fixture. Native scan remains explicitly blocked at 59 high/one critical/60 unfixed. Engineering implementation and development acceptance are complete; production acceptance is not. Independent review/model-license/selected-host/teardown/recovery/business-policy gates remain open. Changes after this tested source are documentation only.

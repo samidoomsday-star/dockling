@@ -1,6 +1,6 @@
 # SaaS Phase 6: security and operating readiness
 
-Status: engineering implemented; production exit blocked; final CI verification in progress on `saas-phase-6`, following pushed Phase 5. Owner authorized both phases sequentially on 11 October 2026 (Asia/Dhaka).
+Status: engineering implemented; production exit blocked; local and GitHub development checks passed on `saas-phase-6`, following pushed Phase 5. Owner authorized both phases sequentially on 11 October 2026 (Asia/Dhaka).
 
 ## Implementation sequence
 
@@ -25,3 +25,18 @@ This is engineering preparation with fictional data. The implementer cannot cert
 - Official package tooling updates: OSV 147 Python packages and npm audit report zero known advisories. Native Trivy gate remains **blocked: 59 high / one critical, 60 unfixed**; no suppression. Complete license/model terms, independent review and selected-host capacity/teardown/restore policies remain release prerequisites.
 
 Read `docs/saas/PHASE6-OPERATIONS.md`, `PHASE6-THREAT-REVIEW.md` and `PHASE6-SECURITY-FINDINGS.json`. New-device guidance uses the Phase 6 branch and preserves all credentials/volumes/keys. No production launch, paid provider request, actual payment/email, real statement or main merge occurred. Exact final image/crash-recovery and GitHub CI results follow when observed.
+
+
+Final-source worker image `a446867e8b75f4fddbef2b8cfa6443ec6fb4e8a907bbe94af261463b0b03be27` passes model/network/SQL/container restrictions. The ordinary-server actual SIGKILL/reclaim/replay test passes after sequential worker replacement; one orchestration run overlapped recreation and failed, so it is recorded as a failed harness attempt, not a product pass. The subsequent check retains all original assertions. Original converter full gate again passes 315 tests; nine targeted operations/recovery cases include the additional expired-backup receipt regression. Source `44b2b6df9e57b2a5938687f000834f97783a6846` is pushed; full GitHub SaaS and frontend workflows are in progress.
+
+
+Pushed-source [frontend CI](https://github.com/samidoomsday-star/dockling/actions/runs/38123735406) passes. The strict native command on the final rebuilt image exits 1 as required (59 high/one critical); a live API also causes the backup command to refuse creation before any snapshot. These are expected failed safety/release checks, not successful production acceptance.
+
+
+## Final GitHub acceptance
+
+Both complete workflows pass on source `44b2b6df9e57b2a5938687f000834f97783a6846`: [SaaS pipeline](https://github.com/samidoomsday-star/dockling/actions/runs/38123735381) and [frontend checks](https://github.com/samidoomsday-star/dockling/actions/runs/38123735406). The SaaS job log confirms **129 SaaS tests and 315 original converter tests, no skips**. It also passes installation, contracts/types/lint/format, verified isolated worker build, package audit, actual container/network/SQL/model restrictions, full Keycloak/OTP/fake-AI/owner/accounts/operations browser acceptance and ordinary-server actual SIGKILL/reclaim/replay.
+
+The fresh GitHub stack's encrypted restore verifies **27 objects**, one wholly fictional vault key, identity/database/evidence permissions, fenced sessions/work, repeated forward migration and matched prior-schema ledger rollback, then removes its disposable resources. The observed 14 seconds is not a recovery promise. Its isolated expiry drill removes exactly its expired synthetic archive and preserves the valid one/source backups. These counts differ from the local 352-object drill because CI starts from a fresh fictional stack.
+
+GitHub's development native scan also explicitly records **59 high / one critical / 60 unfixed / release blocked**. A green functional workflow does not override this result. Independent security review, complete transitive/native/model licensing, selected-host capacity and verified teardown/disaster recovery, and launch policy/integration decisions remain gates. **Phase 6 engineering work is complete; the production acceptance gate is not passed.** Main remains unmerged. Final evidence and device-instruction changes after the tested source are documentation only.

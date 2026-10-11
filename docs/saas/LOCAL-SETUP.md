@@ -8,7 +8,7 @@ Use **Linux x86_64, Python 3.12, Node 24.15+ within version 24, and Docker Engin
 
 Allow roughly **8 GB of Docker memory and 40 GB of available disk** for setup/builds, plus room for your test files. A machine with 16 GB RAM is a useful starting point. These are development allowances, not a production capacity promise. The OCR worker itself is capped at 4 GB RAM, two CPUs and 300 seconds per attempt. Docker's `vfs` driver can use much more temporary build space than ordinary desktop overlay storage. Do not clear data volumes to make room.
 
-Clone `https://github.com/samidoomsday-star/dockling.git`, select **`saas-phase-5`**, and open that folder in your editor. A fresh clone does not contain installed programs, passwords, models or jobs. Ask your receiving assistant to follow this guide and `docs/DEVICE_SETUP.md`.
+Clone `https://github.com/samidoomsday-star/dockling.git`, select **`saas-phase-6`**, and open that folder in your editor. A fresh clone does not contain installed programs, passwords, models or jobs. Ask your receiving assistant to follow this guide and `docs/DEVICE_SETUP.md`.
 
 ## Install and start (Linux x86_64 / Python 3.12)
 
