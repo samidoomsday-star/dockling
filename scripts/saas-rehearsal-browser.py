@@ -15,8 +15,10 @@ spec.loader.exec_module(rehearsal)
 
 
 def main() -> int:
+    stage = "REHEARSAL_CONFIGURATION"
     try:
         rehearsal.rehearsal_config()
+        stage = "FICTIONAL_WORKSPACES"
         private = rehearsal.PRIVATE
         # This file is a disposable pointer to fresh fictional scopes, not matched secret material.
         path = private / "browser-workspaces.json"
@@ -24,6 +26,7 @@ def main() -> int:
             raise ValueError("Private verification pointer cannot be a symlink")
         path.write_text(json.dumps(rehearsal.verification_workspaces()))
         path.chmod(0o600)
+        stage = "BROWSER_TOOLS"
         environment = dict(os.environ)
         environment["DOCKER_CONFIG"] = str(ROOT / ".local-saas/docker")
         node_bin, certutil_bin = shutil.which("node"), shutil.which("certutil")
@@ -34,8 +37,13 @@ def main() -> int:
         browsers = Path(
             os.environ.get("PLAYWRIGHT_BROWSERS_PATH", str(Path.home() / ".cache/ms-playwright"))
         ).resolve()
-        if not libraries.is_dir() or not browsers.is_dir():
-            raise ValueError("Install Linux x86 browser dependencies and Chromium first")
+        stage = "LINUX_BROWSER_LIBRARIES"
+        if not libraries.is_dir():
+            raise ValueError("Install Linux x86 browser dependencies first")
+        stage = "PINNED_BROWSER_CACHE"
+        if not browsers.is_dir():
+            raise ValueError("Install pinned Chromium first")
+        stage = "ISOLATED_BROWSER_CONTAINER"
         subprocess.run(
             [
                 "docker",
@@ -93,8 +101,18 @@ def main() -> int:
             check=True,
         )
         return 0
-    except Exception:
-        print(json.dumps({"status": "failed", "code": "HTTPS_BROWSER_CHECK_REQUIRED"}))
+    except Exception as error:
+        # Fixed stages and class names only; arguments may contain private configuration.
+        print(
+            json.dumps(
+                {
+                    "status": "failed",
+                    "code": "HTTPS_BROWSER_CHECK_REQUIRED",
+                    "check": stage,
+                    "error_type": type(error).__name__,
+                }
+            )
+        )
         return 2
 
 

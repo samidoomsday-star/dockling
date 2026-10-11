@@ -44,6 +44,21 @@ jobs:
       - run: npm exec --prefix frontend -- playwright install --with-deps chromium
       - name: Browser certificate tools (isolated test-container trust only)
         run: sudo apt-get update && sudo apt-get install -y libnss3-tools
+      - name: Isolated verified HTTPS staging rehearsal with real OIDC/OTP
+        run: |
+          timeout 300 .venv/bin/python -u scripts/saas-rehearsal.py setup
+          .venv/bin/python scripts/saas-rehearsal.py run > /tmp/dockling-rehearsal-api.log 2>&1 &
+          rehearsal_api_pid=$!
+          timeout 150 .venv/bin/python scripts/saas-rehearsal.py wait-ready
+          .venv/bin/python scripts/saas-rehearsal.py check
+          .venv/bin/python scripts/check-worker-isolation.py --rehearsal
+          timeout 1200 .venv/bin/python -u scripts/saas-rehearsal-verify.py
+          timeout 300 .venv/bin/python -u scripts/saas-rehearsal-browser.py
+          kill "$rehearsal_api_pid"
+          rehearsal_exit=0
+          wait "$rehearsal_api_pid" || rehearsal_exit=$?
+          if [ "$rehearsal_exit" != 0 ] && [ "$rehearsal_exit" != 143 ]; then exit "$rehearsal_exit"; fi
+          .venv/bin/python scripts/saas-rehearsal.py stop
       - name: Real OIDC, fake AI, accounts, billing, recovery UI and isolated conversion journey
         run: |
           .venv/bin/python scripts/saas-fake-ai-server.py > /tmp/dockling-fake-server.log 2>&1 &
@@ -70,21 +85,6 @@ jobs:
           .venv/bin/python scripts/saas-ops.py restore-drill --backup "$backup_path"
           .venv/bin/python scripts/saas-ops.py fixture-cleanup
           .venv/bin/python scripts/saas-ops.py expiry-drill
-      - name: Isolated verified HTTPS staging rehearsal with real OIDC/OTP
-        run: |
-          timeout 300 .venv/bin/python -u scripts/saas-rehearsal.py setup
-          .venv/bin/python scripts/saas-rehearsal.py run > /tmp/dockling-rehearsal-api.log 2>&1 &
-          rehearsal_api_pid=$!
-          timeout 150 .venv/bin/python scripts/saas-rehearsal.py wait-ready
-          .venv/bin/python scripts/saas-rehearsal.py check
-          .venv/bin/python scripts/check-worker-isolation.py --rehearsal
-          timeout 1200 .venv/bin/python -u scripts/saas-rehearsal-verify.py
-          timeout 300 .venv/bin/python -u scripts/saas-rehearsal-browser.py
-          kill "$rehearsal_api_pid"
-          rehearsal_exit=0
-          wait "$rehearsal_api_pid" || rehearsal_exit=$?
-          if [ "$rehearsal_exit" != 0 ] && [ "$rehearsal_exit" != 143 ]; then exit "$rehearsal_exit"; fi
-          .venv/bin/python scripts/saas-rehearsal.py stop
       - name: Stop services and preserve volumes
         if: always()
         run: |
