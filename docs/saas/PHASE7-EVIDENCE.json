@@ -1,0 +1,205 @@
+{
+  "scope": "phase7_synthetic_engineering_evidence",
+  "production_approval": "blocked",
+  "public_host_provisioned": false,
+  "local_saas_full_suite_before_field_money_guard": 151,
+  "final_field_tls_tests": 21,
+  "original_converter_tests": 318,
+  "frontend_unit_tests": 42,
+  "frontend_demo_browser_journeys": 19,
+  "frontend_assertions_and_deadlines_retained": true,
+  "real_https_browser_journey": "passed",
+  "read_only_preflight": {
+    "scope": "read_only_staging_preflight",
+    "checked_at": "2026-10-11T13:46:30.714133Z",
+    "status": "passed",
+    "launch_approval": "not_assessed",
+    "checks": [
+      {
+        "code": "PRODUCTION_CONFIGURATION",
+        "status": "passed"
+      },
+      {
+        "code": "BYOK_VAULT_CONFIGURED",
+        "status": "passed"
+      },
+      {
+        "code": "APPLICATION_DATABASE_IDENTITY",
+        "status": "passed"
+      },
+      {
+        "code": "VERIFIED_DATABASE_TLS_AND_SCHEMA",
+        "status": "passed"
+      },
+      {
+        "code": "AUTHENTICATED_STORAGE_HEAD",
+        "status": "passed"
+      },
+      {
+        "code": "HTTPS_LIVENESS_AND_HEADERS",
+        "status": "passed"
+      },
+      {
+        "code": "API_STORAGE_WORKER_READINESS",
+        "status": "passed"
+      },
+      {
+        "code": "ANONYMOUS_JOBS_DENIED",
+        "status": "passed"
+      },
+      {
+        "code": "ANONYMOUS_ADMIN_DENIED",
+        "status": "passed"
+      },
+      {
+        "code": "ANONYMOUS_BUCKET_LISTING_DENIED",
+        "status": "passed"
+      },
+      {
+        "code": "VERIFIED_OIDC_DISCOVERY_AND_KEYS",
+        "status": "passed"
+      },
+      {
+        "code": "LOGIN_PKCE_CALLBACK_SECURE_COOKIE",
+        "status": "passed"
+      },
+      {
+        "code": "HTTPS_FRONTEND_DOCUMENT",
+        "status": "passed"
+      }
+    ]
+  },
+  "six_input_acceptance": {
+    "scope": "synthetic_loopback_https_acceptance",
+    "status": "passed",
+    "checked_at_utc": "2026-10-11T13:50:40Z",
+    "launch_approval": "not_assessed",
+    "real_accounting_imports": "not_run",
+    "required_cases": "complete",
+    "observed_worker_peak_since_start_mib": 1546.7,
+    "cases": [
+      {
+        "case": "text",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 4.135,
+        "conversion_enqueue_to_finish_seconds": 3.617,
+        "total_flow_seconds": 18.877,
+        "live_removal": "verified"
+      },
+      {
+        "case": "different",
+        "raw_extraction_exact_rows": 6,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 6,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 4.162,
+        "conversion_enqueue_to_finish_seconds": 4.131,
+        "total_flow_seconds": 19.099,
+        "live_removal": "verified"
+      },
+      {
+        "case": "scan",
+        "raw_extraction_exact_rows": 1,
+        "raw_extraction_mismatches": {
+          "description": 1
+        },
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 1,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 4.134,
+        "conversion_enqueue_to_finish_seconds": 34.369,
+        "total_flow_seconds": 49.743,
+        "live_removal": "verified"
+      },
+      {
+        "case": "encrypted",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.63,
+        "conversion_enqueue_to_finish_seconds": 4.129,
+        "total_flow_seconds": 22.962,
+        "live_removal": "verified"
+      },
+      {
+        "case": "photo",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": 144,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.639,
+        "conversion_enqueue_to_finish_seconds": 33.467,
+        "total_flow_seconds": 48.297,
+        "live_removal": "verified"
+      },
+      {
+        "case": "combined",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": 216,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 5.359,
+        "conversion_enqueue_to_finish_seconds": 41.705,
+        "total_flow_seconds": 58.924,
+        "live_removal": "verified"
+      }
+    ]
+  },
+  "local_worker_native_release_gate": {
+    "critical": 1,
+    "high": 59,
+    "image_id": "sha256:a4676cd9f89382b1696c12c3c6935fd8eda50de8d16e339a045072adb6ebde5c",
+    "release_gate": "blocked",
+    "scanner": "Trivy 0.75.0",
+    "scanner_archive_sha256": "c6e65abddb348e25f10549df887045629cf28cc72453cd1c63acb717316b3f3f",
+    "scope": "Final worker filesystem including native and vendored packages; independent review and other services remain separate.",
+    "unfixed": 60
+  },
+  "local_worker_code_note": "Later exact-money input guard is private field validation only; parser/TLS/export code matches this image.",
+  "public_package_audit": {
+    "python_packages": 147,
+    "frontend_package_records": 317,
+    "known_advisories_returned": 0
+  },
+  "unrun": [
+    "public_selected_host_acceptance",
+    "permitted_real_layouts",
+    "real_accounting_imports",
+    "human_review_support_timing",
+    "complete_allocated_costs",
+    "real_BYOK_provider_terms_and_paid_inference",
+    "selected_host_teardown_restore_load",
+    "independent_security_review",
+    "complete_native_model_license_review",
+    "Windows_WSL_ARM_device_acceptance"
+  ],
+  "known_input_limitation": {
+    "case": "combined_images_144_dpi",
+    "missing_summary_field": "period_end",
+    "refused_output": "ofx",
+    "observed_error": "OFX_SUMMARY",
+    "date_guessed": false
+  },
+  "github_ci": "pending_push"
+}

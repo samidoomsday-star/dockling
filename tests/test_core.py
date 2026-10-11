@@ -150,6 +150,46 @@ def test_continuation_inherited_date_and_page_coverage():
     assert statement.verdict == "NEEDS_REVIEW"
 
 
+def test_source_file_page_coverage_survives_combined_images_and_review():
+    rows, summary = fixture(count=2)
+    rows[0].source_file, rows[1].source_file = "image-a", "image-b"
+    statement = normalize("combined", rows, summary, pages=[1, 2])
+    assert "PAGE_COVERAGE" in validate(statement, Decimal("0.01")).flags
+    statement.source_pages = {"image-a": [1], "image-b": [1]}
+    checked = validate(statement, Decimal("0.01"))
+    assert checked.verdict == "VERIFIED" and "PAGE_COVERAGE" not in checked.flags
+    assert [(r.source_file, r.page) for r in checked.transactions] == [
+        ("image-a", 1),
+        ("image-b", 1),
+    ]
+    checked.transactions[1].source_file = "image-a"
+    missing = validate(checked, Decimal("0.01"))
+    assert missing.verdict == "NEEDS_REVIEW" and "PAGE_COVERAGE" in missing.flags
+
+
+def test_qualified_summary_pages_cover_only_their_original_source():
+    rows, summary = fixture(count=2)
+    for row in rows:
+        row.source_file = "statement-a"
+    statement = normalize("combined", rows, summary, pages=[1, 2])
+    statement.source_pages = {"statement-a": [1], "summary-b": [1]}
+    statement.summary_pages = [1]  # Cannot use an unqualified page to cover another source.
+    assert validate(statement, Decimal("0.01")).verdict == "NEEDS_REVIEW"
+    statement.source_summary_pages = {"summary-b": [1]}
+    assert validate(statement, Decimal("0.01")).verdict == "VERIFIED"
+    with pytest.raises(ValueError):
+        statement.source_summary_pages = {"unknown-source": [1]}
+
+
+def test_legacy_statement_serialization_and_page_checks_stay_compatible():
+    rows, summary = fixture(count=2)
+    statement = normalize("legacy", rows, summary)
+    record = statement.model_dump(mode="json")
+    assert "source_pages" not in record and "source_summary_pages" not in record
+    statement.pages = [1, 2]
+    assert "PAGE_COVERAGE" in validate(statement, Decimal("0.01")).flags
+
+
 def test_empty_and_ambiguous_statements_need_review():
     assert (
         validate(normalize("test", [], StatementSummary()), Decimal("0.01")).verdict

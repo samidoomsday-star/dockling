@@ -32,6 +32,7 @@ class ObjectStore:
             aws_access_key_id=config.s3_access_key.get_secret_value(),
             aws_secret_access_key=config.s3_secret_key.get_secret_value(),
             region_name="us-east-1",
+            verify=str(config.tls_ca_file) if config.tls_ca_file else True,
             config=Config(
                 signature_version="s3v4",
                 s3={"addressing_style": "path"},

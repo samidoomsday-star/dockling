@@ -106,13 +106,25 @@ export default function AiPanel({ session, id }: { session: ServerSession; id: s
         </div>
         <div>
           <span>Permission</span>
-          <strong>{s.consent?.valid ? 'Current' : 'Required'}</strong>
+          <strong>
+            {s.gate_code === 'AI_SERVICE_PAUSED'
+              ? 'Paused'
+              : s.consent?.valid
+                ? 'Current'
+                : 'Required'}
+          </strong>
         </div>
       </div>
       <p className="fine">
         Reservations stay counted after failure, cancellation or a model change. These counts limit
         requests; they do not confirm your provider’s invoice or set a dollar spending limit.
       </p>
+      {s.gate_code === 'AI_SERVICE_PAUSED' && (
+        <p role="status" className="fine">
+          AI requests are paused for staging tests. You can still set up your own provider, model
+          and effort. Regular document conversion and review are available.
+        </p>
+      )}
       {error && <p role="alert">{error}</p>}
       {!s.pages.length && <p>Convert a statement first to make transaction pages available.</p>}
       {owner && (

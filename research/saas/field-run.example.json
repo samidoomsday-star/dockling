@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "layout_code": "synthetic-layout-a",
+  "data_kind": "synthetic",
+  "permission_confirmed": false,
+  "permission_record_retained_privately": false,
+  "documents": 1,
+  "physical_pages": 1,
+  "expected_rows": 0,
+  "extracted_rows": 0,
+  "source_checked_rows": 0,
+  "exact_rows": 0,
+  "financial_reconciliation": "not_run",
+  "queue_seconds": null,
+  "conversion_seconds": null,
+  "source_review_seconds": null,
+  "peak_worker_mib": null,
+  "host_cost_usd": null,
+  "storage_cost_usd": null,
+  "provider_cost_usd": null,
+  "support_minutes": null,
+  "labor_usd_per_hour": null,
+  "allocated_costs_confirmed": false,
+  "imports": [
+    {"output": "excel", "status": "not_run"},
+    {"output": "csv", "status": "not_run"},
+    {"output": "qb_csv3", "status": "not_run"},
+    {"output": "qb_csv4", "status": "not_run"},
+    {"output": "xero_csv", "status": "not_run"},
+    {"output": "ofx", "status": "not_run"}
+  ]
+}

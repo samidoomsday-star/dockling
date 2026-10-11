@@ -99,7 +99,7 @@ def ensure_ai_key() -> None:
     write("ai-key.env", "STMTCONV_WEB_AI_ENCRYPTION_KEY=" + secrets.token_hex(32) + "\n")
 
 
-def initialize() -> None:
+def initialize(volume_name: str = "dockling-saas_saas-postgres") -> None:
     LOCAL.mkdir(exist_ok=True, mode=0o700)
     LOCAL.chmod(0o700)
     if (LOCAL / "bootstrap.json").exists():
@@ -107,7 +107,7 @@ def initialize() -> None:
         worker_config()
         return
     found = subprocess.run(
-        ["docker", "volume", "inspect", "dockling-saas_saas-postgres"],
+        ["docker", "volume", "inspect", volume_name],
         capture_output=True,
         check=False,
     )

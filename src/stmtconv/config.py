@@ -231,6 +231,7 @@ class HostedSettings(BaseSettings):
     database_url: SecretStr
     session_key: SecretStr
     ai_encryption_key: SecretStr | None = None
+    ai_dispatch_enabled: bool = True
     ai_page_cap: int = Field(default=40, ge=1, le=100)
     ai_request_cap: int = Field(default=40, ge=1, le=100)
     ai_pages_per_run: int = Field(default=5, ge=1, le=5)
@@ -244,6 +245,7 @@ class HostedSettings(BaseSettings):
     s3_access_key: SecretStr = Field(min_length=8)
     s3_secret_key: SecretStr = Field(min_length=16)
     s3_bucket: str = "dockling-private"
+    tls_ca_file: Path | None = None
     session_hours: int = Field(default=8, ge=1, le=24)
     frontend_dist: Path = Path("frontend/dist")
     upload_bytes: int = Field(default=8 * 1024**2, ge=1024, le=8 * 1024**2)
@@ -275,6 +277,8 @@ class HostedSettings(BaseSettings):
             raise ValueError("A generated session signing key is required")
         for value in [self.base_url, self.oidc_issuer, self.s3_endpoint]:
             parsed = urlsplit(value)
+            if not parsed.hostname or parsed.scheme not in {"http", "https"}:
+                raise ValueError("Services require a valid HTTP or HTTPS host")
             if parsed.username or parsed.password or parsed.query or parsed.fragment:
                 raise ValueError("Service URLs must not embed credentials or query data")
             if self.mode == "production" and parsed.scheme != "https":
@@ -287,6 +291,10 @@ class HostedSettings(BaseSettings):
             raise ValueError("The application origin must not include a path")
         self.base_url = self.base_url.rstrip("/")
         self.oidc_issuer = self.oidc_issuer.rstrip("/")
+        if self.tls_ca_file is not None and (
+            not self.tls_ca_file.is_absolute() or not self.tls_ca_file.is_file()
+        ):
+            raise ValueError("An explicit CA bundle must be an existing absolute file")
         return self
 
 
@@ -302,7 +310,9 @@ def load_hosted_settings(path: Path = Path(".local-saas/server.env")) -> HostedS
 
 class WorkerSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="STMTCONV_WORKER_", extra="ignore")
+    mode: Literal["local", "production"] = "local"
     database_url: SecretStr
+    tls_ca_file: Path | None = None
     broker_socket: Path = Path("/broker/socket")
     models: Path = Path("/models")
     seconds: int = Field(default=300, ge=30, le=900)
@@ -315,6 +325,10 @@ class WorkerSettings(BaseSettings):
         url = urlsplit(self.database_url.get_secret_value())
         if url.scheme != "postgresql+pg8000" or url.username != "dockling_worker":
             raise ValueError("Worker requires its restricted PostgreSQL identity")
+        if self.tls_ca_file is not None and (
+            not self.tls_ca_file.is_absolute() or not self.tls_ca_file.is_file()
+        ):
+            raise ValueError("An explicit CA bundle must be an existing absolute file")
         return self
 
 

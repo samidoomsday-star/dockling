@@ -16,6 +16,7 @@ from stmtconv.config import HostedSettings
 from stmtconv.web.errors import WebError
 from stmtconv.web.models import Membership, User, WebSession
 from stmtconv.web.repository import Json
+from stmtconv.web.tls import service_tls
 
 COOKIE = "dockling_session"
 
@@ -31,6 +32,8 @@ def oauth_client(config: HostedSettings) -> Any:
             "scope": "openid profile email",
             "code_challenge_method": "S256",
             "timeout": 5,
+            "verify": service_tls(config),
+            "trust_env": False,
         },
         claims_options={
             "iss": {"essential": True, "value": config.oidc_issuer},

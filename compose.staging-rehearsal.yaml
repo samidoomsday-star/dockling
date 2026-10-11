@@ -1,0 +1,78 @@
+# ISOLATED SYNTHETIC HTTPS REHEARSAL. No public ports or customer deployment.
+name: dockling-staging-rehearsal
+services:
+  postgres:
+    image: postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    env_file: .staging-saas/rehearsal/postgres.env
+    entrypoint: [/bin/bash, -c]
+    command:
+      - >-
+        cp /certs/server.key /tmp/server.key &&
+        chown postgres:postgres /tmp/server.key && chmod 600 /tmp/server.key &&
+        exec docker-entrypoint.sh postgres -c ssl=on
+        -c ssl_cert_file=/certs/server.pem -c ssl_key_file=/tmp/server.key
+    ports: ["127.0.0.1:55433:5432"]
+    volumes:
+      - staging-postgres:/var/lib/postgresql/data
+      - ./.staging-saas/rehearsal/init.sql:/docker-entrypoint-initdb.d/10-dockling.sql:ro
+      - ./.staging-saas/rehearsal/tls:/certs:ro
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U postgres]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+    networks: [default, worker-private]
+  identity:
+    image: quay.io/keycloak/keycloak@sha256:b0f60d489d51c5d113390bdf5461d4c06e6051be026c05549f2e1e10ec352bcc
+    command: [start, --import-realm, --https-certificate-file=/certs/server.pem, --https-certificate-key-file=/certs/server.key, --https-port=8443, --http-enabled=false]
+    env_file: .staging-saas/rehearsal/keycloak.env
+    group_add: ["${DOCKLING_REHEARSAL_GID:?Run saas-rehearsal.py setup}"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak?sslmode=verify-full&sslrootcert=/certs/ca.pem
+      KC_DB_USERNAME: keycloak
+      KC_HOSTNAME: https://localhost:8444
+      KC_HEALTH_ENABLED: "true"
+    ports: ["127.0.0.1:8444:8443"]
+    volumes:
+      - ./.staging-saas/rehearsal/realm.json:/opt/keycloak/data/import/dockling.json:ro
+      - ./.staging-saas/rehearsal/tls:/certs:ro
+    depends_on:
+      postgres: {condition: service_healthy}
+  storage:
+    image: chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    command: [server, "-ip=127.0.0.1", "-ip.bind=0.0.0.0", "-dir=/data", "-volume.max=32", "-master.volumeSizeLimitMB=64", -filer, -s3, "-s3.config=/etc/seaweedfs/s3.json", "-s3.port.https=8443", "-s3.cert.file=/certs/server.pem", "-s3.key.file=/certs/server.key"]
+    ports: ["127.0.0.1:8445:8443"]
+    volumes:
+      - staging-storage:/data
+      - ./.staging-saas/rehearsal/s3.json:/etc/seaweedfs/s3.json:ro
+      - ./.staging-saas/rehearsal/tls:/certs:ro
+    networks: [storage-private]
+  worker:
+    image: dockling-worker:phase2
+    profiles: [conversion]
+    env_file: .staging-saas/rehearsal/worker.env
+    networks: [worker-private]
+    dns: ["127.0.0.1"]
+    dns_opt: ["timeout:1", "attempts:1"]
+    volumes:
+      - ./.local-saas/worker-models:/models:ro
+      - ./.staging-saas/rehearsal/broker:/broker:ro
+      - ./.staging-saas/rehearsal/tls/ca.pem:/private/ca.pem:ro
+    read_only: true
+    tmpfs: ["/tmp:size=536870912,mode=1777"]
+    mem_limit: 4g
+    cpus: 2
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+volumes:
+  staging-postgres:
+  staging-storage:
+networks:
+  # Native API reaches its loopback port; the parser has no route to this network.
+  storage-private: {driver: bridge}
+  worker-private: {driver: bridge, internal: true}

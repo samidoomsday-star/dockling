@@ -1,6 +1,7 @@
 """Real PG/S3 review, six writers, workbook parity and verified removal failures."""
 
 import base64
+import copy
 import hashlib
 from io import BytesIO
 from uuid import UUID, uuid4
@@ -191,6 +192,46 @@ def six_outputs(world, worker, tmp_path):
     assert response.status_code == 202, response.text
     workflow_run(world, worker, tmp_path, scratch=True)
     return c, jid
+
+
+def test_missing_ofx_period_is_rejected_before_queue_and_csv_still_works(world, worker, tmp_path):
+    c, jid = converted(world, worker, tmp_path)
+    # Simulate the observed OCR result in this dedicated synthetic database.
+    with Session(world["engine"]) as db, db.begin():
+        saved = db.scalar(select(CanonicalSnapshot).where(CanonicalSnapshot.job_id == UUID(jid)))
+        records = copy.deepcopy(saved.statements)
+        records[0]["domain"]["summary"]["period_end"] = None
+        saved.statements = records
+    options = {
+        "expected_revision": 4,
+        "outputs": ["csv", "ofx"],
+        "output_date_format": "MM/DD/YYYY",
+        "merge": False,
+        "categorize": False,
+    }
+    assert c.patch(f"/api/v1/jobs/{jid}/output-options", json=options).status_code == 200
+    assert (
+        post(
+            c,
+            f"/api/v1/jobs/{jid}/account-group",
+            5,
+            confirmed=True,
+            private_group="Fictional checking",
+        ).status_code
+        == 200
+    )
+    source(c, jid, 6)
+    before = c.get(f"/api/v1/jobs/{jid}/operations").json()
+    denied = post(c, f"/api/v1/jobs/{jid}/exports", 6)
+    assert denied.status_code == 409
+    assert denied.json()["code"] == "OFX_SUMMARY"
+    assert c.get(f"/api/v1/jobs/{jid}/operations").json() == before
+    options.update(expected_revision=6, outputs=["csv"])
+    assert c.patch(f"/api/v1/jobs/{jid}/output-options", json=options).status_code == 200
+    source(c, jid, 7)
+    assert post(c, f"/api/v1/jobs/{jid}/exports", 7).status_code == 202
+    workflow_run(world, worker, tmp_path)
+    assert len(c.get(f"/api/v1/jobs/{jid}/exports").json()["items"]) == 1
 
 
 def test_all_six_actual_outputs_hashes_package_and_removal(world, worker, tmp_path):

@@ -1,0 +1,28 @@
+# TARGET-HOST TEMPLATE. Review actual users, paths, ports and provider settings.
+# No system service is installed by the repository's local installer.
+[Unit]
+Description=Dockling synthetic staging API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=dockling
+Group=dockling
+WorkingDirectory=/srv/dockling
+RuntimeDirectory=dockling-broker
+RuntimeDirectoryMode=0711
+ExecStart=/srv/dockling/.venv/bin/python /srv/dockling/scripts/saas-server.py --config /srv/dockling/.staging-saas/server.env --broker /run/dockling-broker/socket --synthetic-staging
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/run/dockling-broker /srv/dockling/.staging-saas
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

@@ -1,6 +1,5 @@
 """Explicit PostgreSQL configuration and versioned migrations; no runtime DDL."""
 
-import ssl
 from collections.abc import Iterator
 from contextlib import AbstractContextManager, contextmanager
 from pathlib import Path
@@ -11,19 +10,32 @@ from alembic.config import Config
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session
 
-from stmtconv.config import HostedSettings
+from stmtconv.config import HostedSettings, WorkerSettings
+from stmtconv.web.tls import service_tls
 
 
 def database(config: HostedSettings) -> Engine:
     args: dict[str, object] = {"timeout": 5}
     if config.mode == "production":
-        args["ssl_context"] = ssl.create_default_context()
+        args["ssl_context"] = service_tls(config)
     return create_engine(
         config.database_url.get_secret_value(),
         connect_args=args,
         pool_pre_ping=True,
         pool_size=5,
         max_overflow=5,
+        hide_parameters=True,
+    )
+
+
+def worker_database(config: WorkerSettings) -> Engine:
+    args: dict[str, object] = {"timeout": 5}
+    if config.mode == "production":
+        args["ssl_context"] = service_tls(config)
+    return create_engine(
+        config.database_url.get_secret_value(),
+        connect_args=args,
+        pool_pre_ping=True,
         hide_parameters=True,
     )
 

@@ -46,6 +46,8 @@ class Gateway:
         return job
 
     def process_one(self) -> bool:
+        if not self.config.ai_dispatch_enabled:
+            return False
         with self.uow.transaction() as db:
             run = db.scalar(
                 select(AiRun)
@@ -188,6 +190,9 @@ class Gateway:
         return True
 
     def start(self) -> None:
+        if not self.config.ai_dispatch_enabled:
+            return
+
         def loop() -> None:
             # The initial topology has one Linux API process. A DB lock by itself cannot
             # establish that an old process has released private memory after losing SQL.

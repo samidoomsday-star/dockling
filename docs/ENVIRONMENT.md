@@ -142,6 +142,8 @@ Use [BYOK_GUIDE.md](BYOK_GUIDE.md) for guided custom endpoint/model/effort setup
 
 YAML structure is validated at startup. Money settings use Decimal; float money inputs are rejected. Keep settings, schemas, `.env.example` and this guide in sync when adding fields. Installed wheels include default YAML, profiles, templates and the model manifest, so they work outside the repository folder.
 
+Hosted settings remain separate in ignored private env files; see `docs/saas/LOCAL-SETUP.md` and `config/staging-server.env.example`. Phase 7 adds optional `STMTCONV_WEB_TLS_CA_FILE` and `STMTCONV_WORKER_TLS_CA_FILE` absolute PEM paths; public system trust is the default. `STMTCONV_WORKER_MODE=production` enables verified database TLS. Production web integrations already require HTTPS. `STMTCONV_WEB_AI_DISPATCH_ENABLED=false` pauses admission and dispatch while preserving connection/model/effort setup; the original local consent-bound harness remains compatible. Staging explicitly pauses inference and commercial offers. Neither TLS readiness nor a pause acknowledges interrupted old-process memory cleanup. No secret or real host is supplied by the example.
+
 ## 6. Getting later versions
 
 Once this branch is cloned, run this from its folder to download changes without overwriting conflicting local work:

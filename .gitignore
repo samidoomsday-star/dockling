@@ -15,6 +15,7 @@ models/
 inbox/
 .venv/
 .local-saas/
+.staging-saas/
 __pycache__/
 .pytest_cache/
 .mypy_cache/

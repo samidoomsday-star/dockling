@@ -50,6 +50,11 @@ def source_basis(statements: list[Statement]) -> str:
             {
                 "id": s.id,
                 "summary": s.summary.model_dump(mode="json"),
+                **(
+                    {"source_pages": s.source_pages, "source_summary_pages": s.source_summary_pages}
+                    if s.source_pages is not None
+                    else {}
+                ),
                 "rows": [
                     {
                         k: v
@@ -109,6 +114,18 @@ def export_gate(task: PipelineTask, settings: Settings) -> list[Statement]:
     if not statements or any(s.verdict in {"NEEDS_REVIEW", "UNVERIFIABLE"} for s in statements):
         raise StmtconvError(
             "EXPORT_FINANCIAL", "Resolve missing or failed financial checks before exporting."
+        )
+    if "ofx" in cast(list[Output], task.options["outputs"]) and any(
+        s.summary.period_start is None
+        or s.summary.period_end is None
+        or s.summary.account_mask is None
+        or s.summary.closing is None
+        for s in statements
+    ):
+        raise StmtconvError(
+            "OFX_SUMMARY",
+            "OFX needs the statement period, masked account and closing balance. "
+            "Use a clearer source or select other formats.",
         )
     if not source_valid(task.review_state, statements, str(task.job_id)) or not source_valid(
         task.review_state, statements, str(task.job_id), True

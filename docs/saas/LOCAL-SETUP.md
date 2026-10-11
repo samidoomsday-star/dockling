@@ -1,6 +1,6 @@
 # Try the real SaaS foundation on your computer
 
-Phases 1–6 provide real sign-in, customer separation, private uploads, queued text/OCR conversion, source review/corrections, six outputs, live removal, optional encrypted BYOK/model connections, owner tools, account/usage limits and manual invoice records. Online payments, external email and public deployment remain gated. Use synthetic information here. No hosting account or LLM key is needed.
+Phases 1–7 provide real sign-in, customer separation, private uploads, queued text/OCR conversion, source review/corrections, six outputs, live removal, optional encrypted BYOK/model connections, owner tools, account/usage limits and manual invoice records. Phase 7 adds a separate HTTPS staging rehearsal, verified service TLS, paused staging inference and private field/import/cost validation; read `PHASE7-STAGING.md`. Online payments, external email, customer use and public deployment remain gated. Use synthetic information here. No hosting account or LLM key is needed.
 
 ## Before starting
 
@@ -8,7 +8,7 @@ Use **Linux x86_64, Python 3.12, Node 24.15+ within version 24, and Docker Engin
 
 Allow roughly **8 GB of Docker memory and 40 GB of available disk** for setup/builds, plus room for your test files. A machine with 16 GB RAM is a useful starting point. These are development allowances, not a production capacity promise. The OCR worker itself is capped at 4 GB RAM, two CPUs and 300 seconds per attempt. Docker's `vfs` driver can use much more temporary build space than ordinary desktop overlay storage. Do not clear data volumes to make room.
 
-Clone `https://github.com/samidoomsday-star/dockling.git`, select **`saas-phase-6`**, and open that folder in your editor. A fresh clone does not contain installed programs, passwords, models or jobs. Ask your receiving assistant to follow this guide and `docs/DEVICE_SETUP.md`.
+Clone `https://github.com/samidoomsday-star/dockling.git`, select **`saas-phase-7`**, and open that folder in your editor. A fresh clone does not contain installed programs, passwords, models or jobs. Ask your receiving assistant to follow this guide and `docs/DEVICE_SETUP.md`.
 
 ## Install and start (Linux x86_64 / Python 3.12)
 
@@ -51,7 +51,7 @@ Open the ignored **`.local-saas/bootstrap.json`** file in your editor. Under `us
 3. The worker shows actual queued/running stages and completed-page counts; no invented percentage. A password prompt uses memory once, expires after five minutes and is not persisted. A server restart/claim crash can require re-entry. You can cancel or retry a failed operation. Inputs are limited to 8 MB/file, 12 files and 40 pages/job by default; workspace storage/queue limits also apply. Financial verdicts do not certify dates/descriptions. Results stay **needs review** until you complete the Phase 3 corrections/source-check workflow described below.
 4. Open **Team** as an owner. Change editor/viewer permissions, or create an invitation link for another synthetic verified account (for example `owner-b@example.test`). No email is sent. A link expires after two days. The receiving user signs in first and reopens the link to accept it.
 5. Use a separate browser/private window to sign in as `owner-b`; A's jobs must not appear. A viewer can read jobs and cannot create them.
-6. Stop/restart the server and services; saved jobs stay. The last active owner cannot be removed. Phase 4 adds optional AI connection setup; statement AI dispatch and general preferences editing are not active yet.
+6. Stop/restart the server and services; saved jobs stay. The last active owner cannot be removed. Optional BYOK connections, consent-bound AI assistance and owner preferences are implemented; inference needs explicit permission and suitable provider terms. Staging pauses requests by default. Synthetic fake-provider acceptance sends no paid requests.
 
 The older interactive feature demo is still available with `npm run dev --prefix frontend` in its **explicit demo mode**. It uses fictional data and does not sign in or process files. `npm run build` creates that demo; `npm run build:api` creates the real foundation UI. The Python server refuses to serve a demo build as its real UI. Rebuild with `build:api` after running demo build checks, then restart the server.
 
@@ -111,6 +111,6 @@ Read [PHASE4-IMPLEMENTATION.md](PHASE4-IMPLEMENTATION.md). Run forward migration
 
 ## Phase 6 operating and recovery upgrade
 
-Use `saas-phase-6`, which contains Phases 1–5. Read [PHASE6-OPERATIONS.md](PHASE6-OPERATIONS.md). Preserve credentials/volumes, run setup for forward migration through `0012_operations`, rebuild/start the worker and API build, and restart the ordinary API. The admin Operations and recovery panel requires fresh MFA. The independently encrypted backup utility requires quiesced writers and never overwrites active resources. Its new backup key is not the vault key.
+Use `saas-phase-7`, which contains Phases 1–6 plus the staging tools. Read [PHASE6-OPERATIONS.md](PHASE6-OPERATIONS.md). Preserve credentials/volumes, run setup for forward migration through `0012_operations`, rebuild/start the worker and API build, and restart the ordinary API. The admin Operations and recovery panel requires fresh MFA. The independently encrypted backup utility requires quiesced writers and never overwrites active resources. Its new backup key is not the vault key.
 
 Full fictional AI/account/operations verification uses the explicit fake-AI server plus `node scripts/saas-browser.mjs --phase3 --phase4 --phase4-ai --phase4-owner --phase5 --phase6`. Ordinary-server testing omits `--phase4-ai`. Run the strict native scan separately and retain its blocked result until all critical/high findings close. No zero-finding assertion is disabled to make development CI green.

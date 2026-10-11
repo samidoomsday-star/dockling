@@ -2,9 +2,13 @@
 
 from datetime import date
 from decimal import Decimal
-from typing import Literal
+from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
+
+SourcePages = dict[
+    Annotated[str, Field(min_length=1)], list[Annotated[int, Field(ge=1, strict=True)]]
+]
 
 Direction = Literal["asset", "liability"]
 Verdict = Literal[
@@ -100,8 +104,34 @@ class Statement(Domain):
     checks: dict[str, bool | None] = Field(default_factory=dict)
     pages: list[int] = Field(default_factory=list)
     summary_pages: list[int] = Field(default_factory=list)
+    # Composite statements keep virtual pages above and qualified physical sources here.
+    # Omit absent fields so legacy statement/review hashes remain unchanged.
+    source_pages: SourcePages | None = Field(default=None, exclude_if=lambda value: value is None)
+    source_summary_pages: SourcePages | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     timings: dict[str, float] = Field(default_factory=dict)
     diagnostics: dict[str, dict[str, object]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def qualified_coverage(self) -> Self:
+        if self.source_pages is None:
+            if self.source_summary_pages is not None:
+                raise ValueError("Qualified summary pages require a source inventory")
+            return self
+        if not self.source_pages or any(
+            not pages or len(pages) != len(set(pages)) for pages in self.source_pages.values()
+        ):
+            raise ValueError("Source inventory requires distinct physical pages")
+        expected = {(source, page) for source, pages in self.source_pages.items() for page in pages}
+        summaries = {
+            (source, page)
+            for source, pages in (self.source_summary_pages or {}).items()
+            for page in pages
+        }
+        if summaries - expected:
+            raise ValueError("Summary pages must belong to the exact source inventory")
+        return self
 
     @property
     def debit_total(self) -> Decimal:

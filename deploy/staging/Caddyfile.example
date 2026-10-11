@@ -1,0 +1,15 @@
+# TARGET-HOST TEMPLATE. Replace the reserved domain after choosing the host.
+# Use a valid public certificate for the chosen domain, never the rehearsal CA.
+# Access/body/header logging is deliberately not configured.
+staging.example.invalid {
+    encode gzip
+    request_body {
+        max_size 8388608
+    }
+    reverse_proxy 127.0.0.1:8000 {
+        transport http {
+            dial_timeout 5s
+            response_header_timeout 35s
+        }
+    }
+}

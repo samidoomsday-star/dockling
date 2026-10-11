@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import cast
 from uuid import UUID
 
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Engine, text
 
 from stmtconv.config import (
     WorkerSettings,
@@ -28,6 +28,7 @@ from stmtconv.config import (
 )
 from stmtconv.errors import StmtconvError
 from stmtconv.web.broker import BrokerArtifacts
+from stmtconv.web.database import worker_database
 from stmtconv.web.pipeline import (
     ArtifactBundle,
     PipelineOperations,
@@ -325,12 +326,7 @@ def main() -> None:
         raise SystemExit(
             "Worker models are missing or differ from the pinned hashes. Run worker-build during setup."
         ) from None
-    engine = create_engine(
-        cfg.database_url.get_secret_value(),
-        pool_pre_ping=True,
-        hide_parameters=True,
-        connect_args={"timeout": 5},
-    )
+    engine = worker_database(cfg)
     # One worker/container is the supported initial topology. Hold a session lock.
     # Docker stops the complete PID namespace on PID 1 death/restart; orphan scratch
     # is cleaned before receipts can be acknowledged. Host-launched workers cannot

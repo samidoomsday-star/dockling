@@ -89,8 +89,20 @@ def validate(statement: Statement, tolerance: Decimal, row_order: str = "auto") 
         if key in seen and "POSSIBLE_DUPLICATE" not in row.flags:
             row.flags.append("POSSIBLE_DUPLICATE")
         seen.add(key)
-    covered = {t.page for t in candidate.transactions} | set(candidate.summary_pages)
-    if set(candidate.pages) - covered and "PAGE_COVERAGE" not in candidate.flags:
+    if candidate.source_pages is not None:
+        expected_sources = {
+            (source, page) for source, pages in candidate.source_pages.items() for page in pages
+        }
+        covered_sources = {(t.source_file, t.page) for t in candidate.transactions} | {
+            (source, page)
+            for source, pages in (candidate.source_summary_pages or {}).items()
+            for page in pages
+        }
+        uncovered = bool(expected_sources - covered_sources)
+    else:
+        covered = {t.page for t in candidate.transactions} | set(candidate.summary_pages)
+        uncovered = bool(set(candidate.pages) - covered)
+    if uncovered and "PAGE_COVERAGE" not in candidate.flags:
         candidate.flags.append("PAGE_COVERAGE")
     if not candidate.transactions and "EMPTY_STATEMENT" not in candidate.flags:
         candidate.flags.append("EMPTY_STATEMENT")

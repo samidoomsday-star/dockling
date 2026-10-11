@@ -16,6 +16,7 @@ from PIL import Image
 from pydantic import BaseModel, ConfigDict, Field
 
 from stmtconv.config import Settings
+from stmtconv.core.validate import validate
 from stmtconv.errors import StmtconvError
 from stmtconv.extract.base import PageSet
 from stmtconv.extract.docling_engine import DoclingExtractor
@@ -34,6 +35,18 @@ class PipelineFile(BaseModel):
     pages: list[dict[str, object]]
     previews: dict[str, str] = Field(default_factory=dict)
     sha256: str = ""
+
+
+def qualified_pages(
+    indices: list[int], selected: list[int], page_map: list[tuple[PipelineFile, dict[str, object]]]
+) -> dict[str, list[int]]:
+    inventory: dict[str, list[int]] = {}
+    for index in indices:
+        if index not in selected:
+            raise StmtconvError("INVENTORY_INVALID", "Page provenance cannot be verified.")
+        source, page_fact = page_map[index - 1]
+        inventory.setdefault(str(source.id), []).append(int(str(page_fact["page"])))
+    return inventory
 
 
 class PipelineTask(BaseModel):
@@ -301,6 +314,13 @@ def compute(
                 source, page_fact = page_map[row.page - 1]
                 row.source_file = str(source.id)
                 row.page = int(str(page_fact["page"]))
+            if len(source_group) > 1:
+                statement.source_pages = qualified_pages(statement.pages, group, page_map)
+                statement.source_summary_pages = qualified_pages(
+                    statement.summary_pages, group, page_map
+                )
+                # route() already applied the profile's row order; preserve that canonical order.
+                statement = validate(statement, settings.balance_tolerance, "chronological")
             statement.summary.currency = str(task.options["currency"])
             statements.append(
                 {

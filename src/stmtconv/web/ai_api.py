@@ -178,6 +178,8 @@ def register_ai(
                 valid, code = True, None
             except Exception:
                 code = "AI_CONSENT_CHANGED" if consent.granted else "AI_CONSENT_REQUIRED"
+        if not config.ai_dispatch_enabled:
+            valid, code = False, "AI_SERVICE_PAUSED"
         from stmtconv.web.models import CanonicalSnapshot
 
         record = db.scalar(
@@ -326,6 +328,12 @@ def register_ai(
     def reserve(jid: UUID, command: AiRequest, request: Request, db: Db) -> Json:
         ws, actor = scoped(db, request, write=True)
         job = current_job(db, ws, jid)
+        if not config.ai_dispatch_enabled:
+            raise WebError(
+                503,
+                "AI_SERVICE_PAUSED",
+                "AI requests are paused for staging tests. You can still configure your provider.",
+            )
 
         def execute() -> Json:
             from stmtconv.web.commercial import allowance

@@ -106,6 +106,47 @@ def request(c, jid, status, ack=False):
     )
 
 
+def test_staging_pause_fences_new_and_preexisting_ai_without_spending(
+    world, worker, tmp_path, fake
+):
+    from fastapi.testclient import TestClient
+    from sqlalchemy import func
+
+    from stmtconv.web.ai_gateway import Gateway
+    from stmtconv.web.app import create_app
+
+    customer, jid = converted(world, worker, tmp_path)
+    identifier = connection(customer)
+    consent = grant(customer, jid, 4, identifier)
+    config = world["config"].model_copy(update={"ai_dispatch_enabled": False})
+    app = create_app(config)
+    try:
+        with TestClient(app, base_url=config.base_url) as paused:
+            paused.cookies.update(customer.cookies)
+            paused.headers.update(customer.headers)
+            read = paused.get(f"/api/v1/jobs/{jid}/ai").json()
+            assert read["gate_code"] == "AI_SERVICE_PAUSED" and not read["consent"]["valid"]
+            denied = request(paused, jid, consent)
+            assert denied.status_code == 503 and denied.json()["code"] == "AI_SERVICE_PAUSED"
+            assert app.state.ai_gateway.thread is None
+            with Session(world["engine"]) as db:
+                assert db.scalar(select(func.count()).select_from(AiRun)) == 0
+            accepted = request(customer, jid, consent)
+            assert accepted.status_code == 202
+            with Session(world["engine"]) as db:
+                original = db.scalar(select(AiRun))
+                original_state = (original.state, original.cleanup_done)
+            gateway = Gateway(config, world["engine"])
+            gateway.start()
+            assert gateway.thread is None and gateway.process_one() is False
+            with Session(world["engine"]) as db:
+                run = db.scalar(select(AiRun))
+                assert run.state == "queued" and (run.state, run.cleanup_done) == original_state
+            assert Fake.calls == []
+    finally:
+        app.state.engine.dispose()
+
+
 def test_consent_gate_binding_budget_model_change_and_no_cap_reset(world, worker, tmp_path, fake):
     c, jid = converted(world, worker, tmp_path)
     conn = connection(c)

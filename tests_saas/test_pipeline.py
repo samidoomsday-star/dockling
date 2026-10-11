@@ -26,6 +26,79 @@ with tempfile.TemporaryDirectory() as directory:
     PDF = generate(Path(directory), count=2)[0].read_bytes()
 
 
+def test_combined_physical_page_inventory_survives_serialization_and_recheck(tmp_path, monkeypatch):
+    from decimal import Decimal
+
+    from stmtconv.core.models import RawRow, Statement, StatementSummary
+    from stmtconv.core.normalize import normalize
+    from stmtconv.core.validate import validate
+    from stmtconv.web.pipeline import PipelineFile, PipelineTask
+
+    files = [
+        PipelineFile(
+            id=uuid4(),
+            name="Fictional image",
+            kind="image",
+            original_id=uuid4(),
+            normalized_id=uuid4(),
+            pages=[{"page": 1, "kind": "scanned"}],
+        )
+        for _ in range(2)
+    ]
+    task = PipelineTask(
+        id=uuid4(),
+        workspace_id=uuid4(),
+        job_id=uuid4(),
+        generation=1,
+        revision=1,
+        action="extract",
+        options={
+            "combine": True,
+            "currency": "USD",
+            "profile_id": "generic",
+            "date_order": "YMD",
+            "engine": "auto",
+        },
+        files=files,
+    )
+
+    def route_fixture(*_args, **_kwargs):
+        return normalize(
+            "s0001",
+            [
+                RawRow(
+                    date="2026-01-01",
+                    description="Fictional one",
+                    debit="1.00",
+                    balance="999.00",
+                    page=1,
+                ),
+                RawRow(
+                    date="2026-01-02",
+                    description="Fictional two",
+                    debit="1.00",
+                    balance="998.00",
+                    page=2,
+                ),
+            ],
+            StatementSummary(
+                opening=Decimal("1000.00"), closing=Decimal("998.00"), total_debits=Decimal("2.00")
+            ),
+            pages=[1, 2],
+        )
+
+    monkeypatch.setattr("stmtconv.web.pipeline.route", route_fixture)
+    result = compute(task, {str(f.id): PDF for f in files}, {}, tmp_path, load_settings(), 40)
+    statement = Statement.model_validate(result.record["statements"][0]["domain"])
+    assert statement.source_pages == {str(f.id): [1] for f in files}
+    assert [(r.source_file, r.page) for r in statement.transactions] == [
+        (str(f.id), 1) for f in files
+    ]
+    assert validate(statement, Decimal("0.01")).verdict == "VERIFIED"
+    statement.transactions[1].source_file = str(files[0].id)
+    assert validate(statement, Decimal("0.01")).verdict == "NEEDS_REVIEW"
+
+
 def upload(c, job, data=PDF, revision=1, name="Fictional statement.pdf"):
     return c.post(
         f"/api/v1/jobs/{job}/files",

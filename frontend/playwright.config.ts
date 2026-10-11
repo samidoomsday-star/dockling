@@ -2,7 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/browser',
   fullyParallel: true,
-  workers: 2,
+  // Each accessibility journey scans fourteen screens. Serial runs avoid CPU contention.
+  workers: 1,
   timeout: 30000,
   expect: { timeout: 7000 },
   reporter: [['list'], ['html', { open: 'never' }]],
