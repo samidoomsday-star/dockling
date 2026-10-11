@@ -2,7 +2,7 @@
   "scope": "phase7_synthetic_engineering_evidence",
   "production_approval": "blocked",
   "public_host_provisioned": false,
-  "final_field_tls_tests": 21,
+  "final_field_tls_tests": 24,
   "original_converter_tests": 318,
   "frontend_unit_tests": 42,
   "frontend_demo_browser_journeys": 19,
@@ -10,7 +10,7 @@
   "real_https_browser_journey": "passed",
   "read_only_preflight": {
     "scope": "read_only_staging_preflight",
-    "checked_at": "2026-10-11T13:46:30.714133Z",
+    "checked_at": "2026-10-11T16:55:09.882526Z",
     "status": "passed",
     "launch_approval": "not_assessed",
     "checks": [
@@ -71,11 +71,11 @@
   "six_input_acceptance": {
     "scope": "synthetic_loopback_https_acceptance",
     "status": "passed",
-    "checked_at_utc": "2026-10-11T13:50:40Z",
+    "checked_at_utc": "2026-10-11T16:58:23Z",
     "launch_approval": "not_assessed",
     "real_accounting_imports": "not_run",
     "required_cases": "complete",
-    "observed_worker_peak_since_start_mib": 1546.7,
+    "observed_worker_peak_since_start_mib": 1592.0,
     "cases": [
       {
         "case": "text",
@@ -86,9 +86,9 @@
         "synthetic_ground_truth_corrected_rows": 0,
         "reviewed_exact_rows": 2,
         "outputs": 6,
-        "intake_enqueue_to_finish_seconds": 4.135,
-        "conversion_enqueue_to_finish_seconds": 3.617,
-        "total_flow_seconds": 18.877,
+        "intake_enqueue_to_finish_seconds": 3.579,
+        "conversion_enqueue_to_finish_seconds": 3.59,
+        "total_flow_seconds": 15.45,
         "live_removal": "verified"
       },
       {
@@ -100,9 +100,9 @@
         "synthetic_ground_truth_corrected_rows": 0,
         "reviewed_exact_rows": 6,
         "outputs": 6,
-        "intake_enqueue_to_finish_seconds": 4.162,
-        "conversion_enqueue_to_finish_seconds": 4.131,
-        "total_flow_seconds": 19.099,
+        "intake_enqueue_to_finish_seconds": 3.071,
+        "conversion_enqueue_to_finish_seconds": 3.588,
+        "total_flow_seconds": 16.032,
         "live_removal": "verified"
       },
       {
@@ -116,9 +116,9 @@
         "synthetic_ground_truth_corrected_rows": 1,
         "reviewed_exact_rows": 2,
         "outputs": 6,
-        "intake_enqueue_to_finish_seconds": 4.134,
-        "conversion_enqueue_to_finish_seconds": 34.369,
-        "total_flow_seconds": 49.743,
+        "intake_enqueue_to_finish_seconds": 3.594,
+        "conversion_enqueue_to_finish_seconds": 25.662,
+        "total_flow_seconds": 39.127,
         "live_removal": "verified"
       },
       {
@@ -130,9 +130,9 @@
         "synthetic_ground_truth_corrected_rows": 0,
         "reviewed_exact_rows": 2,
         "outputs": 6,
-        "intake_enqueue_to_finish_seconds": 3.63,
-        "conversion_enqueue_to_finish_seconds": 4.129,
-        "total_flow_seconds": 22.962,
+        "intake_enqueue_to_finish_seconds": 3.081,
+        "conversion_enqueue_to_finish_seconds": 3.6,
+        "total_flow_seconds": 20.1,
         "live_removal": "verified"
       },
       {
@@ -144,9 +144,9 @@
         "synthetic_ground_truth_corrected_rows": 0,
         "reviewed_exact_rows": 2,
         "outputs": 6,
-        "intake_enqueue_to_finish_seconds": 3.639,
-        "conversion_enqueue_to_finish_seconds": 33.467,
-        "total_flow_seconds": 48.297,
+        "intake_enqueue_to_finish_seconds": 3.592,
+        "conversion_enqueue_to_finish_seconds": 23.585,
+        "total_flow_seconds": 36.922,
         "live_removal": "verified"
       },
       {
@@ -158,9 +158,9 @@
         "synthetic_ground_truth_corrected_rows": 0,
         "reviewed_exact_rows": 2,
         "outputs": 6,
-        "intake_enqueue_to_finish_seconds": 5.359,
-        "conversion_enqueue_to_finish_seconds": 41.705,
-        "total_flow_seconds": 58.924,
+        "intake_enqueue_to_finish_seconds": 4.117,
+        "conversion_enqueue_to_finish_seconds": 29.739,
+        "total_flow_seconds": 44.248,
         "live_removal": "verified"
       }
     ]
@@ -175,7 +175,7 @@
     "scope": "Final worker filesystem including native and vendored packages; independent review and other services remain separate.",
     "unfixed": 60
   },
-  "local_worker_code_note": "Later exact-money input guard is private field validation only; parser/TLS/export code matches this image.",
+  "local_worker_code_note": "Later changes affect private field validation and API storage proxy routing; parser/TLS/export code matches this image, and the isolated worker has no storage credential or public proxy route.",
   "public_package_audit": {
     "python_packages": 147,
     "frontend_package_records": 317,
@@ -200,6 +200,20 @@
     "observed_error": "OFX_SUMMARY",
     "date_guessed": false
   },
-  "github_ci": "pending_push",
-  "local_saas_full_suite": 153
+  "github_ci": {
+    "status": "in_progress",
+    "run_id": 38157252933,
+    "source_commit": "619270a82f041818fbf21573635f5bde04192bb6",
+    "url": "https://github.com/samidoomsday-star/dockling/actions/runs/38157252933",
+    "prior_failed_runs_not_counted_as_passed": true
+  },
+  "local_saas_full_suite": 156,
+  "local_source_commit": "619270a82f041818fbf21573635f5bde04192bb6",
+  "phase8": {
+    "preparation": "implemented",
+    "external_pilot": "not_launched",
+    "publication_approval": "not_given",
+    "runbook": "docs/saas/PHASE8-PILOT.md"
+  },
+  "real_https_browser_source_commit": "619270a82f041818fbf21573635f5bde04192bb6"
 }

@@ -141,7 +141,7 @@ The architecture above is my recommended default. These product choices influenc
 4. **Retention and support promises:** approve default live-data retention, backup expiry, support contact/hours and acceptable recovery targets after seeing host costs. The local CLI’s seven-day preference cannot automatically become a truthful cloud backup promise.
 5. **Budget and capacity:** set a maximum monthly hosting spend and a first-cohort size. Use the phase-0 benchmark to choose infrastructure and limits, then adjust before publishing prices.
 
-Phase 0's technical contracts and measured findings are recorded in [the completed task](tasks/saas-phase-0.md). The [Phase 1 workspace/auth/database boundary](tasks/saas-phase-1.md) and subsequent engineering phases are implemented. Finish the selected-host and permitted field acceptance in [Phase 7](tasks/saas-phase-7.md), resolve production release gates, then prepare Phase 8's invited pilot. Follow the current progress/task documents rather than restarting completed phases.
+Phase 0's technical contracts and measured findings are recorded in [the completed task](tasks/saas-phase-0.md). The [Phase 1 workspace/auth/database boundary](tasks/saas-phase-1.md) and subsequent engineering phases are implemented. Finish the selected-host and permitted field acceptance in [Phase 7](tasks/saas-phase-7.md) and resolve production release gates. [Phase 8 preparation](tasks/saas-phase-8.md) and [the pilot runbook](saas/PHASE8-PILOT.md) are available; its external cycle is pending. Follow the current progress/task documents rather than restarting completed phases.
 
 ## 9. Basis for the architecture
 
