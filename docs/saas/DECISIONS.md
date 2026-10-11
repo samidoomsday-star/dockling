@@ -72,3 +72,9 @@ Accepted implementation: bounded buffered raw uploads avoid multipart scratch sp
 - API-side trusted gateway runs separately from parser authority. Local single-process restart obtains an OS lock plus SQL lock before cleanup acknowledgement; production interrupted cleanup remains withheld until deployment adds verified teardown recovery. SQL ownership alone is not proof that old memory is gone.
 - Global config versions are immutable; activation snapshots processing, exports, templates and profiles into future jobs. Private customer scaffold words never publish automatically. Global profile activation requires exact passing synthetic evidence plus explicit private-fingerprint review.
 - Support authority is named, job/revision/data-class scoped, 1–60 minutes, fresh MFA checked on every read, immediately revocable and audited. Platform admin status adds only a private synthetic diagnostic workspace, never implicit customer membership. Metrics suppress groups below five workspaces.
+
+## Phase 5 implementation decisions
+
+- Default to manually verified invoices, immutable exact-text plan/evidence records and versioned entitlements. No merchant eligibility, customer price or real checkout is inferred from fictional development examples. Checkout/portal and published offers remain disabled.
+- UTC calendar-month physical pages, conservative pre-inspection maximum reservation and immutable source-set identity prevent retry/delete cap resets. Uncertain usage stays reserved; refund/cancel fences processing/publication without withholding existing authorized results. Pending unexpired invitations hold seats under the same workspace lock.
+- Verified new users can create up to three owned workspaces; support/privacy requests and notices grant no document access. Privacy requests are reviewed rather than silently erasing another member’s data.

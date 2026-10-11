@@ -1,6 +1,6 @@
 # Try the real SaaS foundation on your computer
 
-Phases 1–2 provide real sign-in, customer separation, private uploads, queued text/OCR conversion and source-linked results. Review editing/final exports (Phase 3), hosted BYOK/model connections (Phase 4) and billing (Phase 5) remain later phases. Use synthetic information here. No hosting account or LLM key is needed.
+Phases 1–5 provide real sign-in, customer separation, private uploads, queued text/OCR conversion, source review/corrections, six outputs, live removal, optional encrypted BYOK/model connections, owner tools, account/usage limits and manual invoice records. Online payments, external email and public deployment remain gated. Use synthetic information here. No hosting account or LLM key is needed.
 
 ## Before starting
 
@@ -8,7 +8,7 @@ Use **Linux x86_64, Python 3.12, Node 24.15+ within version 24, and Docker Engin
 
 Allow roughly **8 GB of Docker memory and 40 GB of available disk** for setup/builds, plus room for your test files. A machine with 16 GB RAM is a useful starting point. These are development allowances, not a production capacity promise. The OCR worker itself is capped at 4 GB RAM, two CPUs and 300 seconds per attempt. Docker's `vfs` driver can use much more temporary build space than ordinary desktop overlay storage. Do not clear data volumes to make room.
 
-Clone `https://github.com/samidoomsday-star/dockling.git`, select **`saas-phase-2`**, and open that folder in your editor. A fresh clone does not contain installed programs, passwords, models or jobs. Ask your receiving assistant to follow this guide and `docs/DEVICE_SETUP.md`.
+Clone `https://github.com/samidoomsday-star/dockling.git`, select **`saas-phase-5`**, and open that folder in your editor. A fresh clone does not contain installed programs, passwords, models or jobs. Ask your receiving assistant to follow this guide and `docs/DEVICE_SETUP.md`.
 
 ## Install and start (Linux x86_64 / Python 3.12)
 

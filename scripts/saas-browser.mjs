@@ -11,6 +11,12 @@ const { AxeBuilder } = require('@axe-core/playwright');
 const fixturePath = new URL('../.local-saas/bootstrap.json', import.meta.url);
 const realmPath = new URL('../.local-saas/realm.json', import.meta.url);
 const fixture = JSON.parse(await readFile(fixturePath, 'utf8'));
+let phase5Invitee;
+if(process.argv.includes('--phase5')) {
+  const created=JSON.parse(execFileSync(fileURLToPath(new URL('../.venv/bin/python',import.meta.url)),[fileURLToPath(new URL('./saas-local.py',import.meta.url)),'verification-account'],{encoding:'utf8'}));
+  phase5Invitee=JSON.parse(await readFile(created.fixture_path,'utf8'));
+  fixture.users.push(phase5Invitee);
+}
 const origin = 'http://127.0.0.1:8000';
 // Local privileged setup only provisions memberships; sign-in and switching still use real auth/CSRF.
 const verification=JSON.parse(execFileSync(fileURLToPath(new URL('../.venv/bin/python',import.meta.url)),
@@ -133,6 +139,66 @@ try {
     await a.page.getByText('Preferences saved for future jobs.',{exact:true}).waitFor();
     await a.page.setViewportSize({width:1440,height:1000});
     await a.page.getByRole('link',{name:'Your jobs',exact:true}).click();
+  }
+  let phase5Customer,phase5Request;
+  if(process.argv.includes('--phase5')) {
+    phase5Customer=await signIn(phase5Invitee.username);
+    await phase5Customer.page.getByRole('heading',{name:'Set up your workspace',exact:true}).waitFor();
+    await phase5Customer.page.getByLabel('Workspace name',{exact:true}).fill('Fictional new customer '+Date.now());
+    await phase5Customer.page.getByRole('button',{name:'Create my workspace',exact:true}).click();
+    await phase5Customer.page.getByRole('link',{name:'Account and usage',exact:true}).click();
+    await phase5Customer.page.getByRole('heading',{name:'Account and usage',exact:true}).waitFor();
+    const fresh=await(await phase5Customer.context.request.get(origin+'/api/v1/session')).json();assert.equal(fresh.role,'owner');assert.notEqual(fresh.workspace_id,s.workspace_id);
+    await a.page.getByRole('link',{name:'Team',exact:true}).click();
+    await a.page.getByLabel('Email',{exact:true}).fill(phase5Invitee.email);
+    await a.page.getByLabel('Invitation role',{exact:true}).selectOption('editor');
+    await a.page.getByRole('button',{name:'Create invitation link',exact:true}).click();
+    await expect(a.page.getByLabel('Copy invitation link',{exact:true})).not.toHaveValue('');
+    const link=await a.page.getByLabel('Copy invitation link',{exact:true}).inputValue();
+    await phase5Customer.page.goto(link);
+    await phase5Customer.page.getByRole('button',{name:'Accept invitation',exact:true}).click();
+    await phase5Customer.page.waitForURL(origin+'/app');
+    const joined=await(await phase5Customer.context.request.get(origin+'/api/v1/session')).json();assert.equal(joined.workspace_id,s.workspace_id);assert.equal(joined.role,'editor');
+    await phase5Customer.page.getByRole('link',{name:'Create job',exact:true}).click();
+    const name='Fictional invited customer '+Date.now();
+    await phase5Customer.page.getByLabel('Job name',{exact:true}).fill(name);
+    await phase5Customer.page.getByText('Conversion options',{exact:true}).click();
+    await phase5Customer.page.getByLabel('Date order',{exact:true}).selectOption('MDY');
+    await phase5Customer.page.getByLabel('Statement layout',{exact:true}).selectOption('generic');
+    await phase5Customer.page.getByRole('button',{name:'Save job',exact:true}).click();
+    await phase5Customer.page.getByRole('link',{name,exact:true}).click();
+    await phase5Customer.page.getByLabel('Choose statement files').setInputFiles(new URL('../.local-saas/browser-fixtures/text.pdf',import.meta.url).pathname);
+    await phase5Customer.page.getByLabel('These are fictional test documents').check();
+    await phase5Customer.page.getByRole('button',{name:'Upload files',exact:true}).click();
+    await phase5Customer.page.getByText('text.pdf',{exact:true}).first().waitFor();
+    await phase5Customer.page.getByRole('button',{name:'Inspect documents',exact:true}).click();
+    await expect(phase5Customer.page.getByRole('button',{name:'Convert statements',exact:true})).toBeEnabled({timeout:90000});
+    await phase5Customer.page.getByRole('button',{name:'Convert statements',exact:true}).click();
+    await phase5Customer.page.getByText('Statement s0001 · 2 rows',{exact:true}).waitFor({timeout:90000});
+    const compared=phase5Customer.page.getByLabel('I compared this row with the source.',{exact:true});await expect(compared).toHaveCount(2);for(const box of await compared.all())await box.check();
+    await phase5Customer.page.getByRole('button',{name:'Confirm source check',exact:true}).click();
+    await expect(phase5Customer.page.getByRole('button',{name:'Generate downloads',exact:true})).toBeEnabled();
+    await phase5Customer.page.getByRole('button',{name:'Generate downloads',exact:true}).click();
+    const customerDownload=phase5Customer.page.getByRole('link',{name:'Download s0001-csv.csv',exact:true});
+    await customerDownload.waitFor({timeout:90000});
+    const downloaded=await phase5Customer.context.request.get(new URL(await customerDownload.getAttribute('href'),origin).href);
+    assert.equal(downloaded.status(),200);assert.match(await downloaded.text(),/Date,Description/);
+    await phase5Customer.page.getByRole('link',{name:'Help and requests',exact:true}).click();
+    await phase5Customer.page.getByLabel('Your message',{exact:true}).fill('Fictional invitation-to-download support check');
+    await phase5Customer.page.getByRole('button',{name:'Send private request',exact:true}).click();
+    await phase5Customer.page.getByRole('heading',{name:'App support · open',exact:true}).waitFor();
+    phase5Request=(await(await phase5Customer.context.request.get(origin+'/api/v1/requests')).json()).items[0];
+    assert.equal((await phase5Customer.context.request.get(origin+'/api/v1/billing')).status(),403);
+    await a.page.getByRole('link',{name:'Account and usage',exact:true}).click();
+    await a.page.getByRole('heading',{name:'Account and usage',exact:true}).waitFor();
+    const usage=await(await a.context.request.get(origin+'/api/v1/usage')).json();assert.equal(usage.active_seats,4);assert.equal(usage.pages_used,1);assert.equal(usage.pages_reserved,0);
+    await a.page.setViewportSize({width:375,height:1000});
+    assert.deepEqual((await new AxeBuilder({page:a.page}).analyze()).violations.map(v=>v.id),[]);
+    assert(await a.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
+    await a.page.screenshot({path:new URL('../.local-saas/screenshots/accounts-mobile.png',import.meta.url).pathname,fullPage:true});
+    await a.page.setViewportSize({width:1440,height:1000});
+    await a.page.getByRole('link',{name:'Your jobs',exact:true}).click();
+    console.log('PASS: genuine new-account onboarding → verified-email editor invitation → real upload/conversion/source checks/download → private support; exact usage and mobile axe.');
   }
   await a.page.getByRole('link',{name:'Create job'}).click();
   const name='Browser synthetic '+Date.now();
@@ -349,6 +415,45 @@ try {
   assert(memberships.items.every(w=>w.name==='Private synthetic diagnostics'));
   assert.equal((await admin.context.request.get(origin+'/api/v1/admin/health')).status(),200);
   assert.equal((await admin.context.request.get(origin+'/api/v1/jobs/'+id)).status(),404);
+  if(process.argv.includes('--phase5')) {
+    await admin.page.getByRole('link',{name:'Billing and support',exact:true}).click();
+    await admin.page.getByRole('heading',{name:'Billing and support',exact:true}).waitFor();
+    const planName='Fictional manual pilot '+Date.now();
+    await admin.page.getByLabel('Plan name',{exact:true}).fill(planName);
+    await admin.page.getByLabel('Exact monthly amount',{exact:true}).fill('25.00');
+    await admin.page.getByRole('button',{name:'Save private plan draft',exact:true}).click();
+    await admin.page.getByText(planName+' · USD 25.00 · 500 pages · 5 places · Private draft',{exact:true}).waitFor();
+    await admin.page.getByLabel('Billing workspace',{exact:true}).selectOption(s.workspace_id);
+    const plans=await(await admin.context.request.get(origin+'/api/v1/admin/plans')).json();const plan=plans.items.find(p=>p.name===planName);assert(plan);
+    await admin.page.getByLabel('Invoice plan',{exact:true}).selectOption(plan.id);
+    await admin.page.getByRole('button',{name:'Create invoice draft',exact:true}).click();
+    const event=async status=>{
+      await admin.page.getByLabel('Verified event',{exact:true}).selectOption(status);
+      await admin.page.getByLabel('Unique evidence reference',{exact:true}).fill(randomUUID().replaceAll('-',''));
+      await admin.page.getByLabel('I independently verified this event. This form does not charge or refund money.',{exact:true}).check();
+      await admin.page.getByRole('button',{name:'Record verified event',exact:true}).click();
+      await admin.page.getByRole('heading',{name:planName+' · '+status,exact:true}).waitFor();
+    };
+    await event('issued');await event('paid');
+    const owner=await signIn('owner-a');
+    await owner.page.getByRole('link',{name:'Plans and billing',exact:true}).click();
+    await owner.page.getByRole('heading',{name:planName,exact:true}).waitFor();
+    await owner.page.getByRole('link',{name:'Download invoice record',exact:true}).waitFor();
+    assert.equal((await(await owner.context.request.get(origin+'/api/v1/usage')).json()).status,'active');
+    await event('refunded');
+    const after=await(await owner.context.request.get(origin+'/api/v1/usage')).json();assert.equal(after.status,'refunded');assert.equal(after.processing_allowed,false);assert(after.pages_used>0);
+    const response=await admin.context.request.post(origin+'/api/v1/admin/requests/'+phase5Request.id+'/response',{headers:{Origin:origin,'X-CSRF-Token':adminSession.csrf_token,'Idempotency-Key':randomUUID()},data:{expected_version:phase5Request.version,status:'answered',response:'Fictional verified support response'}});assert.equal(response.status(),200);
+    await phase5Customer.page.reload();await phase5Customer.page.getByText('Response: Fictional verified support response',{exact:true}).waitFor();
+    await owner.page.getByRole('link',{name:'Workspace updates',exact:true}).click();
+    await owner.page.getByRole('heading',{name:'Workspace updates',exact:true}).waitFor();
+    await owner.page.getByRole('button',{name:'Mark update read',exact:true}).first().click();
+    await admin.page.setViewportSize({width:375,height:1000});
+    assert.deepEqual((await new AxeBuilder({page:admin.page}).analyze()).violations.map(v=>v.id),[]);
+    assert(await admin.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
+    await admin.page.screenshot({path:new URL('../.local-saas/screenshots/billing-admin-mobile.png',import.meta.url).pathname,fullPage:true});
+    await admin.page.setViewportSize({width:1440,height:1000});
+    console.log('PASS: fresh OTP administrator → private plan/manual invoice → verified issued/paid/refunded ledger → owner receipt/usage → answered support/notice; mobile axe; no real payment.');
+  }
   if(process.argv.includes('--phase4-owner')) {
     await admin.page.getByRole('link',{name:'Service health',exact:true}).click();
     await admin.page.getByRole('heading',{name:'Live services',exact:true}).waitFor();
@@ -358,9 +463,10 @@ try {
     await admin.page.getByText('Draft saved. Active configuration is unchanged.',{exact:true}).waitFor();
 
     assert(delegatedGrant);
-    await admin.page.getByRole('button',{name:'Open approved transaction rows',exact:true}).click();
+    const assignedSupport=admin.page.locator('[data-support-grant="'+delegatedGrant.id+'"]');
+    await assignedSupport.getByRole('button',{name:'Open approved transaction rows',exact:true}).click();
     await admin.page.getByRole('table',{name:'Owner-approved transaction rows',exact:true}).locator('tbody tr').nth(1).waitFor();
-    await admin.page.getByRole('button',{name:'Show approved files',exact:true}).click();
+    await assignedSupport.getByRole('button',{name:'Show approved files',exact:true}).click();
     const sourceLink=admin.page.getByRole('link',{name:/Download (original|normalized|page) \d/}).first();
     await sourceLink.waitFor();assert.equal((await admin.context.request.get(origin+await sourceLink.getAttribute('href'))).status(),200);
     const returningOwner=await signIn('owner-a');
@@ -369,7 +475,10 @@ try {
     assert.equal(revoked.status(),200);
     assert.equal((await admin.context.request.get(origin+'/api/v1/admin/support-grants/'+delegatedGrant.id+'/results')).status(),404);
     await admin.page.reload();
-    await admin.page.getByText('No active grants. Administrator status does not give access to customer jobs.',{exact:true}).waitFor();
+    await expect(admin.page.locator('[data-support-grant="'+delegatedGrant.id+'"]')).toHaveCount(0);
+    const remainingGrants=await(await admin.context.request.get(origin+'/api/v1/admin/support-grants')).json();
+    assert(remainingGrants.items.every(g=>g.id!==delegatedGrant.id));
+    if(!remainingGrants.items.length)await admin.page.getByText('No active grants. Administrator status does not give access to customer jobs.',{exact:true}).waitFor();
     await admin.page.getByRole('button',{name:'Run synthetic selftest',exact:true}).click();
     const report=admin.page.getByRole('link',{name:'Download synthetic-selftest.json',exact:true});
     await report.waitFor({timeout:90000});

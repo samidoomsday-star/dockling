@@ -25,6 +25,108 @@ class Base(DeclarativeBase):
     pass
 
 
+class CommercialPlan(Base):
+    __tablename__ = "web_commercial_plans"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+    data: Mapped[dict[str, object]] = mapped_column(JSONB)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class AccountCommand(Base):
+    __tablename__ = "web_account_commands"
+    __table_args__ = (UniqueConstraint("actor_id", "key"),)
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+    key: Mapped[str] = mapped_column(String(128))
+    name: Mapped[str] = mapped_column(String(80))
+    workspace_id: Mapped[UUID] = mapped_column(ForeignKey("web_workspaces.id"))
+
+
+class BillingInvoice(Base):
+    __tablename__ = "web_billing_invoices"
+    __table_args__ = (UniqueConstraint("workspace_id", "id"),)
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID] = mapped_column(ForeignKey("web_workspaces.id"), index=True)
+    plan_id: Mapped[UUID] = mapped_column(ForeignKey("web_commercial_plans.id"))
+    version: Mapped[int] = mapped_column(BigInteger, default=1)
+    status: Mapped[str] = mapped_column(String(16), default="draft")
+    valid_until: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class BillingEvidence(Base):
+    __tablename__ = "web_billing_evidence"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "invoice_id"],
+            ["web_billing_invoices.workspace_id", "web_billing_invoices.id"],
+        ),
+        UniqueConstraint("invoice_id", "version"),
+        UniqueConstraint("reference"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    invoice_id: Mapped[UUID]
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+    version: Mapped[int] = mapped_column(BigInteger)
+    status: Mapped[str] = mapped_column(String(16))
+    reference: Mapped[str] = mapped_column(String(120))
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class Entitlement(Base):
+    __tablename__ = "web_entitlements"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "invoice_id"],
+            ["web_billing_invoices.workspace_id", "web_billing_invoices.id"],
+        ),
+    )
+    workspace_id: Mapped[UUID] = mapped_column(ForeignKey("web_workspaces.id"), primary_key=True)
+    invoice_id: Mapped[UUID]
+    status: Mapped[str] = mapped_column(String(16))
+    limits: Mapped[dict[str, object]] = mapped_column(JSONB)
+    valid_until: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class PageReservation(Base):
+    __tablename__ = "web_page_reservations"
+    __table_args__ = (
+        ForeignKeyConstraint(["workspace_id", "job_id"], ["web_jobs.workspace_id", "web_jobs.id"]),
+        UniqueConstraint("workspace_id", "job_id", "period", "source_digest"),
+        CheckConstraint("pages > 0 AND pages <= 100"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID] = mapped_column(index=True)
+    job_id: Mapped[UUID]
+    period: Mapped[str] = mapped_column(String(7))
+    source_digest: Mapped[str] = mapped_column(String(64))
+    pages: Mapped[int] = mapped_column(BigInteger)
+    settled: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class ServiceRequest(Base):
+    __tablename__ = "web_service_requests"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID] = mapped_column(ForeignKey("web_workspaces.id"), index=True)
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+    kind: Mapped[str] = mapped_column(String(20))
+    message: Mapped[str] = mapped_column(String(500))
+    status: Mapped[str] = mapped_column(String(20), default="open")
+    version: Mapped[int] = mapped_column(BigInteger, default=1)
+    response: Mapped[str | None] = mapped_column(String(500))
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class NoticeReceipt(Base):
+    __tablename__ = "web_notice_receipts"
+    __table_args__ = (UniqueConstraint("event_id", "actor_id"),)
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    event_id: Mapped[UUID] = mapped_column(ForeignKey("web_events.id"))
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("web_users.id"))
+
+
 class User(Base):
     __tablename__ = "web_users"
     __table_args__ = (UniqueConstraint("issuer", "subject"),)

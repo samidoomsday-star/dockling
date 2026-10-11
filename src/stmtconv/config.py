@@ -251,6 +251,9 @@ class HostedSettings(BaseSettings):
     job_pages: int = Field(default=40, ge=1, le=100)
     workspace_bytes: int = Field(default=512 * 1024**2, ge=1024)
     workspace_operations: int = Field(default=4, ge=1, le=20)
+    commercial_offers_enabled: bool = False
+    development_page_allowance: int = Field(default=500, ge=1, le=10000)
+    development_seats: int = Field(default=10, ge=1, le=100)
 
     @model_validator(mode="after")
     def secure_boundaries(self) -> Self:

@@ -135,6 +135,9 @@ def enqueue(db: Session, config: HostedSettings, job: Job, actor: UUID, action: 
         or any(f.normalized_id is None for f in files)
     ):
         raise WebError(409, "INTAKE_REQUIRED", "Inspect your documents before conversion.")
+    from stmtconv.web.commercial import reserve_pages
+
+    reserve_pages(db, config, job, files, action)
     operation = Operation(
         workspace_id=job.workspace_id,
         job_id=job.id,

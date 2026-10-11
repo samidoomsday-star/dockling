@@ -36,11 +36,11 @@ jobs:
       - run: .venv/bin/python scripts/check-worker-isolation.py
       - run: .venv/bin/python scripts/saas-fixtures.py
       - run: npm exec --prefix frontend -- playwright install --with-deps chromium
-      - name: Real OIDC, fake AI and isolated owner/conversion browser journey
+      - name: Real OIDC, fake AI, accounts, manual billing and isolated conversion browser journey
         run: |
           .venv/bin/python scripts/saas-fake-ai-server.py > /tmp/dockling-fake-server.log 2>&1 &
           test_server_pid=$!
-          node scripts/saas-browser.mjs --phase3 --phase4 --phase4-ai --phase4-owner
+          node scripts/saas-browser.mjs --phase3 --phase4 --phase4-ai --phase4-owner --phase5
           kill "$test_server_pid"
           server_exit=0
           wait "$test_server_pid" || server_exit=$?

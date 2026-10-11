@@ -618,7 +618,7 @@ export default function ServiceOperations({ session }: { session: ServerSession 
         {grants.isError && <p role="alert">{explain(grants.error)}</p>}
         {grants.data?.items.length ? (
           grants.data.items.map((g) => (
-            <div key={g.id}>
+            <div key={g.id} data-support-grant={g.id}>
               <p>
                 Job {g.job_id} · {g.scopes.join(', ')} · until{' '}
                 {new Date(g.expires_at).toLocaleString()}

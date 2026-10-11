@@ -442,6 +442,70 @@ def verification_workspace() -> None:
     print(json.dumps({"workspace_id": identifier}))
 
 
+def verification_account() -> None:
+    """Provision a fictional identity only; onboarding still needs genuine OIDC sign-in."""
+    import httpx
+
+    from stmtconv.config import load_hosted_settings
+
+    config = load_hosted_settings(LOCAL / "server.env")
+    if config.mode != "local" or config.oidc_issuer != ISSUER:
+        raise SystemExit("Verification identities are limited to the local synthetic setup.")
+    data = json.loads((LOCAL / "bootstrap.json").read_text())
+    suffix = uuid4().hex[:12]
+    user = {
+        "id": str(uuid4()),
+        "username": "fictional-invitee-" + suffix,
+        "email": "fictional-invitee-" + suffix + "@example.test",
+        "password": secrets.token_hex(12),
+    }
+    try:
+        with httpx.Client(timeout=10) as client:
+            token = client.post(
+                ISSUER.split("/realms/", 1)[0] + "/realms/master/protocol/openid-connect/token",
+                data={
+                    "grant_type": "password",
+                    "client_id": "admin-cli",
+                    "username": "local-admin",
+                    "password": data["keys"]["identity_admin"],
+                },
+            )
+            token.raise_for_status()
+            created = client.post(
+                ISSUER.split("/realms/", 1)[0] + "/admin/realms/dockling/users",
+                headers={"Authorization": "Bearer " + token.json()["access_token"]},
+                json={
+                    "id": user["id"],
+                    "username": user["username"],
+                    "email": user["email"],
+                    "emailVerified": True,
+                    "enabled": True,
+                    "firstName": "Fictional",
+                    "lastName": "Invitee",
+                    "credentials": [
+                        {"type": "password", "value": user["password"], "temporary": False}
+                    ],
+                },
+            )
+            if created.status_code != 201:
+                raise ValueError("Identity creation rejected")
+    except Exception:
+        raise SystemExit(
+            "Fictional identity setup failed; check local identity readiness without sharing its credentials."
+        ) from None
+    filename = "verification-account-" + suffix + ".json"
+    write(filename, json.dumps(user))
+    print(
+        json.dumps(
+            {
+                "username": user["username"],
+                "email": user["email"],
+                "fixture_path": str(LOCAL / filename),
+            }
+        )
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -459,11 +523,15 @@ def main() -> None:
             "reap",
             "retention",
             "verification-workspace",
+            "verification-account",
         ],
     )
     parser.add_argument("--retention-days", type=int)
     parser.add_argument("--apply-retention", action="store_true")
     args = parser.parse_args()
+    if args.command == "verification-account":
+        verification_account()
+        return
     if args.command == "retention":
         from stmtconv.config import load_hosted_settings
         from stmtconv.web.database import PostgresUnitOfWork, database

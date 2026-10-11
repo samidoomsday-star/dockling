@@ -193,10 +193,13 @@ def create_app(config: HostedSettings) -> FastAPI:
             raise WebError(400, "REQUEST_KEY_REQUIRED", "A valid request key is required.")
         return value
 
-    def member_json(m: Membership) -> Json:
+    def member_json(db: Session, m: Membership) -> Json:
+        user = db.get(User, m.user_id)
         return {
             "id": str(m.id),
-            "display_name": "Member " + str(m.user_id)[:8],
+            "display_name": user.email
+            if user and user.email_verified and user.email
+            else "Member " + str(m.user_id)[:8],
             "role": m.role,
             "active": m.active,
             "version": m.version,
@@ -428,7 +431,7 @@ def create_app(config: HostedSettings) -> FastAPI:
             q = q.where(Membership.id > after)
         rows = list(db.scalars(q.order_by(Membership.id).limit(limit + 1)))
         return {
-            "items": [member_json(m) for m in rows[:limit]],
+            "items": [member_json(db, m) for m in rows[:limit]],
             "next_cursor": cursors.encode(rows[limit - 1].id, scope) if len(rows) > limit else None,
         }
 
@@ -446,6 +449,10 @@ def create_app(config: HostedSettings) -> FastAPI:
                 raise WebError(409, "STALE_VERSION", "Refresh the team before making this change.")
             role = body.role if body.role is not None else target.role
             active = body.active if body.active is not None else target.active
+            if active and not target.active:
+                from stmtconv.web.commercial import admit_seat
+
+                admit_seat(db, config, ws)
             if target.role == "owner" and target.active and (role != "owner" or not active):
                 count = db.scalar(
                     select(func.count())
@@ -462,7 +469,7 @@ def create_app(config: HostedSettings) -> FastAPI:
             target.active = active
             target.version += 1
             db.add(Event(workspace_id=ws, actor_id=u.id, action="member.changed"))
-            return member_json(target)
+            return member_json(db, target)
 
         return replay(
             db,
@@ -479,6 +486,22 @@ def create_app(config: HostedSettings) -> FastAPI:
         ws, u = scoped(db, request, write=True, owner=True)
 
         def execute() -> Json:
+            from stmtconv.web.commercial import admit_seat
+
+            if db.scalar(
+                select(Invitation.id).where(
+                    Invitation.workspace_id == ws,
+                    Invitation.email == body.email.casefold(),
+                    Invitation.status == "pending",
+                    Invitation.expires_at > datetime.now(UTC),
+                )
+            ):
+                raise WebError(
+                    409,
+                    "INVITATION_EXISTS",
+                    "A current invitation already exists for that address.",
+                )
+            admit_seat(db, config, ws)
             i = uuid4()
             record = Invitation(
                 id=i,
@@ -555,6 +578,9 @@ def create_app(config: HostedSettings) -> FastAPI:
                     "MEMBERSHIP_EXISTS",
                     "Ask the workspace owner to update your existing membership.",
                 )
+            from stmtconv.web.commercial import admit_seat
+
+            admit_seat(db, config, inv.workspace_id, inv.id)
             db.add(Membership(workspace_id=inv.workspace_id, user_id=u.id, role=inv.role))
             inv.status = "accepted"
             workspace = db.get(Workspace, inv.workspace_id)
@@ -609,6 +635,9 @@ def create_app(config: HostedSettings) -> FastAPI:
     from stmtconv.web.owner_api import register_owner
 
     register_owner(app, config, get_db, scoped, actor, key, store)
+    from stmtconv.web.account_api import register_accounts
+
+    register_accounts(app, config, get_db, scoped, actor, key, cursors)
 
     # API is registered before the SPA. Unknown API/auth URLs cannot serve HTML or fixtures.
     @app.api_route("/api/{remaining:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])

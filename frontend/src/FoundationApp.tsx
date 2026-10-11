@@ -6,6 +6,15 @@ import PipelineJob from './PipelineJob';
 import ConnectionsWorkspace from './ConnectionsWorkspace';
 import ServiceOperations, { Preferences } from './OwnerOperations';
 import { hasUnsavedCorrections } from './ReviewWorkspace';
+import {
+  AccountOverview,
+  BillingOperations,
+  BillingWorkspace,
+  HelpWorkspace,
+  InvitationHistory,
+  NoticesWorkspace,
+  Onboarding,
+} from './AccountWorkspace';
 const api = new FoundationApi();
 const explain = (e: unknown) =>
   e instanceof FoundationError ? e.message : 'The service is unavailable. Please try again.';
@@ -29,7 +38,7 @@ export default function FoundationApp() {
   });
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
-  async function act(action: () => Promise<unknown>, next?: string) {
+  async function act(action: () => Promise<unknown>, next?: string, identityChange = false) {
     if (
       hasUnsavedCorrections() &&
       !window.confirm('You have an unsaved correction. Discard it and continue?')
@@ -39,10 +48,19 @@ export default function FoundationApp() {
     setMessage('');
     try {
       await action();
-      // Remove all private cached results before a changed identity/workspace renders.
-      await client.cancelQueries({ queryKey: ['foundation'] });
-      client.removeQueries({ queryKey: ['foundation'] });
-      await session.refetch();
+      if (identityChange) {
+        // Remove private results before a changed identity/workspace renders.
+        await client.cancelQueries({ queryKey: ['foundation'] });
+        client.removeQueries({ queryKey: ['foundation'] });
+        await session.refetch();
+      } else {
+        // Refresh metadata without unmounting forms holding a newly issued invitation.
+        await session.refetch();
+        await client.invalidateQueries({
+          queryKey: ['foundation'],
+          predicate: (query) => query.queryKey[1] !== 'session',
+        });
+      }
       if (next) navigate(next);
     } catch (e) {
       setMessage(explain(e));
@@ -67,8 +85,8 @@ export default function FoundationApp() {
           <h1>A clearer place to prepare your financial documents.</h1>
           <p>Sign in to upload statements, run conversion and compare results with the source.</p>
           <p>
-            Synthetic development preview with review and private downloads. Billing and public
-            hosting remain later phases.
+            Synthetic development preview with review, private downloads and account tools. Public
+            hosting and online payments remain pending.
           </p>
           <a className="button primary" href="/auth/login">
             Sign in securely
@@ -99,8 +117,13 @@ export default function FoundationApp() {
             <Link to="/app/jobs">Your jobs</Link>
             <Link to="/app/settings">Preferences</Link>
             <Link to="/app/connections">AI connections</Link>
+            <Link to="/app/account">Account and usage</Link>
+            <Link to="/app/help">Help and requests</Link>
+            <Link to="/app/notices">Workspace updates</Link>
+            {s.role === 'owner' && <Link to="/app/billing">Plans and billing</Link>}
             {s.role === 'owner' && <Link to="/app/team">Team</Link>}
             {s.platform_admin && <Link to="/admin">Service health</Link>}
+            {s.platform_admin && <Link to="/admin/billing">Billing and support</Link>}
           </nav>
           <div className="sidebar-note">
             Upload, inspect and convert your test statements. Always compare dates and descriptions
@@ -115,7 +138,7 @@ export default function FoundationApp() {
                 aria-label="Workspace"
                 disabled={busy}
                 value={s.workspace_id ?? ''}
-                onChange={(e) => void act(() => api.switch(s, e.target.value), '/app')}
+                onChange={(e) => void act(() => api.switch(s, e.target.value), '/app', true)}
               >
                 <option value="" disabled>
                   Select workspace
@@ -141,7 +164,7 @@ export default function FoundationApp() {
             <button
               className="button secondary"
               disabled={busy}
-              onClick={() => void act(() => api.logout(s), '/')}
+              onClick={() => void act(() => api.logout(s), '/', true)}
             >
               Sign out
             </button>
@@ -152,6 +175,7 @@ export default function FoundationApp() {
             <Routes>
               <Route path="/invite" element={<Invitation session={s} act={act} busy={busy} />} />
               <Route path="/admin" element={<ServiceOperations session={s} />} />
+              <Route path="/admin/billing" element={<BillingOperations session={s} />} />
               {s.workspace_id ? (
                 <>
                   <Route path="/app" element={<Jobs key={s.workspace_id} session={s} />} />
@@ -159,6 +183,22 @@ export default function FoundationApp() {
                   <Route path="/app/new" element={<NewJob session={s} act={act} busy={busy} />} />
                   <Route path="/app/jobs/:id" element={<Job session={s} />} />
                   <Route path="/app/settings" element={<Preferences session={s} />} />
+                  <Route
+                    path="/app/account"
+                    element={<AccountOverview key={s.workspace_id} session={s} />}
+                  />
+                  <Route
+                    path="/app/help"
+                    element={<HelpWorkspace key={s.workspace_id} session={s} />}
+                  />
+                  <Route
+                    path="/app/billing"
+                    element={<BillingWorkspace key={s.workspace_id} session={s} />}
+                  />
+                  <Route
+                    path="/app/notices"
+                    element={<NoticesWorkspace key={s.workspace_id} session={s} />}
+                  />
                   <Route
                     path="/app/connections"
                     element={<ConnectionsWorkspace key={s.workspace_id} session={s} />}
@@ -172,13 +212,11 @@ export default function FoundationApp() {
                 <Route
                   path="/app"
                   element={
-                    <>
-                      <h1>Welcome</h1>
-                      <p>
-                        Ask a workspace owner for an invitation. Administrator sign-in grants
-                        service health access only.
-                      </p>
-                    </>
+                    <Onboarding
+                      session={s}
+                      act={(action, next) => act(action, next, true)}
+                      busy={busy}
+                    />
                   }
                 />
               )}
@@ -200,7 +238,7 @@ export default function FoundationApp() {
 }
 type Actions = {
   session: ServerSession;
-  act: (action: () => Promise<unknown>, next?: string) => Promise<void>;
+  act: (action: () => Promise<unknown>, next?: string, identityChange?: boolean) => Promise<void>;
   busy: boolean;
 };
 function Jobs({ session }: { session: ServerSession }) {
@@ -501,7 +539,11 @@ function Team({ session, act, busy }: Actions) {
         </label>
         <label>
           Invitation role
-          <select value={role} onChange={(e) => setRole(e.target.value as 'editor' | 'viewer')}>
+          <select
+            aria-label="Invitation role"
+            value={role}
+            onChange={(e) => setRole(e.target.value as 'editor' | 'viewer')}
+          >
             <option value="viewer">Viewer</option>
             <option value="editor">Editor</option>
           </select>
@@ -534,6 +576,7 @@ function Team({ session, act, busy }: Actions) {
       {q.data?.next_cursor && (
         <button onClick={() => setCursor(q.data.next_cursor)}>Next team page</button>
       )}
+      <InvitationHistory session={session} />
     </section>
   );
 }
@@ -549,11 +592,15 @@ function Invitation({ session, act, busy }: Actions) {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          void act(async () => {
-            await api.accept(session, token);
-            window.history.replaceState(null, '', '/invite');
-            setToken('');
-          }, '/app');
+          void act(
+            async () => {
+              await api.accept(session, token);
+              window.history.replaceState(null, '', '/invite');
+              setToken('');
+            },
+            '/app',
+            true,
+          );
         }}
       >
         <label>

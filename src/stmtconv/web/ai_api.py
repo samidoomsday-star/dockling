@@ -328,6 +328,14 @@ def register_ai(
         job = current_job(db, ws, jid)
 
         def execute() -> Json:
+            from stmtconv.web.commercial import allowance
+
+            if not allowance(db, config, ws)["processing_allowed"]:
+                raise WebError(
+                    403,
+                    "PLAN_INACTIVE",
+                    "Processing access is inactive. Existing files remain available.",
+                )
             revision(job, command.expected_revision)
             idle(db, job)
             consent, _ = checked(db, job, config)
