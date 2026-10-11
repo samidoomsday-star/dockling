@@ -648,13 +648,13 @@ def test_rehearsal_storage_tls_key_supports_different_host_uid(tmp_path):
             "python@sha256:44ff437bba879d4941b710a369a8f19266aea34b29002807f0c487fabc9eec9b",
             "python",
             "-c",
-            "import os; os.chown('/certs/server.key', 1001, 1001)",
+            "import os; os.chown('/certs/server.key', 1001, 1001); "
+            "assert os.stat('/certs/server.key').st_uid == 1001",
         ],
         check=True,
         capture_output=True,
         timeout=60,
     )
-    assert (public / "server.key").stat().st_uid == 1001
     spec = yaml.safe_load(Path("compose.staging-rehearsal.yaml").read_text())["services"]["storage"]
     name = "dockling-storage-tls-test-" + uuid4().hex
     command = [

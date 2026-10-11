@@ -44,12 +44,15 @@ services:
     entrypoint: [/bin/sh, -c]
     command:
       - >-
-        cp /certs/server.key /tmp/server.key &&
-        chown seaweed:seaweed /tmp/server.key && chmod 600 /tmp/server.key &&
+        mkdir -p /tmp/storage-tls && chmod 700 /tmp/storage-tls &&
+        cp /certs/server.key /tmp/storage-tls/server.key &&
+        cp /certs/server.pem /tmp/storage-tls/server.pem &&
+        chown -R seaweed:seaweed /tmp/storage-tls &&
+        chmod 600 /tmp/storage-tls/server.key &&
         exec /entrypoint.sh server -ip=127.0.0.1 -ip.bind=0.0.0.0 -dir=/data
         -volume.max=32 -master.volumeSizeLimitMB=64 -filer -s3
         -s3.config=/etc/seaweedfs/s3.json -s3.port.https=8443
-        -s3.cert.file=/certs/server.pem -s3.key.file=/tmp/server.key
+        -s3.cert.file=/tmp/storage-tls/server.pem -s3.key.file=/tmp/storage-tls/server.key
     ports: ["127.0.0.1:8445:8443"]
     volumes:
       - staging-storage:/data
