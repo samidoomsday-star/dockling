@@ -246,8 +246,11 @@ def setup() -> None:
     config = rehearsal_config()
     admin = rehearsal_config(owner=True)
     compose("up", "-d", "postgres", "identity", "storage")
-    for attempt in range(150):
+    deadline = time.monotonic() + 180
+    last_failure: tuple[str, str] | None = None
+    while time.monotonic() < deadline:
         engine = database(admin)
+        stage = "DATABASE_TLS"
         try:
             with engine.connect() as connection:
                 assert (
@@ -256,18 +259,28 @@ def setup() -> None:
                     )
                     is True
                 )
+            stage = "IDENTITY_TLS"
             with httpx.Client(verify=service_tls(config), timeout=5, trust_env=False) as client:
                 response = client.get(ISSUER + "/.well-known/openid-configuration")
                 assert response.status_code == 200 and response.json()["issuer"] == ISSUER
+            stage = "PRIVATE_STORAGE_TLS"
             store = ObjectStore(config)
             store.probe()
             break
-        except Exception:
-            if attempt == 149:
-                raise ValueError("Verified rehearsal service readiness failed") from None
+        except Exception as error:
+            failure = (stage, type(error).__name__)
+            if failure != last_failure:
+                # Class names and fixed stages only; never exception arguments, URLs or keys.
+                print(
+                    json.dumps({"status": "waiting", "check": stage, "error_type": failure[1]}),
+                    flush=True,
+                )
+                last_failure = failure
             time.sleep(1)
         finally:
             engine.dispose()
+    else:
+        raise ValueError("Verified rehearsal service readiness exceeded its deadline")
     migrate(admin)
     fixture_helper().seed()
     seed_entitlements()
