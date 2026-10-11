@@ -492,6 +492,27 @@ try {
     await admin.page.screenshot({path:new URL('../.local-saas/screenshots/owner-admin-mobile.png',import.meta.url).pathname,fullPage:true});
     console.log('PASS: actual OTP admin, immutable configuration draft, real isolated 9-case selftest, worker/model heartbeat evidence, anonymous metrics and mobile axe/layout.');
   }
+  if(process.argv.includes('--phase6')) {
+    assert(phase5Customer);
+    await admin.page.getByRole('heading',{name:'Operations and recovery',exact:true}).waitFor();
+    const operations=await admin.context.request.get(origin+'/api/v1/admin/operations');assert.equal(operations.status(),200);
+    const signals=await operations.json();assert(Array.isArray(signals.alerts));assert(!JSON.stringify(signals).includes(s.workspace_id));assert(!JSON.stringify(signals).includes('description'));
+    const ready=await admin.context.request.get(origin+'/api/v1/health/ready');assert.equal(ready.status(),200);assert.deepEqual(await ready.json(),{status:'ready'});
+    await phase5Customer.page.goto(origin+'/app/help');
+    await phase5Customer.page.getByText('Response: Fictional verified support response',{exact:true}).waitFor();
+    const customerSession=await(await phase5Customer.context.request.get(origin+'/api/v1/session')).json();
+    const logout=await phase5Customer.context.request.post(origin+'/api/v1/session/logout',{headers:{Origin:origin,'X-CSRF-Token':customerSession.csrf_token,'Idempotency-Key':randomUUID()}});assert.equal(logout.status(),204);
+    // The visible tab still holds cached private data. A real denied form write
+    // must hide it immediately, without relying on a reload or 30-second poll.
+    await phase5Customer.page.getByLabel('Your message',{exact:true}).fill('Fictional revoked-session probe');
+    await phase5Customer.page.getByRole('button',{name:'Send private request',exact:true}).click();
+    await phase5Customer.page.getByRole('link',{name:'Sign in securely',exact:true}).waitFor();
+    assert.equal(await phase5Customer.page.getByText('Response: Fictional verified support response',{exact:true}).count(),0);
+    assert.equal(await phase5Customer.page.getByRole('link',{name:'Account and usage',exact:true}).count(),0);
+    await phase5Customer.page.keyboard.press('Tab');
+    assert.deepEqual((await new AxeBuilder({page:phase5Customer.page}).analyze()).violations.map(v=>v.id),[]);
+    console.log('PASS: fresh-MFA anonymous operations/readiness → real cross-tab logout → denied private form clears cached content immediately; keyboard/public axe.');
+  }
   console.log('PASS: real OIDC login/logout, opaque cookie, saved UI job, A/B isolation, mobile accessibility/layout and actual OTP admin with no customer membership.');
 } catch (error) {
   console.log('Check failure:',error.name, String(error.stack).split('\n').filter(line=>/at .*saas-browser\.mjs:\d/.test(line)).join('\n'));

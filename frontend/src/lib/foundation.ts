@@ -88,6 +88,11 @@ export type ServerRow = z.infer<typeof rowSchema>;
 export type CurrentJob = Awaited<ReturnType<FoundationApi['job']>>;
 export type ServerFile = z.infer<typeof fileSchema>;
 export type ServerOperation = z.infer<typeof operationSchema>;
+function sessionDenied(status: number) {
+  if (status === 401 && typeof window !== 'undefined')
+    window.dispatchEvent(new Event('dockling-session-lost'));
+}
+
 export class FoundationError extends Error {
   constructor(
     public status: number,
@@ -119,6 +124,7 @@ export class FoundationApi {
       cache: 'no-store',
     });
     if (!response.ok) {
+      if (path !== '/session') sessionDenied(response.status);
       // Only use the service's bounded error message; never display arbitrary response bodies.
       const error = z
         .object({ message: z.string().max(250), code: z.string().max(80), request_id: uuid })
@@ -242,6 +248,7 @@ export class FoundationApi {
       body: file,
     });
     if (!response.ok) {
+      sessionDenied(response.status);
       const error = z
         .object({ message: z.string().max(250), code: z.string().max(80), request_id: uuid })
         .safeParse(await response.json().catch(() => null));
@@ -434,13 +441,15 @@ export class FoundationApi {
         },
       },
     );
-    if (!response.ok)
+    if (!response.ok) {
+      sessionDenied(response.status);
       throw new FoundationError(
         response.status,
         response.status === 409
           ? 'The workbook or job changed. Download a fresh workbook.'
           : 'The workbook could not be accepted. Check the file and try again.',
       );
+    }
     return operationSchema.parse(await response.json());
   }
   connections() {

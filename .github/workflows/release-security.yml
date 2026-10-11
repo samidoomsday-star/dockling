@@ -1,0 +1,36 @@
+name: Strict worker release security gate
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  worker-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements/phase1-linux.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.node-version
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: bash scripts/install-saas-linux.sh
+      - run: .venv/bin/python scripts/saas-local.py worker-build
+      - run: .venv/bin/python scripts/saas-security.py --audit
+      - name: Fail on every high or critical finding, including unfixed findings
+        run: .venv/bin/python scripts/check-worker-security.py
+      - name: Record sanitized release decision
+        if: always()
+        run: |
+          if [ -f .local-saas/worker-security-summary.json ]; then
+            cat .local-saas/worker-security-summary.json >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Stop development services
+        if: always()
+        run: docker compose --profile conversion -f compose.saas.yaml down
+# No deployment and no private archive, statement, credential, log or trace upload.

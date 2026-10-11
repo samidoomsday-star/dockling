@@ -500,3 +500,25 @@ class ProfileEvidence(Base):
     job_id: Mapped[UUID]
     profile_digest: Mapped[str] = mapped_column(String(64))
     passed: Mapped[bool] = mapped_column(Boolean)
+
+
+class BackupReceipt(Base):
+    """Operator-written immutable evidence; the API and worker have no write privilege."""
+
+    __tablename__ = "web_backup_receipts"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    sha256: Mapped[str] = mapped_column(String(64), unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    objects: Mapped[int] = mapped_column(BigInteger)
+    bytes: Mapped[int] = mapped_column(BigInteger)
+    schema_version: Mapped[str] = mapped_column(String(80))
+
+
+class RestoreReceipt(Base):
+    __tablename__ = "web_restore_receipts"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    backup_id: Mapped[UUID] = mapped_column(ForeignKey("web_backup_receipts.id"))
+    verified_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    seconds: Mapped[int] = mapped_column(BigInteger)
+    checks: Mapped[dict[str, object]] = mapped_column(JSONB)

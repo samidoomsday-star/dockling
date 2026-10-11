@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import secrets
 import shutil
 import subprocess
@@ -613,6 +614,41 @@ def main() -> None:
         build = LOCAL / "build"
         build.mkdir(exist_ok=True, mode=0o700)
         (build / "ca-certificates.crt").write_bytes(build_certificate_bundle().read_bytes())
+        # Runtime parsing never installs/builds packages. Exclude packaging tools
+        # and their vulnerable vendored copies without mutating the developer venv.
+        import fnmatch
+        import shutil
+
+        runtime = build / "runtime-packages"
+        if runtime.exists():
+            if runtime.is_symlink():
+                raise SystemExit(
+                    "Unexpected runtime staging link; preserve the original environment."
+                )
+            shutil.rmtree(runtime)
+        excluded = (
+            "pip",
+            "pip-*.dist-info",
+            "setuptools",
+            "setuptools-*.dist-info",
+            "wheel",
+            "wheel-*.dist-info",
+            "pkg_resources",
+        )
+
+        def ignore(_directory, names):
+            return [
+                name
+                for name in names
+                if any(fnmatch.fnmatch(name, pattern) for pattern in excluded)
+            ]
+
+        shutil.copytree(
+            ROOT / ".venv/lib/python3.12/site-packages",
+            runtime,
+            copy_function=os.link,
+            ignore=ignore,
+        )
         subprocess.run(
             [
                 "docker",

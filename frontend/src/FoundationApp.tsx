@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FoundationApi, FoundationError, type ServerSession } from './lib/foundation';
@@ -27,15 +27,107 @@ export default function FoundationApp() {
     queryFn: () => api.session(),
     retry: false,
     refetchOnWindowFocus: true,
+    refetchInterval: 30000,
   });
   const workspaces = useInfiniteQuery({
     queryKey: ['foundation', 'workspaces', session.data?.user_id],
     queryFn: ({ pageParam }) => api.workspaces(pageParam),
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.next_cursor ?? undefined,
-    enabled: !!session.data,
+    enabled: !!session.data && !session.isError,
     retry: false,
   });
+  const [accessLost, setAccessLost] = useState(false);
+  const refetchSession = session.refetch;
+  const previousIdentity = useRef<string | null>(null);
+  const identity = JSON.stringify([
+    session.data?.user_id,
+    session.data?.workspace_id,
+    session.data?.role,
+    session.data?.platform_admin,
+  ]);
+  useEffect(() => {
+    if (
+      session.isError ||
+      (previousIdentity.current !== null && previousIdentity.current !== identity)
+    ) {
+      void client.cancelQueries({
+        queryKey: ['foundation'],
+        predicate: (q) =>
+          q.queryKey[1] !== 'session' && (session.isError || q.queryKey[1] !== 'workspaces'),
+      });
+      client.removeQueries({
+        queryKey: ['foundation'],
+        predicate: (q) =>
+          q.queryKey[1] !== 'session' && (session.isError || q.queryKey[1] !== 'workspaces'),
+      });
+      if (!session.isError)
+        void client.invalidateQueries({ queryKey: ['foundation', 'workspaces'] });
+    }
+    if (session.data && !session.isError) previousIdentity.current = identity;
+  }, [client, identity, session.data, session.isError]);
+
+  useEffect(() => {
+    const clearPrivate = () => {
+      void client.cancelQueries({
+        queryKey: ['foundation'],
+        predicate: (q) => q.queryKey[1] !== 'session',
+      });
+      client.removeQueries({
+        queryKey: ['foundation'],
+        predicate: (q) => q.queryKey[1] !== 'session',
+      });
+    };
+    const loseAccess = () => {
+      setAccessLost(true);
+      clearPrivate();
+      void refetchSession();
+    };
+    window.addEventListener('dockling-session-lost', loseAccess);
+    const unsubscribe = client.getQueryCache().subscribe((event) => {
+      if (event.type !== 'updated' || event.query.queryKey[0] !== 'foundation') return;
+      const error = event.query.state.error;
+      if (
+        event.query.queryKey[1] !== 'session' &&
+        error instanceof FoundationError &&
+        error.status === 401
+      ) {
+        setAccessLost(true);
+        clearPrivate();
+        void refetchSession();
+      }
+      if (
+        event.query.queryKey[1] === 'session' &&
+        event.query.state.status === 'success' &&
+        event.query.state.fetchStatus === 'idle'
+      )
+        setAccessLost(false);
+    });
+    return () => {
+      unsubscribe();
+      window.removeEventListener('dockling-session-lost', loseAccess);
+    };
+  }, [client, refetchSession]);
+  useEffect(() => {
+    if (!session.data || session.isError) return;
+    const remaining = Date.parse(session.data.expires_at) - Date.now();
+    const timeout = window.setTimeout(
+      () => {
+        setAccessLost(true);
+        void client.cancelQueries({
+          queryKey: ['foundation'],
+          predicate: (q) => q.queryKey[1] !== 'session',
+        });
+        client.removeQueries({
+          queryKey: ['foundation'],
+          predicate: (q) => q.queryKey[1] !== 'session',
+        });
+        void refetchSession();
+      },
+      Number.isFinite(remaining) ? Math.max(0, remaining) : 0,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [client, refetchSession, session.data, session.isError]);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   async function act(action: () => Promise<unknown>, next?: string, identityChange = false) {
@@ -74,7 +166,7 @@ export default function FoundationApp() {
         <h1>Opening your workspace…</h1>
       </main>
     );
-  if (!session.data)
+  if (!session.data || session.isError || accessLost)
     return (
       <main id="main" className="public-main">
         <Link className="brand" to="/">

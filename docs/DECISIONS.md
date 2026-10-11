@@ -145,3 +145,10 @@ Explicit close --abandon permits unfinished/failed jobs to undergo the same conf
 ## SaaS Phase 4 connection boundary
 
 Hosted keys use dedicated AES-GCM encryption with workspace/connection identity binding, independently of cookie-signing secrets. Local setup preserves the original private vault key and refuses silent regeneration when ciphertext exists. Public HTTPS provider metadata calls pin a validated DNS address, verify hostname TLS, reject private/mixed answers and redirects, and enforce response limits. Connection setup/terms recording cannot authorize statement AI dispatch; consent and durable reservations remain the next milestone. Highest effort is computed from provider capability evidence and adapter support; unknown models use provider default without invented Max support.
+
+
+## 2026-10-11: Phase 6 operating evidence and separate release gate
+
+Use anonymous fresh-MFA operational summaries with minimal public component health, bounded API admission and immediate private-cache hiding after session denial. Backups require an independent AES-GCM key, matched DB/identity/object/vault material and authenticated expiry. The local restore drill uses disposable isolated resources, revokes restored authority and work, retains uncertain AI cost/cleanup fences and replays current workspace/job tombstones; it is not a production disaster restore tool. Immutable operator receipts follow successful cleanup. Rollback rehearsals restore a matched prior schema rather than erase billing evidence.
+
+Updated official pip/setuptools pins and digest-pinned Debian 13 worker, removed runtime packaging/bootstrap tools and retained all model/network/SQL isolation assertions. Development image scans report all findings explicitly; a separate strict workflow rejects any high/critical finding including unfixed ones. Current native results block production. No external security certification, full transitive/weight license approval, host SLO or real-payment readiness is inferred from functional tests.

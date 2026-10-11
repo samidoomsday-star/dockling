@@ -2,7 +2,7 @@ openapi: 3.1.0
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Dockling hosted API contract
-  version: 0.5.0
+  version: 0.6.0
   description: Hosted Phases 1–5 support synthetic local acceptance with strict account
     reads, verified onboarding, conservative page/seat quotas, private notices/support
     and manual invoice evidence. Live checkout, email, commercial offers and deployment
@@ -6830,6 +6830,102 @@ paths:
       - platform_admin_mfa
       x-feature-ids:
       - N08
+  /admin/operations:
+    get:
+      summary: Operations
+      operationId: ops_get_admin_operations
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedOpsOperationsRead'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 6
+      x-implementation: 'implemented: anonymous component/status reads; independent
+        and hosted release review remain gated'
+      x-feature-ids:
+      - F30
+      - N09
+      x-workspace-scoped: false
+      x-access-roles:
+      - platform_admin_mfa
+  /health/live:
+    get:
+      summary: Live
+      operationId: ops_get_health_live
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedOpsComponentRead'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          $ref: '#/components/responses/Error503'
+      x-phase: 6
+      x-implementation: 'implemented: anonymous component/status reads; independent
+        and hosted release review remain gated'
+      x-feature-ids:
+      - F30
+      - N09
+      x-workspace-scoped: false
+      x-access-roles:
+      - public
+      security: []
+  /health/ready:
+    get:
+      summary: Readiness
+      operationId: ops_get_health_ready
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedOpsComponentRead'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '503':
+          description: One or more required components unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostedOpsComponentRead'
+      x-phase: 6
+      x-implementation: 'implemented: anonymous component/status reads; independent
+        and hosted release review remain gated'
+      x-feature-ids:
+      - F30
+      - N09
+      x-workspace-scoped: false
+      x-access-roles:
+      - public
+      security: []
 components:
   securitySchemes:
     SessionCookie:
@@ -10816,6 +10912,122 @@ components:
       - name
       - role
       title: WorkspaceRead
+    HostedOpsComponentRead:
+      properties:
+        status:
+          type: string
+          enum:
+          - alive
+          - ready
+          - unavailable
+          title: Status
+      additionalProperties: false
+      type: object
+      required:
+      - status
+      title: ComponentRead
+    HostedOpsOperationsRead:
+      properties:
+        status:
+          type: string
+          enum:
+          - healthy
+          - attention
+          title: Status
+        checked_at:
+          type: string
+          title: Checked At
+        queued:
+          type: integer
+          minimum: 0.0
+          title: Queued
+        running:
+          type: integer
+          minimum: 0.0
+          title: Running
+        oldest_queue_seconds:
+          type: integer
+          minimum: 0.0
+          title: Oldest Queue Seconds
+        recent_failures:
+          type: integer
+          minimum: 0.0
+          title: Recent Failures
+        pending_removals:
+          type: integer
+          minimum: 0.0
+          title: Pending Removals
+        failed_removals:
+          type: integer
+          minimum: 0.0
+          title: Failed Removals
+        uncertain_ai_attempts:
+          type: integer
+          minimum: 0.0
+          title: Uncertain Ai Attempts
+        pending_ai_cleanup:
+          type: integer
+          minimum: 0.0
+          title: Pending Ai Cleanup
+        backup_created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Backup Created At
+        backup_expires_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Backup Expires At
+        restore_verified_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Restore Verified At
+        alerts:
+          items:
+            $ref: '#/components/schemas/HostedOpsSignal'
+          type: array
+          title: Alerts
+      additionalProperties: false
+      type: object
+      required:
+      - status
+      - checked_at
+      - queued
+      - running
+      - oldest_queue_seconds
+      - recent_failures
+      - pending_removals
+      - failed_removals
+      - uncertain_ai_attempts
+      - pending_ai_cleanup
+      - backup_created_at
+      - backup_expires_at
+      - restore_verified_at
+      - alerts
+      title: OperationsRead
+    HostedOpsSignal:
+      properties:
+        code:
+          type: string
+          title: Code
+        level:
+          type: string
+          enum:
+          - warning
+          - critical
+          title: Level
+        message:
+          type: string
+          title: Message
+      additionalProperties: false
+      type: object
+      required:
+      - code
+      - level
+      - message
+      title: Signal
   responses:
     Error400:
       description: Safe structured error without private input echo

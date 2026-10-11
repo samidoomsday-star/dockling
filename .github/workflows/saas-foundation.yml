@@ -9,7 +9,7 @@ permissions:
 jobs:
   foundation:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -31,22 +31,43 @@ jobs:
       - run: .venv/bin/python -m mypy
       - run: .venv/bin/python -m pytest tests_saas -q
       - run: .venv/bin/python scripts/saas-local.py worker-build
+      - name: Public package advisory check
+        run: .venv/bin/python scripts/saas-security.py --audit
+      - name: Native worker findings (development report; strict release gate is separate)
+        run: |
+          .venv/bin/python scripts/check-worker-security.py --report-only
+          cat .local-saas/worker-security-summary.json >> "$GITHUB_STEP_SUMMARY"
       - run: .venv/bin/python scripts/check.py
       - run: .venv/bin/python scripts/saas-local.py worker
       - run: .venv/bin/python scripts/check-worker-isolation.py
       - run: .venv/bin/python scripts/saas-fixtures.py
       - run: npm exec --prefix frontend -- playwright install --with-deps chromium
-      - name: Real OIDC, fake AI, accounts, manual billing and isolated conversion browser journey
+      - name: Real OIDC, fake AI, accounts, billing, recovery UI and isolated conversion journey
         run: |
           .venv/bin/python scripts/saas-fake-ai-server.py > /tmp/dockling-fake-server.log 2>&1 &
           test_server_pid=$!
-          node scripts/saas-browser.mjs --phase3 --phase4 --phase4-ai --phase4-owner --phase5
+          node scripts/saas-browser.mjs --phase3 --phase4 --phase4-ai --phase4-owner --phase5 --phase6
           kill "$test_server_pid"
           server_exit=0
           wait "$test_server_pid" || server_exit=$?
           if [ "$server_exit" != 0 ] && [ "$server_exit" != 143 ]; then exit "$server_exit"; fi
           .venv/bin/python scripts/saas-local.py run > /tmp/dockling-server.log 2>&1 &
+          ordinary_server_pid=$!
           node scripts/saas-recovery.mjs
+          kill "$ordinary_server_pid"
+          ordinary_exit=0
+          wait "$ordinary_server_pid" || ordinary_exit=$?
+          if [ "$ordinary_exit" != 0 ] && [ "$ordinary_exit" != 143 ]; then exit "$ordinary_exit"; fi
+      - name: Quiesced encrypted backup, isolated matched restore and expiry drill
+        run: |
+          docker compose --profile conversion -f compose.saas.yaml stop worker identity
+          .venv/bin/python scripts/saas-ops.py key-init
+          .venv/bin/python scripts/saas-ops.py verification-fixture
+          .venv/bin/python scripts/saas-ops.py backup > /tmp/dockling-backup-result.json
+          backup_path=$(.venv/bin/python -c 'import json; print(json.load(open("/tmp/dockling-backup-result.json"))["file"])')
+          .venv/bin/python scripts/saas-ops.py restore-drill --backup "$backup_path"
+          .venv/bin/python scripts/saas-ops.py fixture-cleanup
+          .venv/bin/python scripts/saas-ops.py expiry-drill
       - name: Stop services and preserve volumes
         if: always()
         run: docker compose -f compose.saas.yaml down

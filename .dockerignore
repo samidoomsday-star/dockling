@@ -1,9 +1,4 @@
 *
-!.venv/
-!.venv/lib/
-!.venv/lib/python3.12/
-!.venv/lib/python3.12/site-packages/
-!.venv/lib/python3.12/site-packages/**
 !src/
 !src/**
 !config/
@@ -17,6 +12,8 @@
 !Dockerfile.worker
 !.local-saas/
 !.local-saas/build/
+!.local-saas/build/runtime-packages/
+!.local-saas/build/runtime-packages/**
 !.local-saas/build/ca-certificates.crt
 **/__pycache__/
 **/*.pyc

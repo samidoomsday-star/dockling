@@ -1,5 +1,6 @@
 """Phase 1 API. No upload, conversion, billing or provider calls are simulated."""
 
+import asyncio
 import hashlib
 import hmac
 import json
@@ -123,49 +124,87 @@ def create_app(config: HostedSettings) -> FastAPI:
             )
         )
 
-    @app.middleware("http")
-    async def boundaries(
-        request: Request, call_next: Callable[[Request], Awaitable[Response]]
-    ) -> Response:
-        if request.method in {"POST", "PUT", "PATCH"}:
-            size = 0
-            chunks = []
-            async for chunk in request.stream():
-                size += len(chunk)
-                maximum = (
-                    config.upload_bytes
-                    if (
-                        request.method == "POST"
-                        and (
-                            re.fullmatch(r"/api/v1/jobs/[0-9a-fA-F-]{36}/files", request.url.path)
-                            or re.fullmatch(
-                                r"/api/v1/jobs/[0-9a-fA-F-]{36}/review-workbooks/[0-9a-fA-F-]{36}/apply",
-                                request.url.path,
-                            )
-                        )
-                    )
-                    else 65536
-                )
-                if size > maximum:
-                    return problem(
-                        WebError(413, "BODY_LIMIT", "The submitted request is too large.")
-                    )
-                chunks.append(chunk)
-            request._body = b"".join(chunks)
-        try:
-            response = await call_next(request)
-        except Exception:
-            # Do not let provider/DB exception internals reach an access log or response.
-            response = problem(
-                WebError(503, "SERVICE_UNAVAILABLE", "The service is temporarily unavailable.")
-            )
+    def protected(response: Response) -> Response:
         response.headers["Cache-Control"] = "private, no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         )
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        if secure:
+            response.headers["Strict-Transport-Security"] = "max-age=31536000"
         return response
+
+    admission = asyncio.Semaphore(config.api_concurrency)
+
+    @app.middleware("http")
+    async def boundaries(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        try:
+            async with asyncio.timeout(0.1):
+                await admission.acquire()
+        except TimeoutError:
+            return protected(
+                problem(WebError(503, "SERVICE_BUSY", "The service is busy. Try again shortly."))
+            )
+        try:
+            if request.method in {"POST", "PUT", "PATCH"}:
+                maximum = (
+                    config.upload_bytes
+                    if request.method == "POST"
+                    and (
+                        re.fullmatch(r"/api/v1/jobs/[0-9a-fA-F-]{36}/files", request.url.path)
+                        or re.fullmatch(
+                            r"/api/v1/jobs/[0-9a-fA-F-]{36}/review-workbooks/[0-9a-fA-F-]{36}/apply",
+                            request.url.path,
+                        )
+                    )
+                    else 65536
+                )
+                declared = request.headers.get("content-length")
+                if declared is not None and (not declared.isascii() or not declared.isdecimal()):
+                    return protected(
+                        problem(
+                            WebError(400, "BODY_INVALID", "The request body could not be read.")
+                        )
+                    )
+                if declared is not None and int(declared) > maximum:
+                    return protected(
+                        problem(WebError(413, "BODY_LIMIT", "The submitted request is too large."))
+                    )
+                size, chunks = 0, []
+                try:
+                    async with asyncio.timeout(config.request_body_seconds):
+                        async for chunk in request.stream():
+                            size += len(chunk)
+                            if size > maximum:
+                                return protected(
+                                    problem(
+                                        WebError(
+                                            413, "BODY_LIMIT", "The submitted request is too large."
+                                        )
+                                    )
+                                )
+                            chunks.append(chunk)
+                except TimeoutError:
+                    return protected(
+                        problem(
+                            WebError(408, "BODY_TIMEOUT", "The upload took too long. Try again.")
+                        )
+                    )
+                request._body = b"".join(chunks)
+                chunks.clear()
+            response = await call_next(request)
+        except Exception:
+            # Never log provider/SQL/request internals, including rejected upload bodies.
+            response = problem(
+                WebError(503, "SERVICE_UNAVAILABLE", "The service is temporarily unavailable.")
+            )
+        finally:
+            admission.release()
+        return protected(response)
 
     def get_db() -> Iterator[Session]:
         with uow.transaction() as db:
@@ -638,6 +677,9 @@ def create_app(config: HostedSettings) -> FastAPI:
     from stmtconv.web.account_api import register_accounts
 
     register_accounts(app, config, get_db, scoped, actor, key, cursors)
+    from stmtconv.web.operations import register_operations
+
+    register_operations(app, config, get_db, actor, store)
 
     # API is registered before the SPA. Unknown API/auth URLs cannot serve HTML or fixtures.
     @app.api_route("/api/{remaining:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])

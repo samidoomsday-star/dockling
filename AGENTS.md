@@ -51,3 +51,7 @@ Windows operator CLI (`stmtconv`) for a done-for-you statement conversion servic
 
 ## Guidance and handoff
 For owner actions: say where to click/run, supply one copyable command at a time, describe expected output and how to report failure. Distinguish local edits, commits, pushed branches and merged main. GitHub contains reproducible code/setup recipes, not the installed environment. Document fresh-device setup and updates without overwriting personal settings.
+
+## SaaS Phase 6 handoff
+
+Read `docs/saas/PHASE6-OPERATIONS.md` and `docs/tasks/saas-phase-6.md`. This branch includes earlier accounts/manual billing and adds fresh-MFA anonymous operations, bounded intake, fail-closed session caches, immutable backup/restore receipts and local authenticated encrypted recovery. Keep the strict native security gate separate from development report-only CI; unresolved critical/high findings block production. Preserve independent backup keys and matched vault/database material. The local drill restores only into its own disposable resources, revokes authority/work, and replays scoped newer deletion tombstones without a false certificate. Never run live migrations/reset or backup concurrently with browser/install writers; never upload private CI artifacts.

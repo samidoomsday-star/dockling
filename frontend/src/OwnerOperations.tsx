@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import OperationsStatus from './OperationsStatus';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   FoundationApi,
@@ -300,17 +301,20 @@ export default function ServiceOperations({ session }: { session: ServerSession 
   const health = useQuery({
     queryKey: ['foundation', 'health'],
     queryFn: () => api.health(),
+    enabled: session.platform_admin,
     retry: false,
     refetchInterval: 15000,
   });
   const metrics = useQuery({
     queryKey: ['foundation', 'metrics'],
     queryFn: () => api.metrics(),
+    enabled: session.platform_admin,
     retry: false,
   });
   const grants = useQuery({
     queryKey: ['foundation', 'assigned-support'],
     queryFn: () => api.grants(),
+    enabled: session.platform_admin,
     retry: false,
   });
   const [section, setSection] = useState('processing');
@@ -327,12 +331,13 @@ export default function ServiceOperations({ session }: { session: ServerSession 
   const config = useQuery({
     queryKey: ['foundation', 'configuration', section],
     queryFn: () => api.configuration(section),
+    enabled: session.platform_admin,
     retry: false,
   });
   const diagnostic = useQuery({
     queryKey: ['foundation', 'diagnostic', diagnosticId],
     queryFn: () => api.diagnostic(diagnosticId),
-    enabled: !!diagnosticId,
+    enabled: session.platform_admin && !!diagnosticId,
     retry: false,
     refetchInterval: (q) =>
       q.state.data?.operation && ['queued', 'running'].includes(q.state.data.operation.state)
@@ -343,7 +348,7 @@ export default function ServiceOperations({ session }: { session: ServerSession 
     queryKey: ['foundation', 'support-rows', supportId, offset],
     queryFn: () => api.supportRows(supportId, offset),
     refetchInterval: 5000,
-    enabled: !!supportId,
+    enabled: session.platform_admin && !!supportId,
     retry: false,
   });
   async function act(action: () => Promise<unknown>) {
@@ -357,6 +362,8 @@ export default function ServiceOperations({ session }: { session: ServerSession 
       setBusy(false);
     }
   }
+  if (!session.platform_admin)
+    return <p role="alert">Sign in with a fresh second factor to open service operations.</p>;
   return (
     <>
       <div className="page-heading">
@@ -369,6 +376,7 @@ export default function ServiceOperations({ session }: { session: ServerSession 
           </p>
         </div>
       </div>
+      <OperationsStatus session={session} />
       <section className="card section">
         <h2>Live services</h2>
         {health.isError ? (

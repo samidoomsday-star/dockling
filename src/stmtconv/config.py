@@ -254,6 +254,11 @@ class HostedSettings(BaseSettings):
     commercial_offers_enabled: bool = False
     development_page_allowance: int = Field(default=500, ge=1, le=10000)
     development_seats: int = Field(default=10, ge=1, le=100)
+    queue_alert_seconds: int = Field(default=120, ge=30, le=3600)
+    backup_alert_hours: int = Field(default=24, ge=1, le=168)
+    restore_alert_days: int = Field(default=7, ge=1, le=30)
+    api_concurrency: int = Field(default=16, ge=1, le=64)
+    request_body_seconds: int = Field(default=30, ge=5, le=60)
 
     @model_validator(mode="after")
     def secure_boundaries(self) -> Self:

@@ -1,6 +1,6 @@
 # Try the real SaaS foundation on your computer
 
-Phases 1–5 provide real sign-in, customer separation, private uploads, queued text/OCR conversion, source review/corrections, six outputs, live removal, optional encrypted BYOK/model connections, owner tools, account/usage limits and manual invoice records. Online payments, external email and public deployment remain gated. Use synthetic information here. No hosting account or LLM key is needed.
+Phases 1–6 provide real sign-in, customer separation, private uploads, queued text/OCR conversion, source review/corrections, six outputs, live removal, optional encrypted BYOK/model connections, owner tools, account/usage limits and manual invoice records. Online payments, external email and public deployment remain gated. Use synthetic information here. No hosting account or LLM key is needed.
 
 ## Before starting
 
@@ -107,3 +107,10 @@ On `saas-phase-4`, run setup/migrate to apply the connection table and preserve/
 Read [PHASE4-IMPLEMENTATION.md](PHASE4-IMPLEMENTATION.md). Run forward migrations through `0010_owner_tools`; rebuild/restart the worker and API frontend, then restart the API. The gateway starts with the API; use one Linux API process. Do not reset database/storage volumes or regenerate the vault key. Production interrupted AI runs withhold cleanup acknowledgement pending verified process teardown recovery in the deployment phase.
 
 `--phase4-owner` adds real preference, private scaffold, expiring support, versioned configuration, isolated nine-case selftest and worker-health UI checks. `--phase4-ai` requires `scripts/saas-fake-ai-server.py` instead of the ordinary API; it makes only fictional model requests. Run OTP browser and crash-recovery checks sequentially. Stop the harness afterward and leave the ordinary API ready. Advanced shared profile activation requires an exact passing synthetic test plus a separate confirmation that no private customer fingerprints are being published.
+
+
+## Phase 6 operating and recovery upgrade
+
+Use `saas-phase-6`, which contains Phases 1–5. Read [PHASE6-OPERATIONS.md](PHASE6-OPERATIONS.md). Preserve credentials/volumes, run setup for forward migration through `0012_operations`, rebuild/start the worker and API build, and restart the ordinary API. The admin Operations and recovery panel requires fresh MFA. The independently encrypted backup utility requires quiesced writers and never overwrites active resources. Its new backup key is not the vault key.
+
+Full fictional AI/account/operations verification uses the explicit fake-AI server plus `node scripts/saas-browser.mjs --phase3 --phase4 --phase4-ai --phase4-owner --phase5 --phase6`. Ordinary-server testing omits `--phase4-ai`. Run the strict native scan separately and retain its blocked result until all critical/high findings close. No zero-finding assertion is disabled to make development CI green.
