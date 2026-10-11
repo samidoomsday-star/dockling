@@ -68,6 +68,9 @@ def certificates() -> None:
     directory = PRIVATE / "tls"
     # Public certs and a group-readable leaf key; only the identity's explicit group can read it.
     directory.mkdir(mode=0o755)
+    # mkdir's requested mode is reduced by a private host umask. PostgreSQL
+    # and Keycloak use different UIDs and must traverse this mounted directory.
+    directory.chmod(0o755)
     at = datetime.now(UTC)
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "Dockling loopback rehearsal CA")])

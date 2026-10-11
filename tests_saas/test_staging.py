@@ -4,6 +4,7 @@ import asyncio
 import gzip
 import importlib.util
 import json
+import os
 import ssl
 import subprocess
 import threading
@@ -588,6 +589,43 @@ def test_rehearsal_refuses_partial_or_unmatched_keys(tmp_path):
         module.initialize()
     assert not key.exists()
     assert original
+
+
+def test_rehearsal_public_tls_readable_by_container_user_under_private_umask(tmp_path):
+    module = rehearsal_module(tmp_path)
+    previous = os.umask(0o077)
+    try:
+        module.initialize()
+    finally:
+        os.umask(previous)
+    result = subprocess.run(
+        [
+            "docker",
+            "run",
+            "--rm",
+            "--user",
+            "65534:65534",
+            "--network",
+            "none",
+            "--read-only",
+            "--cap-drop",
+            "ALL",
+            "--mount",
+            f"type=bind,src={module.PRIVATE / 'tls'},dst=/certs,readonly",
+            "python@sha256:44ff437bba879d4941b710a369a8f19266aea34b29002807f0c487fabc9eec9b",
+            "python",
+            "-c",
+            "import ssl; from pathlib import Path; "
+            "ssl.create_default_context(cafile='/certs/ca.pem'); "
+            "Path('/certs/server.pem').read_bytes(); "
+            "\ntry: Path('/certs/server.key').read_bytes()"
+            "\nexcept PermissionError: pass"
+            "\nelse: raise AssertionError('Unrelated user must not read private key')",
+        ],
+        capture_output=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, result.stderr.decode()
 
 
 def test_observed_import_requires_all_values_and_expected_rows():
