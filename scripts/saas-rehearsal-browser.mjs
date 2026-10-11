@@ -21,9 +21,16 @@ const db=trust+'/pki/nssdb';await mkdir(db,{recursive:true,mode:0o700});
 execFileSync('certutil',['-N','-d','sql:'+db,'--empty-password']);
 execFileSync('certutil',['-A','-d','sql:'+db,'-t','C,,','-n','Dockling synthetic loopback CA','-i',privateDir+'tls/ca.pem']);
 const emptyTrust=await mkdtemp(privateDir+'browser-trust/untrusted-');
-const untrusted=await chromium.launch({headless:true,channel:'chromium',env:{...process.env,XDG_DATA_HOME:emptyTrust}});
+async function browserEnvironment(directory) {
+  // Unknown container UIDs have no usable home. Keep Chromium's crash/cache
+  // scratch private and writable without changing HOME or certificate trust.
+  await mkdir(directory+'/config',{recursive:true,mode:0o700});
+  await mkdir(directory+'/cache',{recursive:true,mode:0o700});
+  return {...process.env,XDG_DATA_HOME:directory,XDG_CONFIG_HOME:directory+'/config',XDG_CACHE_HOME:directory+'/cache'};
+}
+const untrusted=await chromium.launch({headless:true,channel:'chromium',env:await browserEnvironment(emptyTrust)});
 try {await assert.rejects(async()=>{const page=await untrusted.newPage();await page.goto(origin);},/ERR_CERT_AUTHORITY_INVALID/);} finally {await untrusted.close();}
-const browser=await chromium.launch({headless:true,channel:'chromium',env:{...process.env,XDG_DATA_HOME:trust}});
+const browser=await chromium.launch({headless:true,channel:'chromium',env:await browserEnvironment(trust)});
 assert(Number(browser.version().split('.')[0])>=146);
 const fixture=JSON.parse(await readFile(privateDir+'bootstrap.json','utf8'));
 const provisioned=process.argv.includes('--provisioned-workspaces');
