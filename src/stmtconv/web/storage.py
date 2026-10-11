@@ -35,6 +35,9 @@ class ObjectStore:
             verify=str(config.tls_ca_file) if config.tls_ca_file else True,
             config=Config(
                 signature_version="s3v4",
+                # Private service routing is explicit, like identity HTTP clients.
+                # Ambient shell proxies must not redirect storage requests.
+                proxies={},
                 s3={"addressing_style": "path"},
                 connect_timeout=3,
                 read_timeout=5,

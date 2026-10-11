@@ -239,6 +239,23 @@ def test_expired_server_certificate_is_rejected(tls_service):
     assert not ObjectStore(config).healthy()
 
 
+def test_private_storage_verifies_tls_without_ambient_proxy(tls_service, monkeypatch):
+    config, _, _ = tls_service
+    for name in (
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+    ):
+        monkeypatch.setenv(name, "http://127.0.0.1:9")
+    monkeypatch.setenv("NO_PROXY", "")
+    monkeypatch.setenv("no_proxy", "")
+    assert ObjectStore(config).healthy()
+    assert not ObjectStore(config.model_copy(update={"tls_ca_file": None})).healthy()
+
+
 def test_verified_preflight_and_fixed_failure_reports(tls_service, monkeypatch):
     config, state, _ = tls_service
     monkeypatch.setattr("stmtconv.web.staging.database_check", lambda _config: True)
