@@ -2,7 +2,6 @@
   "scope": "phase7_synthetic_engineering_evidence",
   "production_approval": "blocked",
   "public_host_provisioned": false,
-  "local_saas_full_suite_before_field_money_guard": 151,
   "final_field_tls_tests": 21,
   "original_converter_tests": 318,
   "frontend_unit_tests": 42,
@@ -201,5 +200,6 @@
     "observed_error": "OFX_SUMMARY",
     "date_guessed": false
   },
-  "github_ci": "pending_push"
+  "github_ci": "pending_push",
+  "local_saas_full_suite": 153
 }
