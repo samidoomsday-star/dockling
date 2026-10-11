@@ -201,10 +201,50 @@
     "date_guessed": false
   },
   "github_ci": {
-    "status": "in_progress",
-    "run_id": 38157252933,
-    "source_commit": "619270a82f041818fbf21573635f5bde04192bb6",
-    "url": "https://github.com/samidoomsday-star/dockling/actions/runs/38157252933",
+    "run_id": 38159876737,
+    "source_commit": "212cde6680a3ade2b1cbaba1558beb8d5e6360b7",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/samidoomsday-star/dockling/actions/runs/38159876737",
+    "finished_at": "2026-10-11T17:48:52Z",
+    "failed_steps": [],
+    "native_worker_release_gate": {
+      "critical": 1,
+      "high": 59,
+      "image_id": "sha256:f1d5b0bbeada1a0c4e71a00c0d7c515c4d9df6d07db8d62d9aad156058fdca51",
+      "release_gate": "blocked",
+      "scanner": "Trivy 0.75.0",
+      "scanner_archive_sha256": "c6e65abddb348e25f10549df887045629cf28cc72453cd1c63acb717316b3f3f",
+      "scope": "Final worker filesystem including native and vendored packages; independent review and other services remain separate.",
+      "unfixed": 60
+    },
+    "real_https_browser_journey": "passed",
+    "https_six_case_sweep": "passed",
+    "observed_passed_test_counts": [
+      156,
+      318
+    ],
+    "earlier_runs": [
+      {
+        "run_id": 38157252933,
+        "source_commit": "619270a82f041818fbf21573635f5bde04192bb6",
+        "conclusion": "failure",
+        "failed_step": "isolated HTTPS browser",
+        "saas_tests_passed": 156,
+        "converter_tests_passed": 318,
+        "https_six_case_sweep": "passed",
+        "ordinary_accounts_billing_recovery_backup": "passed"
+      },
+      {
+        "run_id": 38158938590,
+        "source_commit": "740a5dbcd389ddc3e0b2732aebeb4b12265a20f1",
+        "conclusion": "failure",
+        "failed_step": "isolated HTTPS browser",
+        "saas_tests_passed": 156,
+        "converter_tests_passed": 318,
+        "https_six_case_sweep": "passed"
+      }
+    ],
     "prior_failed_runs_not_counted_as_passed": true
   },
   "local_saas_full_suite": 156,
@@ -215,5 +255,119 @@
     "publication_approval": "not_given",
     "runbook": "docs/saas/PHASE8-PILOT.md"
   },
-  "real_https_browser_source_commit": "619270a82f041818fbf21573635f5bde04192bb6"
+  "real_https_browser_source_commit": "212cde6680a3ade2b1cbaba1558beb8d5e6360b7",
+  "fresh_ci_native_release_gate": {
+    "critical": 1,
+    "high": 59,
+    "image_id": "sha256:f1d5b0bbeada1a0c4e71a00c0d7c515c4d9df6d07db8d62d9aad156058fdca51",
+    "release_gate": "blocked",
+    "scanner": "Trivy 0.75.0",
+    "scanner_archive_sha256": "c6e65abddb348e25f10549df887045629cf28cc72453cd1c63acb717316b3f3f",
+    "scope": "Final worker filesystem including native and vendored packages; independent review and other services remain separate.",
+    "unfixed": 60
+  },
+  "fresh_ci_six_input_acceptance": {
+    "scope": "synthetic_loopback_https_acceptance",
+    "status": "passed",
+    "checked_at_utc": "2026-10-11T17:43:10Z",
+    "launch_approval": "not_assessed",
+    "real_accounting_imports": "not_run",
+    "required_cases": "complete",
+    "observed_worker_peak_since_start_mib": 1640.9,
+    "cases": [
+      {
+        "case": "text",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.588,
+        "conversion_enqueue_to_finish_seconds": 3.58,
+        "total_flow_seconds": 16.501,
+        "live_removal": "verified"
+      },
+      {
+        "case": "different",
+        "raw_extraction_exact_rows": 6,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 6,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.072,
+        "conversion_enqueue_to_finish_seconds": 3.58,
+        "total_flow_seconds": 15.597,
+        "live_removal": "verified"
+      },
+      {
+        "case": "scan",
+        "raw_extraction_exact_rows": 1,
+        "raw_extraction_mismatches": {
+          "description": 1
+        },
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 1,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.642,
+        "conversion_enqueue_to_finish_seconds": 21.51,
+        "total_flow_seconds": 34.448,
+        "live_removal": "verified"
+      },
+      {
+        "case": "encrypted",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.073,
+        "conversion_enqueue_to_finish_seconds": 3.581,
+        "total_flow_seconds": 19.2,
+        "live_removal": "verified"
+      },
+      {
+        "case": "photo",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": 144,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.58,
+        "conversion_enqueue_to_finish_seconds": 20.988,
+        "total_flow_seconds": 33.804,
+        "live_removal": "verified"
+      },
+      {
+        "case": "combined",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": 216,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.582,
+        "conversion_enqueue_to_finish_seconds": 26.127,
+        "total_flow_seconds": 38.945,
+        "live_removal": "verified"
+      }
+    ]
+  },
+  "frontend_ci": {
+    "run_id": 38146057041,
+    "source_commit": "8d8003023ef26f48efdd29253be6b956088e8801",
+    "conclusion": "success",
+    "url": "https://github.com/samidoomsday-star/dockling/actions/runs/38146057041",
+    "frontend_source_unchanged_since_verified_commit": true
+  }
 }
