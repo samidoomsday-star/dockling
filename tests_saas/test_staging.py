@@ -18,6 +18,7 @@ from uuid import uuid4
 
 import httpx
 import pytest
+import yaml
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -562,7 +563,9 @@ def test_rehearsal_init_preserves_material_and_isolates_config(tmp_path, monkeyp
     assert module.rehearsal_config(owner=True).mode == "production"
     assert (module.PRIVATE / "tls/server.key").stat().st_mode & 0o777 == 0o640
     assert (module.PRIVATE / "server.env").stat().st_mode & 0o777 == 0o600
+    (module.PRIVATE / "tls").chmod(0o700)
     module.initialize()
+    assert (module.PRIVATE / "tls").stat().st_mode & 0o777 == 0o755
     after = {
         str(p.relative_to(module.PRIVATE)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in module.PRIVATE.rglob("*")
@@ -626,6 +629,80 @@ def test_rehearsal_public_tls_readable_by_container_user_under_private_umask(tmp
         timeout=60,
     )
     assert result.returncode == 0, result.stderr.decode()
+
+
+def test_rehearsal_storage_tls_key_supports_different_host_uid(tmp_path):
+    module = rehearsal_module(tmp_path)
+    module.initialize()
+    public = module.PRIVATE / "tls"
+    # GitHub's host UID differs from the storage image's fixed service UID.
+    subprocess.run(
+        [
+            "docker",
+            "run",
+            "--rm",
+            "--network",
+            "none",
+            "--mount",
+            f"type=bind,src={public},dst=/certs",
+            "python@sha256:44ff437bba879d4941b710a369a8f19266aea34b29002807f0c487fabc9eec9b",
+            "python",
+            "-c",
+            "import os; os.chown('/certs/server.key', 1001, 1001)",
+        ],
+        check=True,
+        capture_output=True,
+        timeout=60,
+    )
+    assert (public / "server.key").stat().st_uid == 1001
+    spec = yaml.safe_load(Path("compose.staging-rehearsal.yaml").read_text())["services"]["storage"]
+    name = "dockling-storage-tls-test-" + uuid4().hex
+    command = [
+        "docker",
+        "run",
+        "--detach",
+        "--name",
+        name,
+        "--publish",
+        "127.0.0.1::8443",
+        "--tmpfs",
+        "/data:rw,size=256m",
+        "--mount",
+        f"type=bind,src={public},dst=/certs,readonly",
+        "--mount",
+        f"type=bind,src={module.PRIVATE / 's3.json'},dst=/etc/seaweedfs/s3.json,readonly",
+    ]
+    entrypoint = spec.get("entrypoint", [])
+    if entrypoint:
+        command.extend(["--entrypoint", entrypoint[0]])
+    command.extend([spec["image"], *entrypoint[1:], *spec["command"]])
+    try:
+        subprocess.run(command, check=True, capture_output=True, timeout=60)
+        binding = json.loads(
+            subprocess.check_output(
+                ["docker", "inspect", "--format", "{{json .NetworkSettings.Ports}}", name],
+                text=True,
+            )
+        )["8443/tcp"][0]
+        keys = json.loads((module.PRIVATE / "bootstrap.json").read_text())["keys"]
+        config = settings("https://localhost:" + binding["HostPort"], public / "ca.pem").model_copy(
+            update={
+                "s3_access_key": SecretStr(keys["s3_access"]),
+                "s3_secret_key": SecretStr(keys["s3_secret"]),
+            }
+        )
+        store = ObjectStore(config)
+        deadline = time.monotonic() + 35
+        while time.monotonic() < deadline:
+            try:
+                store.probe()
+                break
+            except Exception:
+                time.sleep(0.5)
+        else:
+            pytest.fail("Fresh private TLS storage must support a different host key owner")
+    finally:
+        subprocess.run(["docker", "rm", "--force", name], capture_output=True, timeout=30)
 
 
 def test_observed_import_requires_all_values_and_expected_rows():

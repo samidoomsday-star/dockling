@@ -41,7 +41,15 @@ services:
       postgres: {condition: service_healthy}
   storage:
     image: chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
-    command: [server, "-ip=127.0.0.1", "-ip.bind=0.0.0.0", "-dir=/data", "-volume.max=32", "-master.volumeSizeLimitMB=64", -filer, -s3, "-s3.config=/etc/seaweedfs/s3.json", "-s3.port.https=8443", "-s3.cert.file=/certs/server.pem", "-s3.key.file=/certs/server.key"]
+    entrypoint: [/bin/sh, -c]
+    command:
+      - >-
+        cp /certs/server.key /tmp/server.key &&
+        chown seaweed:seaweed /tmp/server.key && chmod 600 /tmp/server.key &&
+        exec /entrypoint.sh server -ip=127.0.0.1 -ip.bind=0.0.0.0 -dir=/data
+        -volume.max=32 -master.volumeSizeLimitMB=64 -filer -s3
+        -s3.config=/etc/seaweedfs/s3.json -s3.port.https=8443
+        -s3.cert.file=/certs/server.pem -s3.key.file=/tmp/server.key
     ports: ["127.0.0.1:8445:8443"]
     volumes:
       - staging-storage:/data

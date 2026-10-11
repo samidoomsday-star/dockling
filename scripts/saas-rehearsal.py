@@ -136,6 +136,9 @@ def initialize() -> None:
     if marker.is_file():
         if json.loads(marker.read_text()) != {"scope": "synthetic_loopback_only", "version": 1}:
             raise ValueError("Unexpected rehearsal scope")
+        directory = PRIVATE / "tls"
+        if directory.is_symlink() or not directory.is_dir():
+            raise ValueError("Restore matched TLS directory; do not replace keys")
         for name in [
             "bootstrap.json",
             "server.env",
@@ -150,6 +153,8 @@ def initialize() -> None:
             path = PRIVATE / name
             if path.is_symlink() or not path.is_file():
                 raise ValueError("Restore matched rehearsal material; do not replace keys")
+        # Repair only public directory traversal from an earlier restrictive umask.
+        directory.chmod(0o755)
         print("Existing rehearsal configuration and keys preserved.")
         return
     if PRIVATE.exists():
