@@ -132,7 +132,37 @@
     "native_imports": "passed",
     "active_runtime_changed": false
   },
-  "github_ci": "pending_push",
+  "github_ci": {
+    "run_id": 38190308098,
+    "source_commit": "eb5222a0162870b1003c27aadab3afb34b84b5bd",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/samidoomsday-star/dockling/actions/runs/38190308098",
+    "finished_at": "2026-10-12T01:21:51Z",
+    "failed_steps": [],
+    "real_https_browser_journey": "passed",
+    "https_six_case_sweep": "passed",
+    "observed_passed_test_counts": [
+      164,
+      318
+    ],
+    "native_worker_release_gate": {
+      "coverage": {
+        "os": "ubuntu",
+        "os_packages": 145,
+        "os_version": "24.04",
+        "python_packages": 145
+      },
+      "critical": 0,
+      "high": 0,
+      "image_id": "sha256:3a9a255dfffee9bb39ed6723c243f6fc3777b78753cc5f9f6bbd1755779364da",
+      "release_gate": "passed",
+      "scanner": "Trivy 0.75.0",
+      "scanner_archive_sha256": "c6e65abddb348e25f10549df887045629cf28cc72453cd1c63acb717316b3f3f",
+      "scope": "Final worker filesystem including native and vendored packages; independent review and other services remain separate.",
+      "unfixed": 0
+    }
+  },
   "public_host_provisioned": false,
   "paying_pilot_launched": false,
   "remaining": [
