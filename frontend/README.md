@@ -1,18 +1,26 @@
 # Dockling web frontend
 
-**Real SaaS foundation:** `saas-phase-1` now provides OIDC sign-in, saved job metadata, workspace isolation and owner team tools. Follow [the setup guide](../docs/saas/LOCAL-SETUP.md) and build with `npm run build:api`. The description below applies to the separate explicit demo. Upload/conversion/review/hosted BYOK/billing are not connected yet.
+**Current real app: `saas-phase-7`, including Phase 8 worker security fixes.** This React/TypeScript/Vite frontend has two explicit modes:
 
+| Mode | Setup | Behavior |
+|---|---|---|
+| Real local app | [Windows guide](../docs/saas/WINDOWS-TESTING.md) / [full local setup](../docs/saas/LOCAL-SETUP.md); `npm run build:api` served by the Python API | Actual sign-in, private uploads, conversion, review/exports/removal, BYOK/model/effort setup, owner/team/account/manual-billing/operations tools |
+| Separate UI demo | Node only; `npm run dev` or `run-web.bat` | Fictional interactive screens, no actual authentication or document processing |
+
+The real app needs Linux x86_64/Python 3.12, Node 24.15+ within 24, Docker/Compose, private PostgreSQL/storage/identity and its restricted Ubuntu worker. Windows uses WSL 2 Ubuntu 24.04/Docker Desktop integration and still needs receiving-device verification. No hosting or LLM key is needed for initial real local tests. Online checkout, external email and public hosting remain unconfigured.
+
+## Separate UI demo
 
 An interactive, responsive **Stage B preview**, with customer self-service and owner/admin screens. Forest teal, peach, dusty blue and lavender follow the approved visual plan. This folder does not replace the Python converter.
 
 **Everything uses synthetic fixtures by default.** No real upload/OCR, login, secret storage, model request, payment or hosting occurs. State is held in memory and resets on reload. Never select real client files or enter real keys here. Reference downloads are fixed synthetic files generated with the original Python writers; they do not reflect selected documents or UI edits.
 
-## Run on your own computer
+## Run the demo on your own computer
 
-Clone the frontend branch (it includes the completed Python work and design documents):
+Use the current branch; the separate demo remains available in the same clone:
 
 ```text
-git clone --branch web-frontend https://github.com/samidoomsday-star/dockling.git
+git clone --branch saas-phase-7 https://github.com/samidoomsday-star/dockling.git
 ```
 
 Install **64-bit Node.js 24 LTS, version 24.15 or newer within version 24**, from [nodejs.org](https://nodejs.org/en/download). Version 24.19.0 was tested here. Reopen your terminal after installation. This frontend preview needs no Python, OCR models, database or API key.
@@ -41,7 +49,7 @@ Use the address Vite prints in **your own local terminal**. The dev server binds
 2. Edit the café row: change Debit from **12.59** to **12.50**. Stage the change, then **Save staged changes**.
 3. Open **Checks**. Compare both rows with the source, tick them and add a note. **Record source check**.
 4. Open **Exports**, prepare the preview package and download fixed reference files.
-5. Explore **New conversion**, **AI connections**, **Categories** and **Settings**. AI connections support custom HTTPS URLs, manual model IDs and capability-bound effort choices. Keys and actual provider tests require the backend.
+5. Explore **New conversion**, **AI connections**, **Categories** and **Settings**. AI connections support custom HTTPS URLs, manual model IDs and capability-bound effort choices. Keys and actual provider tests require the real API-mode app; the demo never handles real credentials.
 6. Switch **Preview role** to **Owner / admin** to inspect profiles, pricing and health controls. This selector is not security.
 7. Try **Data & privacy** removal, including the simulated partial failure and retry. Certificates clearly describe preview-only memory removal.
 
@@ -65,18 +73,18 @@ This runs ESLint, Prettier, TypeScript/build, adapter tests and Chromium browser
 
 The original Python gate remains `python scripts/check.py` with the project venv interpreter. Rebuild reference downloads with `python scripts/build-web-samples.py`; the script checks four CSV goldens and uses production Excel/OFX writers. Generated assets contain fictional data only. Actual Excel/accounting import acceptance remains separate.
 
-## Future API integration
+## Real API integration
 
-`Api` in `src/lib/types.ts` separates the demo store from same-origin HTTP integration. Setting `VITE_APP_MODE=api` selects `HttpApi`; a failed or malformed response produces an error, **never fixture fallback**. Any other mode value fails startup. This adapter is an integration contract, not a running backend. Real upload transport and streaming worker progress are not implemented.
+`frontend/.env.saas` selects `VITE_APP_MODE=api`, which renders `FoundationApp` with the real authenticated APIs. The older generic `Api`/`HttpApi` interface belongs to the demo contract; it is not the current app's setup route. API failures produce errors, never demo fixtures. Session/role/revision/CSRF and financial/source/privacy checks are enforced by the server. Uploads, secrets, database/storage access and provider requests do not belong in Vite environment variables or a static client bundle.
 
-The future server must implement `/api/v1/workspace`, job create/process/review/spotcheck/consent/AI-source/exports/close, connections, rules and settings. Workspace responses must match the runtime schemas and include an authenticated `X-CSRF-Token` header; mutations send it with same-origin credentials. The server must enforce authentication, authorization, CSRF, revisions, financial checks and all privacy/AI gates independently of the browser. Credentials and session tokens must not be stored in localStorage. Uploaded files and keys must never be added to Vite environment variables or the client bundle.
+The SaaS installer builds with `npm run build:api`; the Python API serves this bundle and refuses a demo build. **`npm run check` includes the demo build and overwrites that output.** After demo checks, run `npm run build:api --prefix frontend` from the repository root and restart the ordinary API before real browser tests or owner testing. This is required even if every demo check passes.
 
-Stages C/D connect the existing Python services and add secure accounts/private storage/worker behavior. Stage E selects and tests hosting. A static frontend host alone does not run OCR or make this ready for real customers. Use synthetic data until those stages and real-layout/import checks pass.
+A static frontend host alone does not run the API, identity, OCR worker or private storage. Actual staging follows [the hosting handoff](../deploy/staging/README.md); local HTTPS rehearsal does not provision a public server. Use fictional data until security/licensing/host/field release gates are satisfied.
 
 ## Sending this to Kilo Code or another assistant
 
-> Set up the `web-frontend` branch of https://github.com/samidoomsday-star/dockling on this device. Read AGENTS.md, frontend/AGENTS.md, frontend/README.md and docs/DEVICE_SETUP.md. Preserve existing work and private settings. Install a compatible Node 24 LTS and run npm ci in frontend. Install Playwright Chromium, run npm run check, start the preview and guide me through the synthetic correction/source-check/export journey. Explain each owner action plainly. Do not mistake the demo for real OCR/authentication, collect my keys in the browser, merge main or publicly deploy. If I also request the existing Python converter, follow the separate device guide and verify its models/full gate/selftest. Report actual device results and unrun checks separately.
+For the actual app, copy the prompt in [WINDOWS-TESTING.md](../docs/saas/WINDOWS-TESTING.md#2-copy-this-prompt-into-your-local-assistant) or [DEVICE_SETUP.md](../docs/DEVICE_SETUP.md). Those cover the current branch, API/worker setup, verification, private login and safe stop/resume.
 
-## Real Phase 2 app
+For screens only:
 
-On `saas-phase-2`, follow [the SaaS setup guide](../docs/saas/LOCAL-SETUP.md) for real sign-in, uploads, CPU text/OCR conversion and source-linked results. `npm run build:api` is served by the Python API; it requires PostgreSQL/private storage/identity plus a separate restricted Linux worker. Windows uses the documented WSL/Docker route, which still needs device verification. `npm run dev` remains the separate fictional demo. Hosted editing/exports/BYOK/billing are later phases; keep the operating-mode labels visible.
+> Set up the explicit UI demo on the saas-phase-7 branch of https://github.com/samidoomsday-star/dockling on this device. Read AGENTS.md, frontend/AGENTS.md and frontend/README.md. Preserve existing work/private settings. Install Node 24.15+ within 24, run npm ci in frontend and start npm run dev -- --open. Guide me through the fictional review/export journey and clearly explain that it does not process files or sign in. Do not collect keys, merge main or publicly deploy. If you run npm check, install Chromium first and restore the API build afterward if the real app is also installed. Report actual device results separately.

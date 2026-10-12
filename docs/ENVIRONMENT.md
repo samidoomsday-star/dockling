@@ -1,4 +1,6 @@
-# Installation and updates
+# Python operator installation and updates
+
+**For the current real web app, start with [WINDOWS-TESTING.md](saas/WINDOWS-TESTING.md) on Windows or [LOCAL-SETUP.md](saas/LOCAL-SETUP.md) on Linux.** This file covers the separate Python/Excel workflow; its native Windows steps and smaller disk allowance do not build the SaaS worker. Current development is on `saas-phase-7`, including Phase 8 worker security fixes; the older Python-only branch below is historical.
 
 For an assistant to perform setup on your other device, start with [DEVICE_SETUP.md](DEVICE_SETUP.md). It provides a copyable request and the checks to complete automatically using the commands below.
 

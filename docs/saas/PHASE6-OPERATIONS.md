@@ -2,6 +2,8 @@
 
 Engineering implementation is on `saas-phase-6`, including every earlier SaaS phase. **The production acceptance gate remains blocked.** This is a tested local development version, not permission to accept real statements or a promise of certified security.
 
+**Current setup note (12 October 2026):** Use `saas-phase-7` and [LOCAL-SETUP.md](LOCAL-SETUP.md). The Debian runtime and 59-high/one-critical findings below are historical Phase 6 evidence, superseded by [Phase 8 Ubuntu worker remediation](PHASE8-SECURITY-REMEDIATION.md). Its exact-image strict gate passes with zero high/critical findings; independent review, licensing, other-service scans and actual hosted/field acceptance still remain. The operating and quiesced recovery procedures below continue to apply.
+
 ## What changed
 
 The administrator's Operations and recovery panel shows anonymous queue counts, failures, incomplete removals, uncertain AI outcomes and backup/restore dates. It requires fresh MFA on every read. Fixed alerts contain no customer names, document text, money, account IDs, secrets or object paths. The browser refreshes these signals every 15 seconds; someone must watch this panel or connect an approved host monitor later. No email or external alert delivery is enabled.
