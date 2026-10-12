@@ -2,7 +2,7 @@
 
 Dockling now has a browser app: customers sign in, upload statements, review rows against source pages, download six output formats and request removal. Owners manage accounts, limits, optional BYOK connections, manual invoice evidence and scoped support. This guide explains how to turn the tested engineering version into a small, observable pilot.
 
-**Current result: pilot preparation is ready; customer launch is blocked.** The recorded native scan has one critical and 59 high findings. A public host and permitted field/import tests have not been completed. Nothing in this guide authorizes spending, invitations, publication or real document processing. Full Phase 8 needs an actual pilot cycle; see [its task](../tasks/saas-phase-8.md).
+**Current result: pilot preparation is ready and the tested worker advisory gate passes with zero high/critical findings.** See [the security remediation](PHASE8-SECURITY-REMEDIATION.md). Independent review, licensing, a public host and permitted field/import tests have not been completed; customer launch remains pending. Nothing in this guide authorizes spending, invitations, publication or real document processing. Full Phase 8 needs an actual pilot cycle; see [its task](../tasks/saas-phase-8.md).
 
 ## What you need to decide
 

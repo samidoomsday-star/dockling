@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 import tarfile
 from pathlib import Path
@@ -52,6 +53,38 @@ def scanner(local):
     return binary
 
 
+def scan_coverage(report, image_id):
+    metadata = report.get("Metadata", {})
+    os_info = metadata.get("OS", {})
+    family = os_info.get("Family")
+    if (
+        report.get("SchemaVersion") != 2
+        or report.get("ArtifactType") != "container_image"
+        or metadata.get("ImageID") != image_id
+        or family not in {"debian", "ubuntu"}
+        or not os_info.get("Name")
+        or os_info.get("EOSL") is True
+    ):
+        raise ValueError("Image identity or supported OS scan evidence is unavailable")
+    native = []
+    python = []
+    for result in report.get("Results", []):
+        if result.get("Class") == "os-pkgs" and result.get("Type") == family:
+            native.extend(result.get("Packages") or [])
+        if result.get("Class") == "lang-pkgs" and result.get("Type") == "python-pkg":
+            python.extend(result.get("Packages") or [])
+    if not native or not {"docling", "torch", "opencv-python"}.issubset(
+        {package.get("Name") for package in python}
+    ):
+        raise ValueError("Native and core Python package scan coverage is unavailable")
+    return {
+        "os": family,
+        "os_version": os_info["Name"],
+        "os_packages": len(native),
+        "python_packages": len(python),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -59,7 +92,21 @@ def main():
         action="store_true",
         help="Record findings for development CI; never declares the release gate passed",
     )
+    parser.add_argument(
+        "--image",
+        default="dockling-worker:phase2",
+        help="Local worker image to scan; resolved to an immutable image ID",
+    )
     args = parser.parse_args()
+    selected = subprocess.run(
+        ["docker", "image", "inspect", args.image, "--format", "{{.Id}}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    image_id = selected.stdout.strip()
+    if selected.returncode != 0 or not re.fullmatch(r"sha256:[a-f0-9]{64}", image_id):
+        raise ValueError("Local worker image identity is unavailable")
     local = ROOT / ".local-saas"
     local.mkdir(mode=0o700, exist_ok=True)
     binary = scanner(local)
@@ -77,13 +124,14 @@ def main():
                 "--severity",
                 "HIGH,CRITICAL",
                 "--skip-java-db-update",
+                "--list-all-pkgs",
                 "--format",
                 "json",
                 "--output",
                 str(output),
                 "--cache-dir",
                 str(local / "trivy-cache"),
-                "dockling-worker:phase2",
+                image_id,
             ],
             cwd=ROOT,
             stdout=private_log,
@@ -92,6 +140,7 @@ def main():
     if result.returncode != 0:
         raise ValueError("Image scan unavailable; no clean-scan claim")
     report = json.loads(output.read_text())
+    coverage = scan_coverage(report, image_id)
     findings = [v for r in report.get("Results", []) for v in r.get("Vulnerabilities", []) or []]
     high = sum(v["Severity"] == "HIGH" for v in findings)
     critical = sum(v["Severity"] == "CRITICAL" for v in findings)
@@ -104,6 +153,7 @@ def main():
         "critical": critical,
         "unfixed": sum(not v.get("FixedVersion") for v in findings),
         "scope": "Final worker filesystem including native and vendored packages; independent review and other services remain separate.",
+        "coverage": coverage,
     }
     (local / "worker-security-summary.json").write_text(json.dumps(summary, indent=2))
     output.chmod(0o600)

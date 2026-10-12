@@ -1,6 +1,6 @@
 # Staging and field validation
 
-The app now has a separate HTTPS test environment and a repeatable way to record field results. This prepares a real server; it does not create a public URL. See `docs/tasks/saas-phase-7.md` for scope and acceptance status.
+The app now has a separate HTTPS test environment and a repeatable way to record field results. This prepares a real server; it does not create a public URL. See `docs/tasks/saas-phase-7.md` for scope and acceptance status. Later [Phase 8 security remediation](PHASE8-SECURITY-REMEDIATION.md) replaces the historically blocked Debian worker with a locally verified Ubuntu runtime whose strict high/critical advisory gate passes. The observed Phase 7 image findings below remain historical evidence.
 
 ## What changed
 

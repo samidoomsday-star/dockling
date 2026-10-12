@@ -1,0 +1,147 @@
+{
+  "scope": "phase8_worker_security_remediation",
+  "worker_advisory_gate": {
+    "coverage": {
+      "os": "ubuntu",
+      "os_packages": 145,
+      "os_version": "24.04",
+      "python_packages": 145
+    },
+    "critical": 0,
+    "high": 0,
+    "image_id": "sha256:d07ce26dd8d04f3960cfc332ca1b2c751a67346ff0dac721188abab6ab84bf8c",
+    "release_gate": "passed",
+    "scanner": "Trivy 0.75.0",
+    "scanner_archive_sha256": "c6e65abddb348e25f10549df887045629cf28cc72453cd1c63acb717316b3f3f",
+    "scope": "Final worker filesystem including native and vendored packages; independent review and other services remain separate.",
+    "unfixed": 0
+  },
+  "base_registry_digest": "sha256:f610ab94648195aa356059f5b41d6085c9d4d903c072430cdd1af7bdb646106b",
+  "worker_python": "Ubuntu vendor-maintained Python 3.12 (observed 3.12.3)",
+  "local_saas_tests": 164,
+  "focused_gate_regressions": 8,
+  "negative_gate_cases_failed_before_fix": 6,
+  "native_imports": "passed",
+  "candidate_and_accepted_package_inventories_identical": true,
+  "candidate_six_input_acceptance": {
+    "scope": "synthetic_loopback_https_acceptance",
+    "status": "passed",
+    "checked_at_utc": "2026-10-12T00:39:29Z",
+    "launch_approval": "not_assessed",
+    "real_accounting_imports": "not_run",
+    "required_cases": "complete",
+    "observed_worker_peak_since_start_mib": 1579.3,
+    "cases": [
+      {
+        "case": "text",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.078,
+        "conversion_enqueue_to_finish_seconds": 3.081,
+        "total_flow_seconds": 14.529,
+        "live_removal": "verified"
+      },
+      {
+        "case": "different",
+        "raw_extraction_exact_rows": 6,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 6,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.077,
+        "conversion_enqueue_to_finish_seconds": 3.087,
+        "total_flow_seconds": 14.428,
+        "live_removal": "verified"
+      },
+      {
+        "case": "scan",
+        "raw_extraction_exact_rows": 1,
+        "raw_extraction_mismatches": {
+          "description": 1
+        },
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 1,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.077,
+        "conversion_enqueue_to_finish_seconds": 20.495,
+        "total_flow_seconds": 31.881,
+        "live_removal": "verified"
+      },
+      {
+        "case": "encrypted",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": null,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 2.598,
+        "conversion_enqueue_to_finish_seconds": 2.563,
+        "total_flow_seconds": 17.517,
+        "live_removal": "verified"
+      },
+      {
+        "case": "photo",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": 144,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.078,
+        "conversion_enqueue_to_finish_seconds": 20.522,
+        "total_flow_seconds": 32.34,
+        "live_removal": "verified"
+      },
+      {
+        "case": "combined",
+        "raw_extraction_exact_rows": 2,
+        "raw_extraction_mismatches": {},
+        "raw_summary_missing_fields": [],
+        "generated_image_dpi": 216,
+        "synthetic_ground_truth_corrected_rows": 0,
+        "reviewed_exact_rows": 2,
+        "outputs": 6,
+        "intake_enqueue_to_finish_seconds": 3.083,
+        "conversion_enqueue_to_finish_seconds": 25.677,
+        "total_flow_seconds": 37.552,
+        "live_removal": "verified"
+      }
+    ]
+  },
+  "real_https_browser_journey": "passed",
+  "worker_isolation": "passed",
+  "rejected_bookworm_candidate": {
+    "candidate": "official_python_3.12.14_slim_bookworm",
+    "image_id": "sha256:efbd5587cd0dc24e7cc25c71508cb08f632c854e1ee83c6612c3b4e50cb95184",
+    "decision": "rejected",
+    "high": 71,
+    "critical": 4,
+    "unfixed": 75,
+    "native_imports": "passed",
+    "active_runtime_changed": false
+  },
+  "github_ci": "pending_push",
+  "public_host_provisioned": false,
+  "paying_pilot_launched": false,
+  "remaining": [
+    "independent_security_review",
+    "other_deployed_service_scans",
+    "complete_dependency_model_terms",
+    "selected_host_TLS_capacity_monitoring_recovery",
+    "permitted_field_samples_actual_imports",
+    "approved_country_budget_contact_retention_offer",
+    "actual_paid_pilot_cycle"
+  ]
+}
